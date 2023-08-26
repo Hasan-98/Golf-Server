@@ -1,9 +1,13 @@
 'use strict';
 
 import User from './user'
+import Reply from './reply';
+import Comment from './comment';
+import Event from './event';
 const env = "development";
 const config = require(__dirname + '/../config/config.js')[env];
 import { Sequelize } from "sequelize";
+import like from './like';
 
 const sequelize : Sequelize = new Sequelize(
     config.database,
@@ -23,7 +27,11 @@ sequelize.sync();
   })();
 
 const models = { 
-    User: User(sequelize ) ,
+    User: User(sequelize ),
+    Comment: Comment(sequelize),
+    Event: Event(sequelize),
+    Reply: Reply(sequelize),
+    Like: like(sequelize),
 };
 
 

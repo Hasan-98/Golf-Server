@@ -1,6 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { IUserAttributes } from '../interfaces/user.interface';
-
 export default (sequelize: Sequelize) => {
   class User extends Model<IUserAttributes> implements IUserAttributes {
     id!: number;
@@ -11,7 +10,11 @@ export default (sequelize: Sequelize) => {
     // ...
 
     static associate(models: any) {
-      // define association here
+      User.hasMany(models.Event, { foreignKey: 'creatorId', as: 'createdEvents' });
+      User.belongsToMany(models.Event, { through: 'UserEvent', as: 'participatedEvents' });
+      User.hasMany(models.Comment, { foreignKey: 'userId', as: 'comments' });
+      User.hasMany(models.Reply, { foreignKey: 'userId', as: 'replies' });
+      User.hasMany(models.Like, { foreignKey: 'userId', as: 'likes' });
     }
   }
 

@@ -1,0 +1,34 @@
+export interface IEventAttributes {
+    id?: number;
+    eventType?: string;
+    eventName?: string;
+    imageUrl?: string;
+    eventDetails?: string;
+    eventVideoUrl?: string;
+    location?: string;
+    startTime?: string;
+    startDate?: string;
+    endTime?: string;
+    endDate?: string;
+    totalParticipants?: number;
+    participationFee?: number;
+    feeDetail?: string;
+    isCredit?: boolean;
+    isDebit?: boolean;
+    cancelDate?: string;
+    cancelTime?: string;
+    cancelDetail?: string; 
+    includeYou?: boolean;
+    publishEvent?: boolean;
+    hideParticipant?: boolean;
+    needApproval?: boolean;
+    needFullName?: boolean;
+    needTelephone?: boolean;
+    needEmail?: boolean;
+    needExtraKey1?: boolean;
+    needExtraKey2?: boolean;
+    needExtraKey3?: boolean;
+    extraKeyValue1?: boolean;
+    extraKeyValue2?: boolean;
+    extraKeyValue3?: boolean;
+  }
