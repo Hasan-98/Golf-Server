@@ -2,35 +2,43 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import { IEventAttributes } from '../interfaces/event.interface';
 export default (sequelize: Sequelize) => {
   class Event extends Model<IEventAttributes> implements IEventAttributes {
-    id!: number;
-    eventType!: string;
+    id?: number;
+    eventType?: string;
     eventName?: string;
     imageUrl?: string;
     eventDetails?: string;
     eventVideoUrl?: string;
-    location?: string;
-    startTime?: string;
-    startDate?: string;
-    endTime?: string;
-    endDate?: string;
-    totalParticipants?: number;
+    categories?: string;
+    place?: string;
+    placeCoordinates?: { lat: string; lng: string };
+    capacity?:number;
+    selfIncluded?: boolean;
+    eventStartDate?: string;
+    eventStartTime?: string;
+    eventEndDate?: string;
+    eventEndTime?: string;
+    recruitmentStartDate?: string;
+    recruitmentStartTime?: string;
+    eventDeadlineDate?: string;
+    eventDeadlineTime?: string;
+    matchType?: string;
+    paymentType?: string;
+    bankName?: string;
+    branchName?: string;
+    branchNumber?: number;
+    accountHolderName?: string;
+    accountNumber?: number;
+    paypalId?: string;
+    teamSize?: number;
     participationFee?: number;
-    feeDetail?: string;
-    isCredit?: boolean;
-    isDebit?: boolean;
-    cancelDate?: string;
-    cancelTime?: string;
-    cancelDetail?: string;
-    includeYou?: boolean;
-    publishEvent?: boolean;
-    hideParticipant?: boolean;
-    needApproval?: boolean;
-    needFullName?: boolean;
-    needTelephone?: boolean;
-    needEmail?: boolean;
-    needExtraKey1?: boolean;
-    needExtraKey2?: boolean;
-    needExtraKey3?: boolean;
+    isEventPublished?: boolean;
+    hideParticipantName?: boolean;
+    isRequiresApproval?: boolean;
+    scoringType?: string;
+    selectedHoles?: JSON;
+    shotsPerHoles?: JSON;
+    driverContest?: number;
+    nearPinContest?: number;
 
 
     static associate(models: any) {
@@ -59,151 +67,136 @@ export default (sequelize: Sequelize) => {
     },
     imageUrl: {
       type: DataTypes.STRING,
-      allowNull: false,
       field: 'image_url',
     },
     eventDetails: {
       type: DataTypes.STRING,
-      allowNull: false,
       field: 'event_details',
     },
     eventVideoUrl: {
       type: DataTypes.STRING,
-      allowNull: false,
       field: 'event_video_url',
     },
-    location: {
+    categories: {
       type: DataTypes.STRING,
-      allowNull: false,
-      field: 'location',
+      field: 'categories'
     },
-    startTime: {
+    place: {
       type: DataTypes.STRING,
-      allowNull: false,
-      field: 'start_time',
+      field: 'place',
     },
-    startDate: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'start_date',
+    placeCoordinates: {
+      type: DataTypes.JSON, // or DataTypes.JSON
+      field: 'place_coordinates',
     },
-    endDate: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'end_date',
+    capacity: {
+      type: DataTypes.INTEGER,
+      field: 'capacity',
     },
-    endTime: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'end_time',
+    selfIncluded: {
+      type: DataTypes.BOOLEAN,
+      field: 'self_included',
     },
-    totalParticipants: {
+    eventStartDate: {
       type: DataTypes.STRING,
-      allowNull: false,
-      field: 'total_participants',
+      field: 'event_start_date',
+    },
+    eventStartTime : {
+      type: DataTypes.STRING,
+      field: 'event_start_time',
+    },
+    eventEndDate : {
+      type: DataTypes.STRING,
+      field: 'event_end_date',
+    },
+    eventEndTime : {
+      type: DataTypes.STRING,
+      field: 'event_end_time',
+    },
+    recruitmentStartDate: {
+      type: DataTypes.STRING,
+      field: 'recruitment_start_date',
+    },
+    recruitmentStartTime: {
+      type: DataTypes.STRING,
+      field: 'recruitment_start_time',
+    },
+    eventDeadlineDate: {
+      type: DataTypes.STRING,
+      field: 'event_deadline_date',
+    },
+    eventDeadlineTime: {
+      type: DataTypes.STRING,
+      field: 'event_deadline_time',
+    },
+    matchType: {
+      type: DataTypes.STRING,
+      field: 'match_type',
+    },
+    paymentType: {
+      type: DataTypes.STRING,
+      field: 'payment_type',
+    },
+    bankName: {
+      type: DataTypes.STRING,
+      field: 'bank_name',
+    },
+    branchName: {
+      type: DataTypes.STRING,
+      field: 'branch_name',
+    },
+    accountHolderName: {
+      type: DataTypes.STRING,
+      field: 'account_holder_name',
+    },
+    accountNumber: {
+      type: DataTypes.INTEGER,
+      field: 'account_number'
+    },
+    paypalId: {
+      type: DataTypes.STRING,
+      field: 'paypal_id',
+    },
+    teamSize: {
+      type: DataTypes.INTEGER,
+      field: 'team_size'
     },
     participationFee: {
+      type: DataTypes.INTEGER,
+      field: 'participation_fee'
+    },
+    isEventPublished: {
+      type: DataTypes.BOOLEAN,
+      field: 'is_event_published',
+    },
+    hideParticipantName: {
+      type: DataTypes.BOOLEAN,
+      field: 'hide_participant_name',
+    },
+    isRequiresApproval: {
+      type: DataTypes.BOOLEAN,
+      field: 'is_requires_approval',
+    },
+    scoringType: {
       type: DataTypes.STRING,
-      allowNull: false,
-      field: 'participation_fee',
+      field: 'scoring_type',
     },
-    feeDetail: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'fee_detail',
+    selectedHoles: {
+      type: DataTypes.JSON,
+      field: 'selected_holes',
     },
-    isCredit: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'event_type',
+    shotsPerHoles: {
+      type: DataTypes.JSON,
+      field: 'shots_per_holes',
     },
-    isDebit: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'is_debit',
+    driverContest: {
+      type: DataTypes.INTEGER,
+      field: 'driver_contest',
     },
-    cancelDate: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'cancel_date',
-    },    
-    cancelTime: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'cancel_time',
-    },
-    cancelDetail: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      field: 'cancel_detail',
-    },
-
-    includeYou: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'include_you',
-    },
-    publishEvent: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'publish_event',
-    },
-    hideParticipant: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'hide_participant',
-    },
-    needApproval: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'need_approval',
-    },
-    needFullName: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'need_full_name',
-    },    
-    needTelephone: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'need_telephone',
-    },
-    needEmail: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'need_email',
-    },
-    needExtraKey1: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'need_extra_key_1',
-    },    
-    needExtraKey2: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'need_extra_key_2',
-    },
-    needExtraKey3: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'need_extra_key_3',
-    },
-    extraKeyValue1: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'extra_key_value_1',
-    },    
-    extraKeyValue2: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'extra_key_value_2',
-    },
-    extraKeyValue3: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      field: 'extra_key_value_3',
-    },
-    
+    nearPinContest: {
+      type: DataTypes.INTEGER,
+      field: 'near_pin_contest',
+    }
   }, {
     sequelize,
     modelName: 'Event',

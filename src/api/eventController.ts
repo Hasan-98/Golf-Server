@@ -2,19 +2,27 @@ import express, { RequestHandler }  from 'express';
 import jwt from 'jsonwebtoken';
 import {models} from "../models/index"
 
+import { v4 as uuidv4 } from 'uuid'; // for generating unique filenames
+import AWS from 'aws-sdk';
 
-// get list of previous created events 
+// Initialize AWS S3 with your credentials
+// const s3 = new AWS.S3({
+//   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//   region: process.env.AWS_REGION,
+// });
 // get event by id 
 // get event names
 
 export const createEvent: RequestHandler = async (req, res, next) => {
-  const creatorId = Number(req.query.creatorId);  
+  const id : any = req.query.id;  
   try {
-      const user = await models.User.findByPk(creatorId); 
+
+      const user = await models.User.findByPk(id); 
+      console.info(JSON.parse(JSON.stringify(user)))
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
     const event = await models.Event.create({
       ...req.body,
       creatorId: user.id,

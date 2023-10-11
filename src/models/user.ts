@@ -3,8 +3,7 @@ import { IUserAttributes } from '../interfaces/user.interface';
 export default (sequelize: Sequelize) => {
   class User extends Model<IUserAttributes> implements IUserAttributes {
     id!: number;
-    firstName!: string;
-    lastName!: string;
+    nickName!: string;
     email!: string;
     password!: string;
     // ...
@@ -24,8 +23,7 @@ export default (sequelize: Sequelize) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
+    nickName: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING
 

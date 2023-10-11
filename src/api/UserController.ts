@@ -5,7 +5,7 @@ import {models} from "../models/index"
 
 export const register : RequestHandler = async (req: any, res: any, next: any) => {
   const {
-    firstName, lastName, email, password
+    nickName, email, password
   } = req.body;
   const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-zA-Z]).{5,}$/;
   if (!passwordRegex.test(password)) {
@@ -18,10 +18,9 @@ export const register : RequestHandler = async (req: any, res: any, next: any) =
       return res.status(409).json({ message: 'User with email already exists!' });
     }
     const newUser = {
-      firstName,
-      lastName,
+      nickName,
       email,
-      password,
+      password
     };
     const savedCustomer = await models.User.create(newUser);
 
@@ -56,7 +55,7 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
       .status(400)
       .json({ message: 'Email or password does not match!' });
   }
-  const { firstName, lastName } = userWithEmail;
+  const { nickName } = userWithEmail;
   const jwtToken = jwt.sign(
     { id: userWithEmail.id, email: userWithEmail.email },
     'secret'
@@ -65,8 +64,7 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
   res.status(200).json({
     message: 'Welcome Back!',
     token: jwtToken,
-    firstName,
-    lastName
+    nickName
   });
 };
 export const userById: any = async (req: any, res: any) => {
