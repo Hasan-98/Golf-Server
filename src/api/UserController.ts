@@ -17,10 +17,15 @@ export const register : RequestHandler = async (req: any, res: any, next: any) =
     if (alreadyExistsUser) {
       return res.status(409).json({ message: 'User with email already exists!' });
     }
+    const token = jwt.sign(
+      { email },
+      'secret'
+    );
     const newUser = {
       nickName,
       email,
-      password
+      password,
+      token
     };
     const savedCustomer = await models.User.create(newUser);
 
@@ -55,16 +60,16 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
       .status(400)
       .json({ message: 'Email or password does not match!' });
   }
-  const { nickName } = userWithEmail;
-  const jwtToken = jwt.sign(
-    { id: userWithEmail.id, email: userWithEmail.email },
-    'secret'
-  );
+  const { nickName , token} = userWithEmail;
+  // const jwtToken = jwt.sign(
+  //   { id: userWithEmail.id, email: userWithEmail.email },
+  //   'secret'
+  // );
 
   res.status(200).json({
     message: 'Welcome Back!',
-    token: jwtToken,
-    nickName
+    nickName,
+    token
   });
 };
 export const userById: any = async (req: any, res: any) => {

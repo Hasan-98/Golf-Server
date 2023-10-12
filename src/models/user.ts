@@ -6,6 +6,7 @@ export default (sequelize: Sequelize) => {
     nickName!: string;
     email!: string;
     password!: string;
+    token!: string;
     // ...
 
     static associate(models: any) {
@@ -25,7 +26,8 @@ export default (sequelize: Sequelize) => {
     },
     nickName: DataTypes.STRING,
     email: DataTypes.STRING,
-    password: DataTypes.STRING
+    password: DataTypes.STRING,
+    token : DataTypes.STRING
 
   }, {
     sequelize,
