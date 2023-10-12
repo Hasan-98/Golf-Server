@@ -15,10 +15,11 @@ import AWS from 'aws-sdk';
 // get event names
 
 export const createEvent: RequestHandler = async (req, res, next) => {
-  const id : any = req.query.id;  
+  let userID : any= req.user;
+  userID = JSON.parse(JSON.stringify(userID))
   try {
 
-      const user = await models.User.findByPk(id); 
+      const user = await models.User.findByPk(userID.id); 
       console.info(JSON.parse(JSON.stringify(user)))
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
