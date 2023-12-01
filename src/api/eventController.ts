@@ -18,7 +18,6 @@ export const createEvent: RequestHandler = async (req, res, next) => {
   let userID : any= req.user;
   userID = JSON.parse(JSON.stringify(userID))
   try {
-
       const user = await models.User.findByPk(userID.id); 
       console.info(JSON.parse(JSON.stringify(user)))
     if (!user) {
@@ -40,6 +39,8 @@ export const createEvent: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const getEvent: RequestHandler = async (req, res, next) => {
+}
  export default {
     createEvent,
   }
