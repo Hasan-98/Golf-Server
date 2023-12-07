@@ -3,6 +3,7 @@ export interface IEventAttributes {
     eventType?: string;
     eventName?: string;
     imageUrl?: string;
+    video?: string;
     eventDetails?: string;
     eventVideoUrl?: string;
     categories?: string;

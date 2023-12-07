@@ -13,13 +13,16 @@ const s3 = new AWS.S3({
 
 // get event by id 
 // get event names
-
 export const createEvent: RequestHandler = async (req, res, next) => {
-  let userID : any= req.user;
-  userID = JSON.parse(JSON.stringify(userID))
+  let userID: any = req.user;
+  userID = JSON.parse(JSON.stringify(userID));
+
   try {
-      const {image} = req.body;
-      const user = await models.User.findByPk(userID.id); 
+    const { image, video, ...eventData } = req.body;
+    const user = await models.User.findByPk(userID.id);
+
+    // Upload image
+    const uploadedImage = await new Promise((resolve, reject) => {
       s3.upload(
         {
           Bucket: process.env.AWS_BUCKET_NAME as string,
@@ -29,21 +32,44 @@ export const createEvent: RequestHandler = async (req, res, next) => {
         },
         (error: any, data: any) => {
           if (error) {
-            res.status(500).json({ error: error });
+            reject(error);
           }
           if (data) {
-            console.log(data);
-            res.status(201).json({ image: data.Location });
+            resolve(data.Location);
           }
         }
       );
-      console.info(JSON.parse(JSON.stringify(user)))
+    });
+
+    // Upload video
+    const uploadedVideo = await new Promise((resolve, reject) => {
+      s3.upload(
+        {
+          Bucket: process.env.AWS_BUCKET_NAME as string,
+          Key: uuidv4() + '.mp4',
+          Body: video,
+          ACL: 'public-read',
+        },
+        (error: any, data: any) => {
+          if (error) {
+            reject(error);
+          }
+          if (data) {
+            resolve(data.Location);
+          }
+        }
+      );
+    });
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+
     const event = await models.Event.create({
-      ...req.body,
+      ...eventData,
       creatorId: user.id,
+      image: uploadedImage,
+      video: uploadedVideo,
     });
 
     if (event) {
