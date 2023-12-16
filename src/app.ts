@@ -13,7 +13,7 @@ import middlewares from './middlewares';
 import user from './router/router';
 
 const app :any= express();
-const jwtSecret = process.env.JWT_SECRET || 'test';
+const jwtSecret = process.env.JWT_SECRET || 'secret';
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(session({

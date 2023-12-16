@@ -2,7 +2,7 @@ export interface IEventAttributes {
     id?: number;
     eventType?: string;
     eventName?: string;
-    imageUrl?: string;
+    imageUrl?: JSON;
     video?: string;
     eventDetails?: string;
     eventVideoUrl?: string;

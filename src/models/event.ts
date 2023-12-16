@@ -5,7 +5,7 @@ export default (sequelize: Sequelize) => {
     id?: number;
     eventType?: string;
     eventName?: string;
-    imageUrl?: string;
+    imageUrl?: JSON;
     video?: string
     eventDetails?: string;
     eventVideoUrl?: string;
@@ -67,13 +67,13 @@ export default (sequelize: Sequelize) => {
       field: 'event_name',
     },
     imageUrl: {
-      type: DataTypes.STRING,
+      type: DataTypes.JSON,
       field: 'image_url',
     },
-    video: {
-      type: DataTypes.STRING,
-      field: 'video',
-    },
+    // video: {
+    //   type: DataTypes.STRING,
+    //   field: 'video',
+    // },
     eventDetails: {
       type: DataTypes.STRING,
       field: 'event_details',

@@ -60,22 +60,21 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
       .status(400)
       .json({ message: 'Email or password does not match!' });
   }
-  const { nickName , token} = userWithEmail;
-  // const jwtToken = jwt.sign(
-  //   { id: userWithEmail.id, email: userWithEmail.email },
-  //   'secret'
-  // );
+  const { nickName } = userWithEmail;
+  const jwtToken = jwt.sign(
+    { id: userWithEmail.id, email: userWithEmail.email },
+    'secret'
+  );
 
   res.status(200).json({
     message: 'Welcome Back!',
     nickName,
-    token
+    jwtToken
   });
 };
 export const userById: any = async (req: any, res: any) => {
   try {
     const { id } = req.params;
-
     const foundUser = await models.User.findOne({ where: { id } });
 
     if (!foundUser) {
