@@ -33,7 +33,7 @@ export const createEvent: RequestHandler = async (req, res, next) => {
       const params = {
         Bucket: BUCKET_NAME,
         Key: name,
-        Body: Buffer.from(base64Image, 'base64'),
+        Body: Buffer.from(base64Image.replace(/^data:image\/\w+;base64,/, ""),'base64'),
         ContentType: `image/${type}`,
       };
       const { Location } = await s3.upload(params).promise();
