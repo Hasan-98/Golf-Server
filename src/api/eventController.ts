@@ -59,9 +59,43 @@ export const createEvent: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const getEventsColData: RequestHandler = async (req, res, next) => {
+  try {
+    const events = await models.Event.findAll({
+      attributes: ['id', 'eventName'],
+    });
+    if (events) {
+      return res.status(200).json({ events });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
+  }
+}
+
+export const getEventById: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const event= await models.Event.findByPk(id);
+    if (event) {
+      return res.status(200).json({ 
+        imageUrl : event.imageUrl, 
+      });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
+  }
+}
+
 export const getAllEvents: RequestHandler = async (req, res, next) => {
   try {
-    console.log('get called')
+    const { page = 1, pageSize = 10 , categories, startDate, endDate } = req.query;
+
+    const filters: any = {};
+    if (categories) {
+      filters.categories = categories;
+    }
     const events = await models.Event.findAll({
       include: [
         {
@@ -97,6 +131,9 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
           ],
         },
       ],
+      where: filters,
+      limit: parseInt(pageSize as string),
+      offset: (parseInt(page as string) - 1) * parseInt(pageSize as string),
       
     });
     // download image from s3 which i uploaded in create event
@@ -109,7 +146,11 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
 
   }
 };
+
+
  export default {
     createEvent,
-    getAllEvents
+    getAllEvents,
+    getEventsColData,
+    getEventById
   }
