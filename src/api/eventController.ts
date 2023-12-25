@@ -90,11 +90,14 @@ export const getEventById: RequestHandler = async (req, res, next) => {
 
 export const getAllEvents: RequestHandler = async (req, res, next) => {
   try {
-    const { page, pageSize , categories, startDate, endDate } = req.query;
+    const { page, pageSize , eventStartDate, eventEndDate } = req.query;
 
     const filters: any = {};
-    if (categories) {
-      filters.categories = categories;
+    if (eventStartDate) {
+      filters.eventStartDate = eventStartDate;
+    }
+    if (eventEndDate) {
+      filters.eventEndDate = eventEndDate;
     }
     const events = await models.Event.findAll({
       include: [
