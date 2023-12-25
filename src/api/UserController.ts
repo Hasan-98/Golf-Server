@@ -60,7 +60,7 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
       .status(400)
       .json({ message: 'Email or password does not match!' });
   }
-  const { nickName } = userWithEmail;
+  const { id } = userWithEmail;
   const jwtToken = jwt.sign(
     { id: userWithEmail.id, email: userWithEmail.email },
     'secret'
@@ -68,7 +68,7 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
 
   res.status(200).json({
     message: 'Welcome Back!',
-    nickName,
+    id,
     jwtToken
   });
 };
