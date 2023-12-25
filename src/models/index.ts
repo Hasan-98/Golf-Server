@@ -1,7 +1,6 @@
 'use strict';
 
-import User from './user'
-import Reply from './reply';
+import User from './user';
 import Comment from './comment';
 import Event from './event';
 const env = "development";
@@ -30,7 +29,6 @@ const models = {
     User: User(sequelize ),
     Comment: Comment(sequelize),
     Event: Event(sequelize),
-    Reply: Reply(sequelize),
     Like: like(sequelize),
 };
 

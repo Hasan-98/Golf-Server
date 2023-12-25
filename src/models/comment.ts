@@ -8,7 +8,6 @@ export default (sequelize: Sequelize) => {
     static associate(models: any) {
       Comment.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
       Comment.belongsTo(models.Event, { foreignKey: 'eventId', as: 'event' });
-      Comment.hasMany(models.Reply, { foreignKey: 'commentId', as: 'replies' });
     }
   }
 
@@ -19,6 +18,8 @@ export default (sequelize: Sequelize) => {
       autoIncrement: true,
     },
     content: DataTypes.TEXT,
+    userId: DataTypes.INTEGER,
+    eventId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Comment',

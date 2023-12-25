@@ -90,7 +90,7 @@ export const getEventById: RequestHandler = async (req, res, next) => {
 
 export const getAllEvents: RequestHandler = async (req, res, next) => {
   try {
-    const { page = 1, pageSize = 10 , categories, startDate, endDate } = req.query;
+    const { page, pageSize , categories, startDate, endDate } = req.query;
 
     const filters: any = {};
     if (categories) {

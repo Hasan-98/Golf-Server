@@ -13,7 +13,6 @@ export default (sequelize: Sequelize) => {
       User.hasMany(models.Event, { foreignKey: 'creatorId', as: 'createdEvents' });
       User.belongsToMany(models.Event, { through: 'UserEvent', as: 'participatedEvents' });
       User.hasMany(models.Comment, { foreignKey: 'userId', as: 'comments' });
-      User.hasMany(models.Reply, { foreignKey: 'userId', as: 'replies' });
       User.hasMany(models.Like, { foreignKey: 'userId', as: 'likes' });
     }
   }

@@ -17,6 +17,12 @@ export default (sequelize: Sequelize) => {
       primaryKey: true,
       autoIncrement: true,
     },
+    counter: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    userId: DataTypes.INTEGER,
+    eventId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Like',
