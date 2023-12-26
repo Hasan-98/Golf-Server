@@ -87,10 +87,9 @@ export const getEventById: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: 'Cannot get event at the moment' });
   }
 }
-
 export const getAllEvents: RequestHandler = async (req, res, next) => {
   try {
-    const { page, pageSize =5, eventStartDate, eventEndDate } = req.query;
+    const { page , pageSize, eventStartDate, eventEndDate } = req.query;
 
     const filters: any = {};
     if (eventStartDate) {
@@ -99,7 +98,10 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     if (eventEndDate) {
       filters.eventEndDate = eventEndDate;
     }
-    const events = await models.Event.findAll({
+
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    const events = await models.Event.findAndCountAll({
       include: [
         {
           model: models.User,
@@ -136,19 +138,21 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
       ],
       where: filters,
       limit: parseInt(pageSize as string),
-      offset: (parseInt(page as string) - 1) * parseInt(pageSize as string),
-      
+      offset: offset,
     });
-    // download image from s3 which i uploaded in create event
-    if (events){
-      return res.status(200).json({ events });
+
+    if (events) {
+      return res.status(200).json({
+        events: events.rows,
+        count: events.count,
+      });
     }
   } catch (err) {
     console.error('Error:', err);
     return res.status(500).json({ error: 'Cannot get event at the moment' });
-
   }
 };
+
 
 
  export default {
