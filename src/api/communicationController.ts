@@ -31,7 +31,7 @@ export const addComment: RequestHandler = async (req, res, next) => {
   export const addLike: RequestHandler = async (req, res, next) => {
     try {
       const userID: any = req.user;
-      const { eventId , Count} = req.body;
+      const { eventId, Count } = req.body;
       const foundUser = await models.User.findOne({ where: { id: userID.id } });
       const event = await models.Event.findByPk(eventId);
   
@@ -39,26 +39,24 @@ export const addComment: RequestHandler = async (req, res, next) => {
         return res.status(404).json({ error: 'User or event not found' });
       }
   
-      const like = await models.Like.findOne({
+      const [like, created] = await models.Like.findOrCreate({
         where: {
           userId: userID.id,
           eventId: event.id,
         },
+        defaults: {
+          counter: Count,
+        },
       });
-
-      if (Count < 0) {
-   //     await models.Like.decrement('counter', { where: { id: like.id } });
-        return res.status(200).json({ message: 'Like decremented successfully' });
+  
+      if (!created) {
+        await like.update({ counter: Count });
       }
-      else{
-     //   await models.Like.increment('counter', { where: { id: like.id } });
-   
-
-      return res.status(201).json({ message: 'Like incremented successfully' });
-      }
+  
+      return res.status(200).json({ message: 'Like updated successfully' });
     } catch (err) {
       console.error('Error:', err);
-      return res.status(500).json({ error: 'Cannot create like at the moment' });
+      return res.status(500).json({ error: 'Cannot create or update like at the moment' });
     }
   };
   

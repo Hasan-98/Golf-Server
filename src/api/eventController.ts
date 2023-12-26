@@ -155,6 +155,32 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
 };
 
 
+// export const joinEvent: RequestHandler = async (req, res, next) => {
+//   try {
+//     const userID: any = req.user;
+//     const { eventId } = req.body;
+
+//     const foundUser = await models.User.findOne({ where: { id: userID.id } });
+//     const event = await models.Event.findByPk(eventId);
+
+//     if (!foundUser || !event) {
+//       return res.status(404).json({ error: 'User or event not found' });
+//     }
+
+//     const isParticipant = await event.hasParticipant(foundUser);
+//     if (isParticipant) {
+//       return res.status(400).json({ error: 'User is already a participant in the event' });
+//     }
+
+//     await event.addParticipant(foundUser);
+
+//     return res.status(200).json({ message: 'User joined the event successfully' });
+//   } catch (err) {
+//     console.error('Error:', err);
+//     return res.status(500).json({ error: 'Cannot join event at the moment' });
+//   }
+// };
+
 
  export default {
     createEvent,
