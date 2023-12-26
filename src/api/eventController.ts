@@ -1,5 +1,6 @@
 import express, { RequestHandler }  from 'express';
 import jwt from 'jsonwebtoken';
+import { Op } from 'sequelize';
 import {models} from "../models/index"
 
 import AWS from 'aws-sdk';
@@ -90,7 +91,7 @@ export const getEventById: RequestHandler = async (req, res, next) => {
 }
 export const getAllEvents: RequestHandler = async (req, res, next) => {
   try {
-    const { page , pageSize, eventStartDate, eventEndDate } = req.query;
+    const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
 
     const filters: any = {};
     if (eventStartDate) {
@@ -98,6 +99,17 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     }
     if (eventEndDate) {
       filters.eventEndDate = eventEndDate;
+    }
+
+    const currentDate = new Date();
+    
+    if (status === 'upcoming') {
+      filters.eventStartDate = { [Op.gte]: currentDate };
+    } else if (status === 'past') {
+      filters.eventEndDate = { [Op.lt]: currentDate };
+    } else if (status === 'live') {
+      filters.eventStartDate = { [Op.lte]: currentDate };
+      filters.eventEndDate = { [Op.gte]: currentDate };
     }
 
     const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
