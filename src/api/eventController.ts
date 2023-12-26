@@ -79,7 +79,8 @@ export const getEventById: RequestHandler = async (req, res, next) => {
     const event= await models.Event.findByPk(id);
     if (event) {
       return res.status(200).json({ 
-        imageUrl : event.imageUrl, 
+        imageUrl : event.imageUrl,
+        eventVideoUrl: event.eventVideoUrl,
       });
     }
   } catch (err) {
