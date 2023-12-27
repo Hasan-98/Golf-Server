@@ -94,13 +94,11 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
 
     const filters: any = {};
-    if (eventStartDate) {
-      filters.eventStartDate = eventStartDate;
+    // i want events in between start and end date including start and end date
+    if (eventStartDate && eventEndDate) {
+      filters.eventStartDate = { [Op.gte]: eventStartDate };
+      filters.eventEndDate = { [Op.lte]: eventEndDate };
     }
-    if (eventEndDate) {
-      filters.eventEndDate = eventEndDate;
-    }
-
     const currentDate = new Date();
     
     if (status === 'upcoming') {
