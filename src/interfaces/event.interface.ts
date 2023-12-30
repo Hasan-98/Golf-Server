@@ -37,4 +37,5 @@ export interface IEventAttributes {
     shotsPerHoles?: JSON;
     driverContest?: number;
     nearPinContest?: number;
+    isFavorite?: boolean;
 }

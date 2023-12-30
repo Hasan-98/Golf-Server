@@ -89,6 +89,31 @@ export const getEventById: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: 'Cannot get event at the moment' });
   }
 }
+
+export const markAsFavorite: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { id } = req.params;
+  
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+    const event = await models.Event.findByPk(id);
+    if (!foundUser || !event) {
+      return res.status(404).json({ error: 'User or event not found' });
+    }
+
+    await event.update({ isFavorite: !event.isFavorite });
+
+    if (event.isFavorite) {
+      return res.status(200).json({ message: 'Event marked as favorite' });
+    } else {
+      return res.status(200).json({ message: 'Event removed from favorites' });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot mark event as favorite at the moment' });
+  }
+};
+
 export const getAllEvents: RequestHandler = async (req, res, next) => {
   try {
     const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
@@ -163,6 +188,64 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { page, pageSize } = req.query;
+
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    const events = await models.Event.findAndCountAll({
+      include: [
+        {
+          model: models.User,
+          as: 'creator',
+          attributes: [],
+        },
+        {
+          model: models.User,
+          as: 'participants',
+          attributes: [],
+        },
+        {
+          model: models.Comment,
+          as: 'comments',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+        {
+          model: models.Like,
+          as: 'likes',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+      ],
+      where: { isFavorite: true },
+      limit: parseInt(pageSize as string),
+      offset: offset,
+    });
+
+    if (events) {
+      return res.status(200).json({
+        events: events.rows,
+        count: events.count,
+      });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
+  }
+}
 
 // export const joinEvent: RequestHandler = async (req, res, next) => {
 //   try {
@@ -195,5 +278,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     createEvent,
     getAllEvents,
     getEventsColData,
-    getEventById
+    getEventById,
+    markAsFavorite,
+    getFavoriteEvents,
   }

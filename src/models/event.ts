@@ -40,7 +40,7 @@ export default (sequelize: Sequelize) => {
     shotsPerHoles?: JSON;
     driverContest?: number;
     nearPinContest?: number;
-
+    isFavorite?: boolean;
 
     static associate(models: any) {
       Event.belongsTo(models.User, { foreignKey: 'creatorId', as: 'creator' });
@@ -88,10 +88,12 @@ export default (sequelize: Sequelize) => {
     },
     place: {
       type: DataTypes.STRING,
+      allowNull: false,
       field: 'place',
     },
     placeCoordinates: {
-      type: DataTypes.JSON, // or DataTypes.JSON
+      type: DataTypes.JSON,
+      allowNull: false,
       field: 'place_coordinates',
     },
     capacity: {
@@ -104,18 +106,22 @@ export default (sequelize: Sequelize) => {
     },
     eventStartDate: {
       type: DataTypes.STRING,
+      allowNull: false,
       field: 'event_start_date',
     },
     eventStartTime : {
       type: DataTypes.STRING,
+      allowNull: false,
       field: 'event_start_time',
     },
     eventEndDate : {
       type: DataTypes.STRING,
+      allowNull: false,
       field: 'event_end_date',
     },
     eventEndTime : {
       type: DataTypes.STRING,
+      allowNull: false,
       field: 'event_end_time',
     },
     recruitmentStartDate: {
@@ -136,6 +142,7 @@ export default (sequelize: Sequelize) => {
     },
     matchType: {
       type: DataTypes.STRING,
+      allowNull: false,
       field: 'match_type',
     },
     paymentType: {
@@ -184,14 +191,17 @@ export default (sequelize: Sequelize) => {
     },
     scoringType: {
       type: DataTypes.STRING,
+      allowNull: false,
       field: 'scoring_type',
     },
     selectedHoles: {
       type: DataTypes.JSON,
+      allowNull: false,
       field: 'selected_holes',
     },
     shotsPerHoles: {
       type: DataTypes.JSON,
+      allowNull: false,
       field: 'shots_per_holes',
     },
     driverContest: {
@@ -201,7 +211,12 @@ export default (sequelize: Sequelize) => {
     nearPinContest: {
       type: DataTypes.INTEGER,
       field: 'near_pin_contest',
-    }
+    },
+    isFavorite: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'is_favorite',
+    },
   }, {
     sequelize,
     modelName: 'Event',
