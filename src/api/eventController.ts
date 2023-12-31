@@ -247,32 +247,130 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
   }
 }
 
-// export const joinEvent: RequestHandler = async (req, res, next) => {
-//   try {
-//     const userID: any = req.user;
-//     const { eventId } = req.body;
+export const joinEvent: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { id } = req.params;
+    console.log(id)
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+    const event = await models.Event.findByPk(id);
+    if (!foundUser || !event) {
+      return res.status(404).json({ error: 'User or event not found' });
+    }
+    
+    const alreadyJoined = await models.UserEvent.findOne({ 
+    where: {
+      user_id : userID.id,
+      event_id: id,
+    }
+  });
+  if (alreadyJoined) {
+    return res.status(400).json({error: 'User already joined this event'});
+  }
 
-//     const foundUser = await models.User.findOne({ where: { id: userID.id } });
-//     const event = await models.Event.findByPk(eventId);
+  await models.UserEvent.create({
+    user_id : userID.id,
+    event_id: id,
+  });
 
-//     if (!foundUser || !event) {
-//       return res.status(404).json({ error: 'User or event not found' });
-//     }
+  return res.status(200).json({message: 'User successfully joined event'});
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot join event at the moment' });
+  }
+};
 
-//     const isParticipant = await event.hasParticipant(foundUser);
-//     if (isParticipant) {
-//       return res.status(400).json({ error: 'User is already a participant in the event' });
-//     }
 
-//     await event.addParticipant(foundUser);
+export const getPublicEvents: RequestHandler = async (req, res, next) => {
+  try {
+    const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
 
-//     return res.status(200).json({ message: 'User joined the event successfully' });
-//   } catch (err) {
-//     console.error('Error:', err);
-//     return res.status(500).json({ error: 'Cannot join event at the moment' });
-//   }
-// };
+    const filters: any = {};
+    if (eventStartDate && eventEndDate) {
+      filters.eventStartDate = { [Op.gte]: eventStartDate };
+      filters.eventEndDate = { [Op.lte]: eventEndDate };
+    }
+    const currentDate = new Date();
+    
+    if (status === 'upcoming') {
+      filters.eventStartDate = { [Op.gte]: currentDate };
+    } else if (status === 'past') {
+      filters.eventEndDate = { [Op.lt]: currentDate };
+    } else if (status === 'live') {
+      filters.eventStartDate = { [Op.lte]: currentDate };
+      filters.eventEndDate = { [Op.gte]: currentDate };
+    }
 
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    const events = await models.Event.findAndCountAll({
+      include: [
+        {
+          model: models.User,
+          as: 'creator',
+          attributes: [],
+        },
+        {
+          model: models.User,
+          as: 'participants',
+          attributes: [],
+        },
+        {
+          model: models.Comment,
+          as: 'comments',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+        {
+          model: models.Like,
+          as: 'likes',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+      ],
+      where: filters,
+      limit: parseInt(pageSize as string),
+      offset: offset,
+    });
+
+    if (events) {
+      return res.status(200).json({
+        events: events.rows,
+        count: events.count,
+      });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
+  }
+};
+
+
+export const getJoinedEvents : RequestHandler = async (req, res, next) => {
+  const userID: any = req.user;
+  const foundUser = await models.User.findOne({ where: { id: userID.id } });
+  if (!foundUser) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  const events = await models.Event.findAll({
+    include: {
+      model: models.User,
+      where: { id: userID.id },
+    }
+  });
+  return res.status(200).json(events);
+}
 
  export default {
     createEvent,
@@ -281,4 +379,7 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
     getEventById,
     markAsFavorite,
     getFavoriteEvents,
+    joinEvent,
+    getPublicEvents,
+    getJoinedEvents
   }

@@ -2,7 +2,8 @@
 
 import express, { Router } from 'express';
 import { register , login , userById } from '../api/UserController';
-import { createEvent, getAllEvents , getEventsColData , getEventById , markAsFavorite , getFavoriteEvents} from '../api/eventController';
+import { createEvent, getAllEvents , getEventsColData , 
+    getEventById , markAsFavorite , getFavoriteEvents , joinEvent , getJoinedEvents , getPublicEvents} from '../api/eventController';
 import { addComment, addLike} from '../api/communicationController';
 import passport from '../auth/passport';
 const router: Router = express.Router();
@@ -16,6 +17,9 @@ router.get('/get-event-col-data' ,passport.authenticate('jwt', { session: false 
 router.get('/get-event-by-id/:id' ,passport.authenticate('jwt', { session: false }), getEventById)
 router.patch('/is-favourite-event/:id' , passport.authenticate('jwt', { session: false }), markAsFavorite)
 router.get('/get-favourite-events' ,passport.authenticate('jwt', { session: false }), getFavoriteEvents)
+router.get('/get-public-events', getPublicEvents)
+router.post('/join-event/:id' ,passport.authenticate('jwt', { session: false }), joinEvent)
+router.get('/get-joined-events' ,passport.authenticate('jwt', { session: false }), getJoinedEvents)
 router.post('/add-comment' ,passport.authenticate('jwt', { session: false }), addComment)
 router.post('/add-like' ,passport.authenticate('jwt', { session: false }), addLike)
 export default router;

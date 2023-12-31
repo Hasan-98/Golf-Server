@@ -7,6 +7,7 @@ const env = "development";
 const config = require(__dirname + '/../config/config.js')[env];
 import { Sequelize } from "sequelize";
 import like from './like';
+import userEvent from './userEvent';
 
 const sequelize : Sequelize = new Sequelize(
     config.database,
@@ -30,6 +31,7 @@ const models = {
     Comment: Comment(sequelize),
     Event: Event(sequelize),
     Like: like(sequelize),
+    UserEvent: userEvent(sequelize)
 };
 
 
