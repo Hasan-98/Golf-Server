@@ -141,8 +141,8 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
         {
           model: models.User,
           as: 'creator',
-          attributes: [],
-        },
+          attributes: ['nickName'],
+          },
         {
           model: models.User,
           as: 'participants',
