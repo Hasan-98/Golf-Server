@@ -9,7 +9,7 @@ export default (sequelize: Sequelize) => {
         endDate?: String;
         static associate(models: any) {
             Schedules.belongsTo(models.Teacher, { foreignKey: 'teacherId' });
-            Schedules.hasMany(models.Shifts, { foreignKey: 'shiftId' });
+            Schedules.hasMany(models.Shifts, { foreignKey: 'scheduleId' });
         }
     }
     Schedules.init({
