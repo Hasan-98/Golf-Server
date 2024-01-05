@@ -1,6 +1,9 @@
 export interface ITeacherAttributes {
     id?: number;
-    counter?: number;
-    userId?: any;
-    eventId?: any;
+    userId?: number;
+    firstName?: string;
+    lastName?: string
+    aboutMyself?: string
+    phoneNumber?: string
+    location?: string,
   }

@@ -8,30 +8,36 @@ const config = require(__dirname + '/../config/config.js')[env];
 import { Sequelize } from "sequelize";
 import like from './like';
 import userEvent from './userEvent';
+import teacher from './teacher';
+import shifts from './shifts';
+import schedules from './schedules';
 
-const sequelize : Sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    config
-  );
+const sequelize: Sequelize = new Sequelize(
+  config.database,
+  config.username,
+  config.password,
+  config
+);
 sequelize.sync();
 
-  (async () => {
-    try {
-      await sequelize.sync();
-      console.log('Connection has been established successfully.');
-    } catch (error : any) {
-      console.error('Unable to connect to the database:', error);
-    }
-  })();
+(async () => {
+  try {
+    await sequelize.sync();
+    console.log('Connection has been established successfully.');
+  } catch (error: any) {
+    console.error('Unable to connect to the database:', error);
+  }
+})();
 
-const models = { 
-    User: User(sequelize ),
-    Comment: Comment(sequelize),
-    Event: Event(sequelize),
-    Like: like(sequelize),
-    UserEvent: userEvent(sequelize)
+const models = {
+  User: User(sequelize),
+  Comment: Comment(sequelize),
+  Event: Event(sequelize),
+  Like: like(sequelize),
+  UserEvent: userEvent(sequelize),
+  Teacher: teacher(sequelize),
+  Shifts: shifts(sequelize),
+  Schedules: schedules(sequelize)
 };
 
 
@@ -42,3 +48,7 @@ Object.values(models).forEach((model) => {
 });
 
 export { models };
+
+function Shift(sequelize: Sequelize) {
+  throw new Error('Function not implemented.');
+}

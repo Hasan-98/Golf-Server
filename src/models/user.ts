@@ -14,6 +14,7 @@ export default (sequelize: Sequelize) => {
       User.belongsToMany(models.Event, { through: 'UserEvent', as: 'participatedEvents' });
       User.hasMany(models.Comment, { foreignKey: 'userId', as: 'comments' });
       User.hasMany(models.Like, { foreignKey: 'userId', as: 'likes' });
+      User.hasOne(models.Teacher, { foreignKey: 'userId', as: 'teacher' });
     }
   }
 
@@ -26,7 +27,7 @@ export default (sequelize: Sequelize) => {
     nickName: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    token : DataTypes.STRING
+    token: DataTypes.STRING
 
   }, {
     sequelize,
