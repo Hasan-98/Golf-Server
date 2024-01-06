@@ -7,8 +7,8 @@ import {
     getEventById, markAsFavorite, getFavoriteEvents, joinEvent, getJoinedEvents, getPublicEvents
 } from '../api/eventController';
 import { addComment, addLike } from '../api/communicationController';
-import { becomeTeacher, updateProfile, getAllTeachers ,getTeacherById } from '../api/teacherController';
-import { bookAppointment } from '../api/appointmentController';
+import { becomeTeacher, updateProfile, getAllTeachers, getTeacherById } from '../api/teacherController';
+import { bookAppointment, getTeacherBookedAppointments, getUserBookedAppointments } from '../api/appointmentController';
 import passport from '../auth/passport';
 const router: Router = express.Router();
 
@@ -31,4 +31,6 @@ router.get('/get-all-teachers', passport.authenticate('jwt', { session: false })
 router.get('/get-teacher-by-id/:id', passport.authenticate('jwt', { session: false }), getTeacherById)
 router.put('/update-profile', passport.authenticate('jwt', { session: false }), updateProfile)
 router.post('/book-appointment', passport.authenticate('jwt', { session: false }), bookAppointment)
+router.get('/get-teacher-booked-appointments', passport.authenticate('jwt', { session: false }), getTeacherBookedAppointments)
+router.get('/get-user-booked-appointments', passport.authenticate('jwt', { session: false }), getUserBookedAppointments)
 export default router;

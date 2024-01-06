@@ -15,6 +15,7 @@ export default (sequelize: Sequelize) => {
       User.hasMany(models.Comment, { foreignKey: 'userId', as: 'comments' });
       User.hasMany(models.Like, { foreignKey: 'userId', as: 'likes' });
       User.hasOne(models.Teacher, { foreignKey: 'userId', as: 'teacher' });
+      User.hasMany(models.Shifts, { as: 'bookedShifts', foreignKey: 'bookedBy' });
     }
   }
 

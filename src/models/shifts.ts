@@ -13,6 +13,7 @@ export default (sequelize: Sequelize) => {
         bookedBy?: number | undefined;
         static associate(models: any) {
             Shifts.belongsTo(models.Schedules, { foreignKey: 'scheduleId' });
+            Shifts.belongsTo(models.User, { as: 'bookedShifts', foreignKey: 'bookedBy' });
         }
     }
     Shifts.init({
