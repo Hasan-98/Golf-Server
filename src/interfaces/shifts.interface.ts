@@ -4,4 +4,7 @@ export interface IShiftAttributes {
     day?: String;
     startTime?: String;
     endTime?: String;
+    isBooked?: Boolean;
+    status?: string;
+    bookedBy?: number;
   }

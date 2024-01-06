@@ -8,6 +8,7 @@ import {
 } from '../api/eventController';
 import { addComment, addLike } from '../api/communicationController';
 import { becomeTeacher, updateProfile, getAllTeachers ,getTeacherById } from '../api/teacherController';
+import { bookAppointment } from '../api/appointmentController';
 import passport from '../auth/passport';
 const router: Router = express.Router();
 
@@ -29,4 +30,5 @@ router.post('/become-teacher', passport.authenticate('jwt', { session: false }),
 router.get('/get-all-teachers', passport.authenticate('jwt', { session: false }), getAllTeachers)
 router.get('/get-teacher-by-id/:id', passport.authenticate('jwt', { session: false }), getTeacherById)
 router.put('/update-profile', passport.authenticate('jwt', { session: false }), updateProfile)
+router.post('/book-appointment', passport.authenticate('jwt', { session: false }), bookAppointment)
 export default router;
