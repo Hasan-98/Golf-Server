@@ -13,6 +13,11 @@ import middlewares from './middlewares';
 import user from './router/router';
 
 const app :any= express();
+const http = require('http');
+const socketIo = require('socket.io');
+const server = http.createServer(app);
+const io = socketIo(server);
+app.set('io', io);
 const jwtSecret = process.env.JWT_SECRET || 'secret';
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

@@ -56,6 +56,17 @@ export const bookAppointment: RequestHandler = async (req: any, res: any, next: 
                             id: userId,
                         },
                     });
+                    const schedule = await models.Schedules.findOne({
+                        where: {
+                            id: scheduleId,
+                        },
+                    });
+
+                    const teacherId = schedule?.teacherId;
+
+                    const io = req.app.get('io');
+                    io.emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
+                    //io.disconnect();
 
                     res.status(200).json({
                         message: 'Appointment booked successfully',
