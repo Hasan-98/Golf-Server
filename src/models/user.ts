@@ -7,6 +7,7 @@ export default (sequelize: Sequelize) => {
     email!: string;
     password!: string;
     token!: string;
+    imageUrl?: string;
     // ...
 
     static associate(models: any) {
@@ -16,6 +17,7 @@ export default (sequelize: Sequelize) => {
       User.hasMany(models.Like, { foreignKey: 'userId', as: 'likes' });
       User.hasOne(models.Teacher, { foreignKey: 'userId', as: 'teacher' });
       User.hasMany(models.Shifts, { as: 'bookedShifts', foreignKey: 'bookedBy' });
+      User.belongsToMany(models.Teacher, { through: models.Favorite, as: 'favoriteTeachers' });
     }
   }
 
@@ -28,8 +30,11 @@ export default (sequelize: Sequelize) => {
     nickName: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    token: DataTypes.STRING
-
+    token: DataTypes.STRING,
+    imageUrl: {
+      type: DataTypes.STRING,
+      field: 'image_url'
+    },
   }, {
     sequelize,
     modelName: 'User',

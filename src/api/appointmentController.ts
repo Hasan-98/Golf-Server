@@ -150,8 +150,127 @@ export const getUserBookedAppointments: RequestHandler = async (req: any, res: a
     }
 }
 
+export const acceptAppointment: RequestHandler = async (req: any, res: any, next: any) => {
+    try {
+        const userId = req.user.id;
+        const { scheduleId, day, startTime, endTime , status} = req.body;
+
+        const existingTeacher = await models.Teacher.findOne({
+            where: { userId },
+        });
+
+        if (existingTeacher) {
+            const isSlotAvailable = await models.Shifts.findOne({
+                where: {
+                    scheduleId,
+                    day,
+                    startTime,
+                    endTime,
+                    isBooked: true,
+                    bookedBy: userId,
+                    status: 'active',
+                },
+            });
+
+            if (isSlotAvailable) {
+                await models.Shifts.update(
+                    { status: status },
+                    {
+                        where: {
+                            scheduleId,
+                            day,
+                            startTime,
+                            endTime,
+                            isBooked: true,
+                            bookedBy: userId,
+                            status: 'active',
+                        },
+                    }
+                );
+
+                res.status(200).json({
+                    message: 'Appointment accepted successfully',
+                });
+            } else {
+                res.status(400).json({ success: false, error: 'Selected time slot is not available' });
+            }
+        } else {
+            res.status(404).json({ success: false, error: 'User is not a teacher' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: 'Error accepting appointment' });
+    }
+}
+
+export const favoriteTeacher: RequestHandler = async (req: any, res: any, next: any) => {
+    try {
+        const userId = req.user.id;
+        const { teacherId } = req.body;
+
+        const existingUser = await models.User.findOne({
+            where: { id: userId },
+        });
+
+        const existingTeacher = await models.Teacher.findOne({
+            where: { id: teacherId },
+        });
+
+        if (existingUser && existingTeacher) {
+            await models.Favorite.create({
+                userId: userId,
+                teacherId: teacherId,
+            });
+
+            res.status(200).json({
+                message: 'Teacher marked as favorite successfully',
+            });
+        } else {
+            res.status(400).json({ success: false, error: 'User or teacher not found' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: 'Error marking teacher as favorite' });
+    }
+}
+
+export const getFavoriteTeachers: RequestHandler = async (req: any, res: any, next: any) => {
+    try {
+        const userId = req.user.id;
+        const existingUser = await models.User.findOne({
+            where: { id: userId },
+        });
+
+        if (existingUser) {
+            const favoriteTeachers = await models.Favorite.findAll({
+                where: {
+                    userId: userId,
+                },
+                include: [
+                    {
+                        model: models.Teacher,
+                        as: 'favoritedByUsers',
+                        attributes: ['firstName', 'lastName'],
+                    },
+                ],
+            });
+
+            res.status(200).json({ favoriteTeachers });
+        } else {
+            res.status(400).json({ success: false, error: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: 'Error getting favorite teachers' });
+    }
+}
+
+
 export default {
     bookAppointment,
     getTeacherBookedAppointments,
-    getUserBookedAppointments
+    getUserBookedAppointments,
+    acceptAppointment,
+    favoriteTeacher,
+    getFavoriteTeachers,
 }

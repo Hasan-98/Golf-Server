@@ -4,4 +4,5 @@ export interface IUserAttributes {
     email: string,
     password : string,
     token : string,
+    imageUrl?: string,
   }

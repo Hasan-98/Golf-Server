@@ -11,6 +11,7 @@ import userEvent from './userEvent';
 import teacher from './teacher';
 import shifts from './shifts';
 import schedules from './schedules';
+import favorite from './favorite';
 
 const sequelize: Sequelize = new Sequelize(
   config.database,
@@ -37,7 +38,8 @@ const models = {
   UserEvent: userEvent(sequelize),
   Teacher: teacher(sequelize),
   Shifts: shifts(sequelize),
-  Schedules: schedules(sequelize)
+  Schedules: schedules(sequelize),
+  Favorite: favorite(sequelize)
 };
 
 
@@ -49,6 +51,3 @@ Object.values(models).forEach((model) => {
 
 export { models };
 
-function Shift(sequelize: Sequelize) {
-  throw new Error('Function not implemented.');
-}

@@ -10,10 +10,13 @@ export default (sequelize: Sequelize) => {
     aboutMyself?: string;
     phoneNumber?: string;
     location?: string;
+    rating?: any;
+    hourlyRate?: number;
 
     static associate(models: any) {
       Teacher.belongsTo(models.User, { foreignKey: 'userId' });
       Teacher.hasMany(models.Schedules, { foreignKey: 'teacherId' });
+      Teacher.belongsToMany(models.User, { through: models.Favorite, as: 'favoritedByUsers' });
     }
   }
   Teacher.init({
@@ -47,6 +50,15 @@ export default (sequelize: Sequelize) => {
       type: DataTypes.STRING,
       field: 'location'
     },
+    rating: {
+      type: DataTypes.DECIMAL(10, 2),
+      field: 'rating'
+    },
+    hourlyRate: {
+      type: DataTypes.INTEGER,
+      field: 'hourly_rate'
+    },
+
   }, {
     sequelize,
     modelName: 'Teacher',
