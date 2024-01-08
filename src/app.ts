@@ -12,11 +12,10 @@ require('./models/index');
 import middlewares from './middlewares';
 import user from './router/router';
 
-const app :any= express();
+const app: any = express();
 const http = require('http');
-const socketIo = require('socket.io');
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = require('socket.io')(server);
 app.set('io', io);
 const jwtSecret = process.env.JWT_SECRET || 'secret';
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,4 +35,4 @@ app.use('/api', user);
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
 
-export default app;
+export { app, server}

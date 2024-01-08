@@ -1,6 +1,8 @@
-import app from './app';
+import { server, app } from './app';
 
 const port = process.env.PORT || 5000;
-app.listen(port, () => {
+app.set('port', port);
+
+server.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
 });
