@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index"
-
+import {io} from '../index'
 export const bookAppointment: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
@@ -63,11 +63,9 @@ export const bookAppointment: RequestHandler = async (req: any, res: any, next: 
                     });
 
                     const teacherId = schedule?.teacherId;
-
-                    const io = req.app.get('io');
-                    io.emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
-                    //io.disconnect();
-
+                    io.broadcast.emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
+          //          io.to(clientId).emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
+            
                     res.status(200).json({
                         message: 'Appointment booked successfully',
                         bookedUser: bookedUserDetails?.nickName,

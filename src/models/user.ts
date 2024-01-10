@@ -7,7 +7,7 @@ export default (sequelize: Sequelize) => {
     email!: string;
     password!: string;
     token!: string;
-    imageUrl?: string;
+   // imageUrl?: string;
     // ...
 
     static associate(models: any) {
@@ -31,10 +31,10 @@ export default (sequelize: Sequelize) => {
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     token: DataTypes.STRING,
-    imageUrl: {
-      type: DataTypes.STRING,
-      field: 'image_url'
-    },
+    // imageUrl: {
+    //   type: DataTypes.STRING,
+    //   field: 'image_url'
+    // },
   }, {
     sequelize,
     modelName: 'User',

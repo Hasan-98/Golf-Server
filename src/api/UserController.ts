@@ -1,9 +1,9 @@
-import express, { RequestHandler }  from 'express';
+import express, { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 import { Op } from 'sequelize';
-import {models} from "../models/index"
+import { models } from "../models/index"
 
-export const register : RequestHandler = async (req: any, res: any, next: any) => {
+export const register: RequestHandler = async (req: any, res: any, next: any) => {
   const {
     nickName, email, password
   } = req.body;
@@ -39,22 +39,19 @@ export const register : RequestHandler = async (req: any, res: any, next: any) =
     return res.status(500).json({ error: 'Cannot register user at the moment!' });
   }
 };
-
 export const login: RequestHandler = async (req: any, res: any, next: any) => {
   const { email, password } = req.body;
   console.log('login callded')
   const userWithEmail = await models.User.findOne({ where: { email } }).catch(
-    (err : Error) => {
+    (err: Error) => {
       console.log('Error: ', err);
     }
   );
-
   if (!userWithEmail) {
     return res
       .status(400)
       .json({ message: 'Email or password does not match!' });
   }
-
   if (userWithEmail.password !== password) {
     return res
       .status(400)
@@ -65,11 +62,14 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
     { id: userWithEmail.id, email: userWithEmail.email },
     'secret'
   );
+  const teacher = await models.Teacher.findOne({ where: { userId: userWithEmail.id } });
+  const teacherId = teacher ? teacher.id : null;
 
   res.status(200).json({
     message: 'Welcome Back!',
     id,
-    jwtToken
+    jwtToken,
+    teacherId
   });
 };
 export const userById: any = async (req: any, res: any) => {
@@ -90,7 +90,7 @@ export const userById: any = async (req: any, res: any) => {
 
 
 
- export default {
+export default {
   register,
   login,
   userById,
