@@ -12,6 +12,12 @@ import {
     bookAppointment, getTeacherBookedAppointments, getUserBookedAppointments, acceptAppointment,
     favoriteTeacher, getFavoriteTeachers
 } from '../api/appointmentController';
+
+import {
+    createPost,
+    getPosts,
+    getPostById
+} from '../api/postController';
 import passport from '../auth/passport';
 const router: Router = express.Router();
 
@@ -39,4 +45,7 @@ router.get('/get-user-booked-appointments', passport.authenticate('jwt', { sessi
 router.post('/accept-appointment', passport.authenticate('jwt', { session: false }), acceptAppointment)
 router.post('/favorite-teacher', passport.authenticate('jwt', { session: false }), favoriteTeacher)
 router.get('/get-favorite-teachers', passport.authenticate('jwt', { session: false }), getFavoriteTeachers)
+router.post('/create-post', passport.authenticate('jwt', { session: false }), createPost)
+router.get('/get-posts', passport.authenticate('jwt', { session: false }), getPosts)
+router.get('/get-post-by-id/:id', passport.authenticate('jwt', { session: false }), getPostById)
 export default router;

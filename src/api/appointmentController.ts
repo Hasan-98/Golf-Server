@@ -247,8 +247,7 @@ export const getFavoriteTeachers: RequestHandler = async (req: any, res: any, ne
                 include: [
                     {
                         model: models.Teacher,
-                        as: 'favoritedByUsers',
-                        attributes: ['firstName', 'lastName'],
+                        attributes: ['id', 'firstName', 'lastName'],
                     },
                 ],
             });

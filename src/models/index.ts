@@ -12,6 +12,7 @@ import teacher from './teacher';
 import shifts from './shifts';
 import schedules from './schedules';
 import favorite from './favorite';
+import post from './post';
 
 const sequelize: Sequelize = new Sequelize(
   config.database,
@@ -39,7 +40,8 @@ const models = {
   Teacher: teacher(sequelize),
   Shifts: shifts(sequelize),
   Schedules: schedules(sequelize),
-  Favorite: favorite(sequelize)
+  Favorite: favorite(sequelize),
+  Post: post(sequelize),
 };
 
 

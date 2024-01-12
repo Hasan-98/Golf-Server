@@ -18,6 +18,7 @@ export default (sequelize: Sequelize) => {
       User.hasOne(models.Teacher, { foreignKey: 'userId', as: 'teacher' });
       User.hasMany(models.Shifts, { as: 'bookedShifts', foreignKey: 'bookedBy' });
       User.belongsToMany(models.Teacher, { through: models.Favorite, as: 'favoriteTeachers' });
+      User.hasMany(models.Post, { foreignKey: 'userId', as: 'posts' });
     }
   }
 

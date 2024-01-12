@@ -4,7 +4,7 @@ import { models } from "../models/index"
 export const becomeTeacher: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
-        const { firstName, lastName, phoneNumber, aboutMyself, location, schedules } = req.body;
+        const { firstName, lastName, phoneNumber, aboutMyself, location, hourlyRate, schedules } = req.body;
 
         const teacher = await models.Teacher.create({
             userId,
@@ -12,7 +12,8 @@ export const becomeTeacher: RequestHandler = async (req: any, res: any, next: an
             lastName,
             phoneNumber,
             aboutMyself,
-            location
+            location,
+            hourlyRate
         });
 
         const shiftsToCreate: any = [];
