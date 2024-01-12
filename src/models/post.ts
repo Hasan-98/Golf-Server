@@ -7,7 +7,7 @@ export default (sequelize: Sequelize) => {
         userId!: number;
         category?: string | undefined;
         tags?: string | undefined;
-        mediaFile?: string[] | undefined;
+        mediaFile?: JSON;
 
 
         static associate(models: any) {
@@ -35,7 +35,7 @@ export default (sequelize: Sequelize) => {
             field: 'tags'
         },
         mediaFile: {
-            type: DataTypes.ARRAY(DataTypes.STRING),
+            type: DataTypes.JSON,
             field: 'media_file'
         },
 

@@ -3,5 +3,5 @@ export interface IPostAttributes {
     userId?: number;
     category?: string;
     tags?: string;
-    mediaFile?: string[];
+    mediaFile?: any;
   }

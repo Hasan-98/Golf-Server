@@ -7,8 +7,7 @@ const s3 = new AWS.S3({
   });
 export const createPost: RequestHandler = async (req, res, next) => {
     try {
-        const { userId, category, tags } = req.body;
-        const mediaFiles = req.files;
+        const { userId, category, tags , mediaFiles} = req.body;
         const mediaUrls = [];
 
         for (let i = 0; mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length; i++) {
