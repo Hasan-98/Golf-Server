@@ -28,7 +28,6 @@ export default (sequelize: Sequelize) => {
         },
         userId: {
             type: DataTypes.INTEGER,
-            unique: true,
             field: 'user_id'
         },
         category: {

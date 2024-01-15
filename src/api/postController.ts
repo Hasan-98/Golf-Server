@@ -1,19 +1,24 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index"
-import multer from 'multer';
-
-const upload = multer();
 import AWS from "aws-sdk";
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  });
-export const createPost: RequestHandler = async (req, res, next) => {
-    try {
-        const { userId, category, tags , text } = req.body;
-        const mediaFiles = req.files; 
-        const mediaUrls = [];
+});
 
+export const createPost: RequestHandler = async (req, res, next) => {
+
+    try {
+        const { category, tags, text } = req.body;
+        let userId: any = req.user;
+        userId = JSON.parse(JSON.stringify(userId));
+        const foundUser = await models.User.findOne({ where: { id: userId.id } });
+        if (!foundUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const userFolder = `user-${foundUser?.email}`;
+        const mediaFiles = req.files;
+        const mediaUrls = [];
         for (let i = 0; mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length; i++) {
             const file = mediaFiles[i];
             const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
@@ -22,8 +27,8 @@ export const createPost: RequestHandler = async (req, res, next) => {
                 throw new Error('AWS_BUCKET_NAME is not defined');
             }
 
-            const type = file.mimetype.split('/')[1];
-            const name = `${userId}/${Date.now()}-${i}.${type}`;
+            const type = file.mimetype?.split('/')[1];
+            const name = `${userFolder}/${Date.now()}-${i}.${type}`;
             const params = {
                 Bucket: BUCKET_NAME,
                 Key: name,
@@ -36,9 +41,9 @@ export const createPost: RequestHandler = async (req, res, next) => {
         }
 
         const post = await models.Post.create({
-            userId,
-            text,
+            userId: userId.id,
             category,
+            text,
             tags,
             mediaFile: mediaUrls,
         });
@@ -61,7 +66,7 @@ export const getPosts: RequestHandler = async (req, res, next) => {
                 {
                     model: models.User,
                     as: 'posts',
-                    attributes: ['id', 'firstName', 'lastName', 'email'],
+                    attributes: ['id', 'email'],
                 },
             ],
         });
@@ -84,7 +89,7 @@ export const getPostById: RequestHandler = async (req, res, next) => {
                 {
                     model: models.User,
                     as: 'posts',
-                    attributes: ['id', 'firstName', 'lastName', 'email'],
+                    attributes: ['id', 'email'],
                 },
             ],
         });
