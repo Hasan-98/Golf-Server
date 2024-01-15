@@ -1,5 +1,8 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index"
+import multer from 'multer';
+
+const upload = multer();
 import AWS from "aws-sdk";
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -7,7 +10,8 @@ const s3 = new AWS.S3({
   });
 export const createPost: RequestHandler = async (req, res, next) => {
     try {
-        const { userId, category, tags , mediaFiles} = req.body;
+        const { userId, category, tags , text } = req.body;
+        const mediaFiles = req.files; 
         const mediaUrls = [];
 
         for (let i = 0; mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length; i++) {
@@ -33,6 +37,7 @@ export const createPost: RequestHandler = async (req, res, next) => {
 
         const post = await models.Post.create({
             userId,
+            text,
             category,
             tags,
             mediaFile: mediaUrls,

@@ -8,6 +8,7 @@ export default (sequelize: Sequelize) => {
         category?: string | undefined;
         tags?: string | undefined;
         mediaFile?: JSON;
+        text?: string | undefined;
 
 
         static associate(models: any) {
@@ -20,6 +21,10 @@ export default (sequelize: Sequelize) => {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
+        },
+        text: {
+            type: DataTypes.STRING,
+            field: 'text',
         },
         userId: {
             type: DataTypes.INTEGER,
