@@ -66,7 +66,7 @@ export const getPosts: RequestHandler = async (req, res, next) => {
                 {
                     model: models.User,
                     as: 'posts',
-                    attributes: ['id', 'email'],
+                    attributes: ['id', 'email' , 'nickName'],
                 },
             ],
         });
@@ -89,7 +89,7 @@ export const getPostById: RequestHandler = async (req, res, next) => {
                 {
                     model: models.User,
                     as: 'posts',
-                    attributes: ['id', 'email'],
+                    attributes: ['id', 'email' , 'nickName'],
                 },
             ],
         });
