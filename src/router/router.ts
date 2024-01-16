@@ -10,7 +10,7 @@ import { addComment, addLike } from '../api/communicationController';
 import { becomeTeacher, updateProfile, getAllTeachers, getTeacherById } from '../api/teacherController';
 import {
     bookAppointment, getTeacherBookedAppointments, getUserBookedAppointments, acceptAppointment,
-    favoriteTeacher, getFavoriteTeachers
+    favoriteTeacher, getFavoriteTeachers , updateAppointmentStatus , getTeacherAppointmentsCount
 } from '../api/appointmentController';
 import multer from 'multer';
 
@@ -45,6 +45,8 @@ router.post('/book-appointment', passport.authenticate('jwt', { session: false }
 router.get('/get-teacher-booked-appointments', passport.authenticate('jwt', { session: false }), getTeacherBookedAppointments)
 router.get('/get-user-booked-appointments', passport.authenticate('jwt', { session: false }), getUserBookedAppointments)
 router.post('/accept-appointment', passport.authenticate('jwt', { session: false }), acceptAppointment)
+router.put('/update-appointment-status', passport.authenticate('jwt', { session: false }), updateAppointmentStatus)
+router.get('/get-teacher-appointments-count', passport.authenticate('jwt', { session: false }), getTeacherAppointmentsCount)
 router.post('/favorite-teacher', passport.authenticate('jwt', { session: false }), favoriteTeacher)
 router.get('/get-favorite-teachers', passport.authenticate('jwt', { session: false }), getFavoriteTeachers)
 router.post('/create-post', upload.array('mediaFiles'), passport.authenticate('jwt', { session: false }), createPost);

@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index"
-import {io} from '../index'
+import { io } from '../index'
+import { Op } from 'sequelize';
 export const bookAppointment: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
@@ -30,7 +31,7 @@ export const bookAppointment: RequestHandler = async (req: any, res: any, next: 
                         endTime,
                         isBooked: true,
                         bookedBy: userId,
-                        status: ['active', 'booked'],
+                        status: ['PENDING', 'BOOKED'],
                     },
                 });
 
@@ -39,7 +40,7 @@ export const bookAppointment: RequestHandler = async (req: any, res: any, next: 
                     res.status(400).json({ success: false, error: 'Shift is already booked' });
                 } else {
                     await models.Shifts.update(
-                        { isBooked: true, bookedBy: userId, status: 'active' },
+                        { isBooked: true, bookedBy: userId, status: 'PENDING' },
                         {
                             where: {
                                 scheduleId,
@@ -64,8 +65,8 @@ export const bookAppointment: RequestHandler = async (req: any, res: any, next: 
 
                     const teacherId = schedule?.teacherId;
                     io.broadcast.emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
-          //          io.to(clientId).emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
-            
+                    //          io.to(clientId).emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
+
                     res.status(200).json({
                         message: 'Appointment booked successfully',
                         bookedUser: bookedUserDetails?.nickName,
@@ -92,7 +93,7 @@ export const getTeacherBookedAppointments: RequestHandler = async (req: any, res
             const bookedAppointments = await models.Shifts.findAll({
                 where: {
                     isBooked: true,
-                    status: 'active',
+                    status: ['PENDING', 'BOOKED'],
                 },
                 include: [
                     {
@@ -127,7 +128,7 @@ export const getUserBookedAppointments: RequestHandler = async (req: any, res: a
                 where: {
                     isBooked: true,
                     bookedBy: userId,
-                    status: 'active',
+                    status: ['BOOKED', 'PENDING'],
                 },
                 include: [
                     {
@@ -151,7 +152,7 @@ export const getUserBookedAppointments: RequestHandler = async (req: any, res: a
 export const acceptAppointment: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
-        const { scheduleId, day, startTime, endTime , status} = req.body;
+        const { scheduleId, day, startTime, endTime, status } = req.body;
 
         const existingTeacher = await models.Teacher.findOne({
             where: { userId },
@@ -166,7 +167,7 @@ export const acceptAppointment: RequestHandler = async (req: any, res: any, next
                     endTime,
                     isBooked: true,
                     bookedBy: userId,
-                    status: 'active',
+                    status: 'PENDING',
                 },
             });
 
@@ -181,7 +182,7 @@ export const acceptAppointment: RequestHandler = async (req: any, res: any, next
                             endTime,
                             isBooked: true,
                             bookedBy: userId,
-                            status: 'active',
+                            status: 'PENDING',
                         },
                     }
                 );
@@ -232,6 +233,124 @@ export const favoriteTeacher: RequestHandler = async (req: any, res: any, next: 
     }
 }
 
+export const updateAppointmentStatus: RequestHandler = async (req: any, res: any, next: any) => {
+    try {
+        const userId = req.user.id;
+        const { scheduleId, day, startTime, endTime, status } = req.body;
+
+        const existingTeacher = await models.Teacher.findOne({
+            where: { userId },
+        });
+
+        if (existingTeacher) {
+            const isSlotAvailable = await models.Shifts.findOne({
+                where: {
+                    scheduleId,
+                    day,
+                    startTime,
+                    endTime,
+                    isBooked: true,
+                    bookedBy: userId,
+                    status: 'PENDING',
+                },
+            });
+
+            if (isSlotAvailable) {
+                await models.Shifts.update(
+                    { status: status },
+                    {
+                        where: {
+                            scheduleId,
+                            day,
+                            startTime,
+                            endTime,
+                            isBooked: true,
+                            bookedBy: userId,
+                            status: 'PENDING',
+                        },
+                    }
+                );
+
+                res.status(200).json({
+                    message: 'Appointment accepted successfully',
+                });
+            } else {
+                res.status(400).json({ success: false, error: 'Selected time slot is not available' });
+            }
+        } else {
+            res.status(404).json({ success: false, error: 'User is not a teacher' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: 'Error accepting appointment' });
+    }
+}
+
+export const getTeacherAppointmentsCount: RequestHandler = async (req: any, res: any, next: any) => {
+    try {
+        const userId = req.user.id;
+        const existingTeacher = await models.Teacher.findOne({ where: { userId } });
+
+        if (existingTeacher) {
+            const completedAppointments = await models.Shifts.count({
+                where: {
+                    isBooked: true,
+                    status: 'COMPLETED',
+                },
+                include: [
+                    {
+                        model: models.Schedules,
+                        where: { teacherId: existingTeacher.id },
+                        attributes: [],
+                    },
+                ],
+            });
+
+            const upcomingAppointments = await models.Shifts.count({
+                where: {
+                    isBooked: true,
+                    status: 'BOOKED',
+                },
+                include: [
+                    {
+                        model: models.Schedules,
+                        where: {
+                            teacherId: existingTeacher.id,
+                            startDate: {
+                                [Op.gte]: new Date(),
+                            },
+                        },
+                        attributes: [],
+                    },
+                ],
+            });
+
+            const pendingAppointments = await models.Shifts.count({
+                where: {
+                    isBooked: true,
+                    status: 'PENDING',
+                },
+                include: [
+                    {
+                        model: models.Schedules,
+                        where: { teacherId: existingTeacher.id },
+                        attributes: [],
+                    },
+                ],
+            });
+
+            res.status(200).json({ completedAppointments, upcomingAppointments, pendingAppointments });
+        } else {
+            res.status(404).json({ success: false, error: 'User is not a teacher' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: 'Error getting teacher appointments count' });
+    }
+}
+
+
+
 export const getFavoriteTeachers: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
@@ -270,4 +389,6 @@ export default {
     acceptAppointment,
     favoriteTeacher,
     getFavoriteTeachers,
+    updateAppointmentStatus,
+    getTeacherAppointmentsCount,
 }
