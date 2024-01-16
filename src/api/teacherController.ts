@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index"
+import { Op } from 'sequelize';
 
 export const becomeTeacher: RequestHandler = async (req: any, res: any, next: any) => {
     try {
@@ -85,14 +86,25 @@ export const getTeacherById: RequestHandler = async (req: any, res: any, next: a
         res.status(500).json({ error: 'Error fetching teacher' });
     }
 };
-
 export const getAllTeachers: RequestHandler = async (req: any, res: any, next: any) => {
     try {
-        const { page, pageSize } = req.query;
+        const { page, pageSize, rating, location, availability, search } = req.query;
 
         const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
+        const whereClause = {
+            ...(rating && { rating: { [Op.gte]: rating } }),
+            ...(location && { location }),
+            ...(search && {
+                [Op.or]: [
+                    { firstName: { [Op.like]: `%${search}%` } },
+                    { lastName: { [Op.like]: `%${search}%` } },
+                ],
+            }),
+        };
+
         const teachers = await models.Teacher.findAll({
+            where: whereClause,
             include: [
                 {
                     model: models.Schedules,
@@ -101,6 +113,8 @@ export const getAllTeachers: RequestHandler = async (req: any, res: any, next: a
                         {
                             model: models.Shifts,
                             as: 'shifts',
+                            where: availability === 'true' ? { isBooked: false } : undefined,
+                            required: availability === 'true',
                         },
                     ],
                 },
@@ -109,9 +123,11 @@ export const getAllTeachers: RequestHandler = async (req: any, res: any, next: a
             offset: offset,
         });
 
-        const count = await models.Teacher.count();
+        const teacherCount = await models.Teacher.count({
+            where: whereClause
+        });
 
-        res.status(200).json({ teachers, count });
+        res.status(200).json({ teachers, count: teacherCount });
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({ error: 'Error Getting All Teachers' });

@@ -26,7 +26,7 @@ const router: Router = express.Router();
 router.post('/register', register);
 router.post('/login', login)
 router.get('/user/:id', passport.authenticate('jwt', { session: false }), userById)
-router.post('/createEvent', passport.authenticate('jwt', { session: false }), createEvent)
+router.post('/createEvent', passport.authenticate('jwt', { session: false }), upload.array('files'), createEvent);
 router.get('/getAllEvents', passport.authenticate('jwt', { session: false }), getAllEvents)
 router.get('/get-event-col-data', passport.authenticate('jwt', { session: false }), getEventsColData)
 router.get('/get-event-by-id/:id', passport.authenticate('jwt', { session: false }), getEventById)
