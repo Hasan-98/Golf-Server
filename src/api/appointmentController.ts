@@ -317,7 +317,7 @@ export const getTeacherAppointmentsCount: RequestHandler = async (req: any, res:
                         where: {
                             teacherId: existingTeacher.id,
                             startDate: {
-                                [Op.gte]: new Date(),
+                                [Op.gte]: new Date().toISOString(),
                             },
                         },
                         attributes: [],
