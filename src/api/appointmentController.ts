@@ -83,17 +83,17 @@ export const bookAppointment: RequestHandler = async (req: any, res: any, next: 
         res.status(500).json({ success: false, error: 'Error booking appointment' });
     }
 }
-
 export const getTeacherBookedAppointments: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
+        const { status } = req.query;
         const existingTeacher = await models.Teacher.findOne({ where: { userId } });
 
         if (existingTeacher) {
             const bookedAppointments = await models.Shifts.findAll({
                 where: {
                     isBooked: true,
-                    status: ['PENDING', 'BOOKED'],
+                    ...(status && { status }),
                 },
                 include: [
                     {
