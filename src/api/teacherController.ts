@@ -88,13 +88,14 @@ export const getTeacherById: RequestHandler = async (req: any, res: any, next: a
 };
 export const getAllTeachers: RequestHandler = async (req: any, res: any, next: any) => {
     try {
-        const { page, pageSize, rating, location, availability, search } = req.query;
+        const { page, pageSize, rating, location, availability, search , status } = req.query;
 
         const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
         const whereClause = {
             ...(rating && { rating: { [Op.gte]: rating } }),
             ...(location && { location }),
+            ...(status && { status }),
             ...(search && {
                 [Op.or]: [
                     { firstName: { [Op.like]: `%${search}%` } },
