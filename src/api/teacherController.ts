@@ -88,14 +88,13 @@ export const getTeacherById: RequestHandler = async (req: any, res: any, next: a
 };
 export const getAllTeachers: RequestHandler = async (req: any, res: any, next: any) => {
     try {
-        const { page, pageSize, rating, location, availability, search , status } = req.query;
+        const { page, pageSize, rating, location, availability, search, status } = req.query;
 
         const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
         const whereClause = {
             ...(rating && { rating: { [Op.gte]: rating } }),
             ...(location && { location }),
-            ...(status && { status }),
             ...(search && {
                 [Op.or]: [
                     { firstName: { [Op.like]: `%${search}%` } },
@@ -114,8 +113,11 @@ export const getAllTeachers: RequestHandler = async (req: any, res: any, next: a
                         {
                             model: models.Shifts,
                             as: 'shifts',
-                            where: availability === 'true' ? { isBooked: false } : undefined,
-                            required: availability === 'true',
+                            where: {
+                                ...(availability === 'true' ? { isBooked: false } : undefined),
+                                ...(status && { status }),
+                            },
+                            required: true
                         },
                     ],
                 },
@@ -124,11 +126,7 @@ export const getAllTeachers: RequestHandler = async (req: any, res: any, next: a
             offset: offset,
         });
 
-        const teacherCount = await models.Teacher.count({
-            where: whereClause
-        });
-
-        res.status(200).json({ teachers, count: teacherCount });
+        res.status(200).json({ teachers, count: teachers.length });
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({ error: 'Error Getting All Teachers' });
