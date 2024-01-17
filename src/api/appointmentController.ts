@@ -109,7 +109,7 @@ export const getTeacherBookedAppointments: RequestHandler = async (req: any, res
                 ],
             });
 
-            res.status(200).json({ bookedAppointments });
+            res.status(200).json({ bookedAppointments, count: bookedAppointments.length });
         } else {
             res.status(404).json({ success: false, error: 'User is not a teacher' });
         }
