@@ -152,7 +152,7 @@ export const getUserBookedAppointments: RequestHandler = async (req: any, res: a
 export const acceptAppointment: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
-        const { scheduleId, day, startTime, endTime, status } = req.body;
+        const { scheduleId, day, startTime, endTime, status, studentId} = req.body;
 
         const existingTeacher = await models.Teacher.findOne({
             where: { userId },
@@ -166,7 +166,7 @@ export const acceptAppointment: RequestHandler = async (req: any, res: any, next
                     startTime,
                     endTime,
                     isBooked: true,
-                    bookedBy: userId,
+                    bookedBy: studentId,
                     status: 'PENDING',
                 },
             });
@@ -181,7 +181,7 @@ export const acceptAppointment: RequestHandler = async (req: any, res: any, next
                             startTime,
                             endTime,
                             isBooked: true,
-                            bookedBy: userId,
+                            bookedBy: studentId,
                             status: 'PENDING',
                         },
                     }

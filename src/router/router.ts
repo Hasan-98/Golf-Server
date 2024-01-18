@@ -10,7 +10,7 @@ import { addComment, addLike } from '../api/communicationController';
 import { becomeTeacher, updateProfile, getAllTeachers, getTeacherById } from '../api/teacherController';
 import {
     bookAppointment, getTeacherBookedAppointments, getUserBookedAppointments, acceptAppointment,
-    favoriteTeacher, getFavoriteTeachers , updateAppointmentStatus , getTeacherAppointmentsCount
+    favoriteTeacher, getFavoriteTeachers, updateAppointmentStatus, getTeacherAppointmentsCount
 } from '../api/appointmentController';
 import multer from 'multer';
 
@@ -33,6 +33,8 @@ router.get('/get-event-by-id/:id', passport.authenticate('jwt', { session: false
 router.patch('/is-favourite-event/:id', passport.authenticate('jwt', { session: false }), markAsFavorite)
 router.get('/get-favourite-events', passport.authenticate('jwt', { session: false }), getFavoriteEvents)
 router.get('/get-public-events', getPublicEvents)
+router.get('/get-all-teachers-public', getAllTeachers)
+router.get('/get-public-posts', getPosts)
 router.post('/join-event/:id', passport.authenticate('jwt', { session: false }), joinEvent)
 router.get('/get-joined-events', passport.authenticate('jwt', { session: false }), getJoinedEvents)
 router.post('/add-comment', passport.authenticate('jwt', { session: false }), addComment)
