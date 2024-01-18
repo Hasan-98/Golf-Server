@@ -35,6 +35,7 @@ router.get('/get-favourite-events', passport.authenticate('jwt', { session: fals
 router.get('/get-public-events', getPublicEvents)
 router.get('/get-all-teachers-public', getAllTeachers)
 router.get('/get-public-posts', getPosts)
+router.get('/get-public-teacher-appointments-count', getTeacherAppointmentsCount)
 router.post('/join-event/:id', passport.authenticate('jwt', { session: false }), joinEvent)
 router.get('/get-joined-events', passport.authenticate('jwt', { session: false }), getJoinedEvents)
 router.post('/add-comment', passport.authenticate('jwt', { session: false }), addComment)
