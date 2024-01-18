@@ -64,7 +64,7 @@ export const bookAppointment: RequestHandler = async (req: any, res: any, next: 
                     });
 
                     const teacherId = schedule?.teacherId;
-                    io.broadcast.emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
+                    io.emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
                     //          io.to(clientId).emit('appointmentBooked', { teacherId, appointment: { schedule, day, startTime, endTime, student: bookedUserDetails } });
 
                     res.status(200).json({
@@ -349,6 +349,58 @@ export const getTeacherAppointmentsCount: RequestHandler = async (req: any, res:
     }
 }
 
+// export const completeAppointment: RequestHandler = async (req: any, res: any, next: any) => {
+//     try {
+//         const userId = req.user.id;
+//         const { scheduleId, day, startTime, endTime, status , rating} = req.body;
+
+//         const existingTeacher = await models.Teacher.findOne({
+//             where: { userId },
+//         });
+
+//         if (existingTeacher) {
+//             const isSlotAvailable = await models.Shifts.findOne({
+//                 where: {
+//                     scheduleId,
+//                     day,
+//                     startTime,
+//                     endTime,
+//                     isBooked: true,
+//                     bookedBy: userId,
+//                     status: 'BOOKED',
+//                 },
+//             });
+
+//             if (isSlotAvailable) {
+//                 await models.Shifts.update(
+//                     { status: status },
+//                     {
+//                         where: {
+//                             scheduleId,
+//                             day,
+//                             startTime,
+//                             endTime,
+//                             isBooked: true,
+//                             bookedBy: userId,
+//                             status: 'BOOKED',
+//                         },
+//                     }
+//                 );
+
+//                 res.status(200).json({
+//                     message: 'Appointment Completed successfully',
+//                 });
+//             } else {
+//                 res.status(400).json({ success: false, error: 'Selected time slot is not available' });
+//             }
+//         } else {
+//             res.status(404).json({ success: false, error: 'User is not a teacher' });
+//         }
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).json({ success: false, error: 'Error accepting appointment' });
+//     }
+// }
 
 
 export const getFavoriteTeachers: RequestHandler = async (req: any, res: any, next: any) => {
