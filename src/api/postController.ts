@@ -58,15 +58,27 @@ export const createPost: RequestHandler = async (req, res, next) => {
     }
 }
 
-
 export const getPosts: RequestHandler = async (req, res, next) => {
     try {
+        const category = req.query.category;
+
         const posts = await models.Post.findAll({
+            where: {
+                category: category as string | undefined,
+            },
             include: [
                 {
                     model: models.User,
                     as: 'posts',
                     attributes: ['id', 'email' , 'nickName'],
+                },
+                {
+                    model: models.Like,
+                    as: 'PostLikes',
+                },
+                {
+                    model: models.Comment,
+                    as: 'PostComments',
                 },
             ],
         });
@@ -79,7 +91,6 @@ export const getPosts: RequestHandler = async (req, res, next) => {
         res.status(500).json({ error: 'Error fetching posts' });
     }
 }
-
 export const getPostById: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -90,6 +101,14 @@ export const getPostById: RequestHandler = async (req, res, next) => {
                     model: models.User,
                     as: 'posts',
                     attributes: ['id', 'email' , 'nickName'],
+                },
+                {
+                    model: models.Like,
+                    as: 'PostLikes',
+                },
+                {
+                    model: models.Comment,
+                    as: 'PostComments',
                 },
             ],
         });

@@ -4,9 +4,10 @@ import express, { Router } from 'express';
 import { register, login, userById } from '../api/UserController';
 import {
     createEvent, getAllEvents, getEventsColData,
-    getEventById, markAsFavorite, getFavoriteEvents, joinEvent, getJoinedEvents, getPublicEvents
+    getEventById, markAsFavorite, getFavoriteEvents, joinEvent, getJoinedEvents, getPublicEvents,
+    getEventPlaces, getEventsByUserId
 } from '../api/eventController';
-import { addComment, addLike } from '../api/communicationController';
+import { addComment, addLike, addPostComment, addPostLike } from '../api/communicationController';
 import { becomeTeacher, updateProfile, getAllTeachers, getTeacherById } from '../api/teacherController';
 import {
     bookAppointment, getTeacherBookedAppointments, getUserBookedAppointments, acceptAppointment,
@@ -23,7 +24,7 @@ import {
 import passport from '../auth/passport';
 const router: Router = express.Router();
 
-router.post('/register', register);
+router.post('/register', upload.single('image'), register);
 router.post('/login', login)
 router.get('/user/:id', passport.authenticate('jwt', { session: false }), userById)
 router.post('/createEvent', passport.authenticate('jwt', { session: false }), upload.array('files'), createEvent);
@@ -55,4 +56,9 @@ router.get('/get-favorite-teachers', passport.authenticate('jwt', { session: fal
 router.post('/create-post', upload.array('mediaFiles'), passport.authenticate('jwt', { session: false }), createPost);
 router.get('/get-posts', passport.authenticate('jwt', { session: false }), getPosts)
 router.get('/get-post-by-id/:id', passport.authenticate('jwt', { session: false }), getPostById)
+router.post('/add-post-comment', passport.authenticate('jwt', { session: false }), addPostComment)
+router.post('/add-post-like', passport.authenticate('jwt', { session: false }), addPostLike)
+router.get('/get-event-places', passport.authenticate('jwt', { session: false }), getEventPlaces)
+router.get('/get-public-event-places', getEventPlaces)
+router.get('/get-events-by-user-id', passport.authenticate('jwt', { session: false }), getEventsByUserId)
 export default router;

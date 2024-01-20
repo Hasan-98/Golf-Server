@@ -60,326 +60,364 @@ export const createEvent: RequestHandler = async (req, res, next) => {
   }
 }
 
-  export const getEventsColData: RequestHandler = async (req, res, next) => {
-    try {
-      const events = await models.Event.findAll({
-        attributes: ['id', 'eventName'],
-      });
-      if (events) {
-        return res.status(200).json({ events });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({ error: 'Cannot get event at the moment' });
+export const getEventsColData: RequestHandler = async (req, res, next) => {
+  try {
+    const events = await models.Event.findAll({
+      attributes: ['id', 'eventName'],
+    });
+    if (events) {
+      return res.status(200).json({ events });
     }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
   }
+}
 
-  export const getEventById: RequestHandler = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const event = await models.Event.findByPk(id);
-      if (event) {
-        return res.status(200).json({
-          imageUrl: event.imageUrl,
-          eventVideoUrl: event.eventVideoUrl,
-        });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({ error: 'Cannot get event at the moment' });
+export const getEventById: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const event = await models.Event.findByPk(id);
+    if (event) {
+      return res.status(200).json({
+        imageUrl: event.imageUrl,
+        eventVideoUrl: event.eventVideoUrl,
+      });
     }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
   }
+}
 
-  export const markAsFavorite: RequestHandler = async (req, res, next) => {
-    try {
-      const userID: any = req.user;
-      const { id } = req.params;
+export const markAsFavorite: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { id } = req.params;
 
-      const foundUser = await models.User.findOne({ where: { id: userID.id } });
-      const event = await models.Event.findByPk(id);
-      if (!foundUser || !event) {
-        return res.status(404).json({ error: 'User or event not found' });
-      }
-
-      await event.update({ isFavorite: !event.isFavorite });
-
-      if (event.isFavorite) {
-        return res.status(200).json({ message: 'Event marked as favorite' });
-      } else {
-        return res.status(200).json({ message: 'Event removed from favorites' });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({ error: 'Cannot mark event as favorite at the moment' });
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+    const event = await models.Event.findByPk(id);
+    if (!foundUser || !event) {
+      return res.status(404).json({ error: 'User or event not found' });
     }
-  };
 
-  export const getAllEvents: RequestHandler = async (req, res, next) => {
-    try {
-      const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
+    await event.update({ isFavorite: !event.isFavorite });
 
-      const filters: any = {};
-      if (eventStartDate && eventEndDate) {
-        filters.eventStartDate = { [Op.gte]: eventStartDate };
-        filters.eventEndDate = { [Op.lte]: eventEndDate };
-      }
-      const currentDate = new Date();
-
-      if (status === 'upcoming') {
-        filters.eventStartDate = { [Op.gte]: currentDate };
-      } else if (status === 'past') {
-        filters.eventEndDate = { [Op.lt]: currentDate };
-      } else if (status === 'live') {
-        filters.eventStartDate = { [Op.lte]: currentDate };
-        filters.eventEndDate = { [Op.gte]: currentDate };
-      }
-
-      const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
-
-      const events = await models.Event.findAndCountAll({
-        include: [
-          {
-            model: models.User,
-            as: 'creator',
-            attributes: ['nickName'],
-          },
-          {
-            model: models.User,
-            as: 'participants',
-            attributes: [],
-          },
-          {
-            model: models.Comment,
-            as: 'comments',
-            include: [
-              {
-                model: models.User,
-                as: 'user',
-                attributes: [],
-              },
-            ],
-          },
-          {
-            model: models.Like,
-            as: 'likes',
-            include: [
-              {
-                model: models.User,
-                as: 'user',
-                attributes: [],
-              },
-            ],
-          },
-        ],
-        where: filters,
-        limit: parseInt(pageSize as string),
-        offset: offset,
-      });
-
-      if (events) {
-        return res.status(200).json({
-          events: events.rows,
-          count: events.count,
-        });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({ error: 'Cannot get event at the moment' });
+    if (event.isFavorite) {
+      return res.status(200).json({ message: 'Event marked as favorite' });
+    } else {
+      return res.status(200).json({ message: 'Event removed from favorites' });
     }
-  };
-
-  export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
-    try {
-      const userID: any = req.user;
-      const { page, pageSize } = req.query;
-
-      const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
-
-      const events = await models.Event.findAndCountAll({
-        include: [
-          {
-            model: models.User,
-            as: 'creator',
-            attributes: [],
-          },
-          {
-            model: models.User,
-            as: 'participants',
-            attributes: [],
-          },
-          {
-            model: models.Comment,
-            as: 'comments',
-            include: [
-              {
-                model: models.User,
-                as: 'user',
-                attributes: [],
-              },
-            ],
-          },
-          {
-            model: models.Like,
-            as: 'likes',
-            include: [
-              {
-                model: models.User,
-                as: 'user',
-                attributes: [],
-              },
-            ],
-          },
-        ],
-        where: { isFavorite: true },
-        limit: parseInt(pageSize as string),
-        offset: offset,
-      });
-
-      if (events) {
-        return res.status(200).json({
-          events: events.rows,
-          count: events.count,
-        });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({ error: 'Cannot get event at the moment' });
-    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot mark event as favorite at the moment' });
   }
+};
 
-  export const joinEvent: RequestHandler = async (req, res, next) => {
-    try {
-      const userID: any = req.user;
-      const { id } = req.params;
-      console.log(id)
-      const foundUser = await models.User.findOne({ where: { id: userID.id } });
-      const event = await models.Event.findByPk(id);
-      if (!foundUser || !event) {
-        return res.status(404).json({ error: 'User or event not found' });
-      }
+export const getAllEvents: RequestHandler = async (req, res, next) => {
+  try {
+    const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
 
-      const alreadyJoined = await models.UserEvent.findOne({
-        where: {
-          user_id: userID.id,
-          event_id: id,
-        }
+    const filters: any = {};
+    if (eventStartDate && eventEndDate) {
+      filters.eventStartDate = { [Op.gte]: eventStartDate };
+      filters.eventEndDate = { [Op.lte]: eventEndDate };
+    }
+    const currentDate = new Date();
+
+    if (status === 'upcoming') {
+      filters.eventStartDate = { [Op.gte]: currentDate };
+    } else if (status === 'past') {
+      filters.eventEndDate = { [Op.lt]: currentDate };
+    } else if (status === 'live') {
+      filters.eventStartDate = { [Op.lte]: currentDate };
+      filters.eventEndDate = { [Op.gte]: currentDate };
+    }
+
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    const events = await models.Event.findAndCountAll({
+      include: [
+        {
+          model: models.User,
+          as: 'creator',
+          attributes: ['nickName'],
+        },
+        {
+          model: models.User,
+          as: 'participants',
+          attributes: [],
+        },
+        {
+          model: models.Comment,
+          as: 'comments',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+        {
+          model: models.Like,
+          as: 'likes',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+      ],
+      where: filters,
+      limit: parseInt(pageSize as string),
+      offset: offset,
+    });
+
+    if (events) {
+      return res.status(200).json({
+        events: events.rows,
+        count: events.count,
       });
-      if (alreadyJoined) {
-        return res.status(400).json({ error: 'User already joined this event' });
-      }
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
+  }
+};
 
-      await models.UserEvent.create({
+export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { page, pageSize } = req.query;
+
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    const events = await models.Event.findAndCountAll({
+      include: [
+        {
+          model: models.User,
+          as: 'creator',
+          attributes: [],
+        },
+        {
+          model: models.User,
+          as: 'participants',
+          attributes: [],
+        },
+        {
+          model: models.Comment,
+          as: 'comments',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+        {
+          model: models.Like,
+          as: 'likes',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+      ],
+      where: { isFavorite: true },
+      limit: parseInt(pageSize as string),
+      offset: offset,
+    });
+
+    if (events) {
+      return res.status(200).json({
+        events: events.rows,
+        count: events.count,
+      });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
+  }
+}
+
+export const joinEvent: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { id } = req.params;
+    console.log(id)
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+    const event = await models.Event.findByPk(id);
+    if (!foundUser || !event) {
+      return res.status(404).json({ error: 'User or event not found' });
+    }
+
+    const alreadyJoined = await models.UserEvent.findOne({
+      where: {
         user_id: userID.id,
         event_id: id,
-      });
-
-      return res.status(200).json({ message: 'User successfully joined event' });
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({ error: 'Cannot join event at the moment' });
+      }
+    });
+    if (alreadyJoined) {
+      return res.status(400).json({ error: 'User already joined this event' });
     }
-  };
+
+    await models.UserEvent.create({
+      user_id: userID.id,
+      event_id: id,
+    });
+
+    return res.status(200).json({ message: 'User successfully joined event' });
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot join event at the moment' });
+  }
+};
 
 
-  export const getPublicEvents: RequestHandler = async (req, res, next) => {
-    try {
-      const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
+export const getPublicEvents: RequestHandler = async (req, res, next) => {
+  try {
+    const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
 
-      const filters: any = {};
-      if (eventStartDate && eventEndDate) {
-        filters.eventStartDate = { [Op.gte]: eventStartDate };
-        filters.eventEndDate = { [Op.lte]: eventEndDate };
-      }
-      const currentDate = new Date();
-
-      if (status === 'upcoming') {
-        filters.eventStartDate = { [Op.gte]: currentDate };
-      } else if (status === 'past') {
-        filters.eventEndDate = { [Op.lt]: currentDate };
-      } else if (status === 'live') {
-        filters.eventStartDate = { [Op.lte]: currentDate };
-        filters.eventEndDate = { [Op.gte]: currentDate };
-      }
-
-      const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
-
-      const events = await models.Event.findAndCountAll({
-        include: [
-          {
-            model: models.User,
-            as: 'creator',
-            attributes: [],
-          },
-          {
-            model: models.User,
-            as: 'participants',
-            attributes: [],
-          },
-          {
-            model: models.Comment,
-            as: 'comments',
-            include: [
-              {
-                model: models.User,
-                as: 'user',
-                attributes: [],
-              },
-            ],
-          },
-          {
-            model: models.Like,
-            as: 'likes',
-            include: [
-              {
-                model: models.User,
-                as: 'user',
-                attributes: [],
-              },
-            ],
-          },
-        ],
-        where: filters,
-        limit: parseInt(pageSize as string),
-        offset: offset,
-      });
-
-      if (events) {
-        return res.status(200).json({
-          events: events.rows,
-          count: events.count,
-        });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({ error: 'Cannot get event at the moment' });
+    const filters: any = {};
+    if (eventStartDate && eventEndDate) {
+      filters.eventStartDate = { [Op.gte]: eventStartDate };
+      filters.eventEndDate = { [Op.lte]: eventEndDate };
     }
-  };
+    const currentDate = new Date();
+
+    if (status === 'upcoming') {
+      filters.eventStartDate = { [Op.gte]: currentDate };
+    } else if (status === 'past') {
+      filters.eventEndDate = { [Op.lt]: currentDate };
+    } else if (status === 'live') {
+      filters.eventStartDate = { [Op.lte]: currentDate };
+      filters.eventEndDate = { [Op.gte]: currentDate };
+    }
+
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    const events = await models.Event.findAndCountAll({
+      include: [
+        {
+          model: models.User,
+          as: 'creator',
+          attributes: [],
+        },
+        {
+          model: models.User,
+          as: 'participants',
+          attributes: [],
+        },
+        {
+          model: models.Comment,
+          as: 'comments',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+        {
+          model: models.Like,
+          as: 'likes',
+          include: [
+            {
+              model: models.User,
+              as: 'user',
+              attributes: [],
+            },
+          ],
+        },
+      ],
+      where: filters,
+      limit: parseInt(pageSize as string),
+      offset: offset,
+    });
+
+    if (events) {
+      return res.status(200).json({
+        events: events.rows,
+        count: events.count,
+      });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
+  }
+};
 
 
-  export const getJoinedEvents: RequestHandler = async (req, res, next) => {
+export const getJoinedEvents: RequestHandler = async (req, res, next) => {
+  const userID: any = req.user;
+  const foundUser = await models.User.findOne({ where: { id: userID.id } });
+  if (!foundUser) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  const events = await models.Event.findAll({
+    include: {
+      model: models.User,
+      where: { id: userID.id },
+    }
+  });
+  return res.status(200).json(events);
+}
+
+export const getEventPlaces: RequestHandler = async (req, res, next) => {
+  try {
+    const events = await models.Event.findAll({
+      attributes: ['place'],
+    });
+    if (events) {
+      return res.status(200).json({ events });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
+  }
+}
+
+
+export const getEventsByUserId: RequestHandler = async (req, res, next) => {
+  try {
     const userID: any = req.user;
     const foundUser = await models.User.findOne({ where: { id: userID.id } });
     if (!foundUser) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const events = await models.Event.findAll({
-      include: {
-        model: models.User,
-        where: { id: userID.id },
-      }
+    const events = await models.Event.findAndCountAll({
+      where: { userEventId: userID.id },
     });
     return res.status(200).json(events);
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event at the moment' });
   }
+}
 
-  export default {
-    createEvent,
-    getAllEvents,
-    getEventsColData,
-    getEventById,
-    markAsFavorite,
-    getFavoriteEvents,
-    joinEvent,
-    getPublicEvents,
-    getJoinedEvents
-  }
+
+
+
+export default {
+  createEvent,
+  getAllEvents,
+  getEventsColData,
+  getEventById,
+  markAsFavorite,
+  getFavoriteEvents,
+  joinEvent,
+  getPublicEvents,
+  getJoinedEvents,
+  getEventPlaces,
+  getEventsByUserId
+}

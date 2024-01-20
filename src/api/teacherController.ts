@@ -94,7 +94,7 @@ export const getAllTeachers: RequestHandler = async (req: any, res: any, next: a
 
         const whereClause = {
             ...(rating && { rating: { [Op.gte]: rating } }),
-            ...(location && { location }),
+            ...(location && { location : { [Op.like]: `%${location}`} }),
             ...(search && {
                 [Op.or]: [
                     { firstName: { [Op.like]: `%${search}%` } },
@@ -189,7 +189,6 @@ export const updateProfile: RequestHandler = async (req: any, res: any, next: an
         return res.status(500).json({ error: 'Error updating the profile' });
     }
 };
-
 
 export default {
     becomeTeacher,

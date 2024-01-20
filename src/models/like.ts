@@ -8,6 +8,7 @@ export default (sequelize: Sequelize) => {
     static associate(models: any) {
       Like.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
       Like.belongsTo(models.Event, { foreignKey: 'eventId', as: 'event' });
+      Like.belongsTo(models.Post, { foreignKey: 'postId', as: 'PostLikes' });
     }
   }
 
@@ -23,6 +24,7 @@ export default (sequelize: Sequelize) => {
     },
     userId: DataTypes.INTEGER,
     eventId: DataTypes.INTEGER,
+    postId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Like',

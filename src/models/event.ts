@@ -41,7 +41,7 @@ export default (sequelize: Sequelize) => {
     driverContest?: number;
     nearPinContest?: number;
     isFavorite?: boolean;
-
+    user_event_id?: number;
     static associate(models: any) {
       Event.belongsTo(models.User, { foreignKey: 'creatorId', as: 'creator' });
       Event.hasMany(models.Comment, { foreignKey: 'eventId', as: 'comments' });
@@ -216,6 +216,10 @@ export default (sequelize: Sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       field: 'is_favorite',
+    },
+    userEventId: {
+      type: DataTypes.INTEGER,
+      field: 'user_event_id',
     },
   }, {
     sequelize,

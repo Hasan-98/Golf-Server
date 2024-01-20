@@ -38,4 +38,5 @@ export interface IEventAttributes {
     driverContest?: number;
     nearPinContest?: number;
     isFavorite?: boolean;
+    userEventId?: number;
 }

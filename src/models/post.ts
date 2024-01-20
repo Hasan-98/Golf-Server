@@ -13,6 +13,8 @@ export default (sequelize: Sequelize) => {
 
         static associate(models: any) {
             Post.belongsTo(models.User, { foreignKey: 'userId', as: 'posts' });
+            Post.hasMany(models.Like, { foreignKey: 'postId', as: 'PostLikes' });
+            Post.hasMany(models.Comment, { foreignKey: 'postId', as: 'PostComments' });
 
         }
     }

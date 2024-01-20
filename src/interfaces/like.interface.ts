@@ -3,4 +3,5 @@ export interface ILikeAttributes {
     counter?: number;
     userId?: any;
     eventId?: any;
+    postId?: any;
   }

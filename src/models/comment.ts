@@ -8,6 +8,7 @@ export default (sequelize: Sequelize) => {
     static associate(models: any) {
       Comment.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
       Comment.belongsTo(models.Event, { foreignKey: 'eventId', as: 'event' });
+      Comment.belongsTo(models.Post, { foreignKey: 'postId', as: 'PostComments' });
     }
   }
 
@@ -20,6 +21,7 @@ export default (sequelize: Sequelize) => {
     content: DataTypes.TEXT,
     userId: DataTypes.INTEGER,
     eventId: DataTypes.INTEGER,
+    postId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Comment',

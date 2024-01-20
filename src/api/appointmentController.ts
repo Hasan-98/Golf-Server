@@ -152,7 +152,7 @@ export const getUserBookedAppointments: RequestHandler = async (req: any, res: a
 export const acceptAppointment: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
-        const { scheduleId, day, startTime, endTime, status, studentId} = req.body;
+        const { scheduleId, day, startTime, endTime, status, studentId } = req.body;
 
         const existingTeacher = await models.Teacher.findOne({
             where: { userId },
@@ -419,6 +419,12 @@ export const getFavoriteTeachers: RequestHandler = async (req: any, res: any, ne
                     {
                         model: models.Teacher,
                         attributes: ['id', 'firstName', 'lastName'],
+                        include: [
+                            {
+                                model: models.User,
+                                attributes: ['imageUrl'],
+                            },
+                        ],
                     },
                 ],
             });
@@ -432,6 +438,7 @@ export const getFavoriteTeachers: RequestHandler = async (req: any, res: any, ne
         res.status(500).json({ success: false, error: 'Error getting favorite teachers' });
     }
 }
+
 
 
 export default {

@@ -3,4 +3,5 @@ export interface ICommenttAttributes {
     content?: string;
     userId?: any;
     eventId?: any;
+    postId?: any;
   }
