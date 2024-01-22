@@ -74,6 +74,30 @@ export const getEventsColData: RequestHandler = async (req, res, next) => {
   }
 }
 
+export const getEventPaymentDetails: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const event = await models.Event.findByPk(id);
+    if (event) {
+      const paymentDetails = {
+        paymentType: event.paymentType,
+        bankName: event.bankName,
+        branchName: event.branchName,
+        branchNumber: event.branchNumber,
+        accountHolderName: event.accountHolderName,
+        accountNumber: event.accountNumber,
+        paypalId: event.paypalId,
+        participationFee: event.participationFee
+      };
+      return res.status(200).json(paymentDetails);
+    } else {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ error: 'Cannot get event payment details at the moment' });
+  }
+}
 export const getEventById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -419,5 +443,6 @@ export default {
   getPublicEvents,
   getJoinedEvents,
   getEventPlaces,
-  getEventsByUserId
+  getEventsByUserId,
+  getEventPaymentDetails
 }

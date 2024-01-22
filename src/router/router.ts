@@ -5,7 +5,7 @@ import { register, login, userById } from '../api/UserController';
 import {
     createEvent, getAllEvents, getEventsColData,
     getEventById, markAsFavorite, getFavoriteEvents, joinEvent, getJoinedEvents, getPublicEvents,
-    getEventPlaces, getEventsByUserId
+    getEventPlaces, getEventsByUserId , getEventPaymentDetails
 } from '../api/eventController';
 import { addComment, addLike, addPostComment, addPostLike } from '../api/communicationController';
 import { becomeTeacher, updateProfile, getAllTeachers, getTeacherById } from '../api/teacherController';
@@ -61,4 +61,5 @@ router.post('/add-post-like', passport.authenticate('jwt', { session: false }), 
 router.get('/get-event-places', passport.authenticate('jwt', { session: false }), getEventPlaces)
 router.get('/get-public-event-places', getEventPlaces)
 router.get('/get-events-by-user-id', passport.authenticate('jwt', { session: false }), getEventsByUserId)
+router.get('/get-event-payment-details/:id', passport.authenticate('jwt', { session: false }), getEventPaymentDetails)
 export default router;
