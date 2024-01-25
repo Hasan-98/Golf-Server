@@ -70,7 +70,7 @@ export const getPosts: RequestHandler = async (req, res, next) => {
                 {
                     model: models.User,
                     as: 'posts',
-                    attributes: ['id', 'email' , 'nickName' , 'imageUrl'],
+                    attributes: ['id', 'email', 'nickName', 'imageUrl'],
                 },
                 {
                     model: models.Like,
@@ -100,7 +100,7 @@ export const getPostById: RequestHandler = async (req, res, next) => {
                 {
                     model: models.User,
                     as: 'posts',
-                    attributes: ['id', 'email' , 'nickName' , 'imageUrl'],
+                    attributes: ['id', 'email', 'nickName', 'imageUrl'],
                 },
                 {
                     model: models.Like,
@@ -109,6 +109,11 @@ export const getPostById: RequestHandler = async (req, res, next) => {
                 {
                     model: models.Comment,
                     as: 'PostComments',
+                    include: [{
+                        model: models.User,
+                        as: 'user',
+                        attributes: ['id', 'name' , 'nickName' , 'imageUrl']
+                    }],
                 },
             ],
         });
