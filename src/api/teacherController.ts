@@ -103,7 +103,7 @@ export const getAllTeachers: RequestHandler = async (req: any, res: any, next: a
             }),
         };
 
-        const teachers = await models.Teacher.findAll({
+        let teachers = await models.Teacher.findAll({
             where: whereClause,
             include: [
                 {
@@ -121,9 +121,26 @@ export const getAllTeachers: RequestHandler = async (req: any, res: any, next: a
                         },
                     ],
                 },
+                {
+                    model: models.User,
+                    as: 'teacher',
+                    attributes: ['imageUrl'],
+                },
             ],
             limit: parseInt(pageSize as string),
             offset: offset,
+        });
+        teachers = JSON.parse(JSON.stringify(teachers));
+        teachers = teachers.map((tech: any) => {
+            const { teacher, ...rest } = tech;
+            return {
+                ...rest,
+                imageUrl: teacher.imageUrl,
+                schedules: tech.schedules.map((schedule: any) => ({
+                    ...schedule,
+                    shifts: schedule.shifts.map((shift: any) => ({ ...shift })),
+                })),
+            };
         });
 
         res.status(200).json({ teachers, count: teachers.length });
