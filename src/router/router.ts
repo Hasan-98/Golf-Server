@@ -62,7 +62,7 @@ router.get('/get-event-places', passport.authenticate('jwt', { session: false })
 router.get('/get-public-event-places', getEventPlaces)
 router.get('/get-events-by-user-id', passport.authenticate('jwt', { session: false }), getEventsByUserId)
 router.get('/get-event-payment-details/:id', passport.authenticate('jwt', { session: false }), getEventPaymentDetails)
-router.get('/get-public-all-teams-', getAllTeams)
+router.get('/get-public-all-teams', getAllTeams)
 router.get('/get-all-teams' , passport.authenticate('jwt', { session: false }) , getAllTeams)
 router.put('/update-team-member',passport.authenticate('jwt', { session: false }) , updateTeamMember)
 export default router;
