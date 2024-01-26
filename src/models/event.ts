@@ -47,6 +47,7 @@ export default (sequelize: Sequelize) => {
       Event.hasMany(models.Comment, { foreignKey: 'eventId', as: 'comments' });
       Event.belongsToMany(models.User, { through: 'UserEvent', as: 'participants' });
       Event.hasMany(models.Like, { foreignKey: 'eventId', as: 'likes' });
+      Event.hasMany(models.Team, { foreignKey: 'eventId', as: 'teams' });
     }
   }
 

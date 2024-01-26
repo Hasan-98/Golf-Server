@@ -13,7 +13,8 @@ import shifts from './shifts';
 import schedules from './schedules';
 import favorite from './favorite';
 import post from './post';
-
+import team from './team';
+import teamMember from './teamMember';
 const sequelize: Sequelize = new Sequelize(
   config.database,
   config.username,
@@ -42,6 +43,8 @@ const models = {
   Schedules: schedules(sequelize),
   Favorite: favorite(sequelize),
   Post: post(sequelize),
+  Team: team(sequelize),
+  TeamMember: teamMember(sequelize),
 };
 
 
