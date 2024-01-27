@@ -51,6 +51,7 @@ export const createEvent: RequestHandler = async (req, res, next) => {
       ...eventData,
       imageUrl: mediaUrls,
       creatorId: user.id,
+      userEventId: user.id,
     });
 
     const membersPerTeam = Math.floor(eventData.capacity / eventData.teamSize);

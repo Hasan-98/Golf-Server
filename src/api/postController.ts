@@ -112,7 +112,7 @@ export const getPostById: RequestHandler = async (req, res, next) => {
                     include: [{
                         model: models.User,
                         as: 'user',
-                        attributes: ['id', 'name' , 'nickName' , 'imageUrl']
+                        attributes: ['id' , 'nickName' , 'imageUrl']
                     }],
                 },
             ],
