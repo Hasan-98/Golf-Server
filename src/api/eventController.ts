@@ -332,9 +332,14 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
     let assigned = false;
     for (let i = 0; i < teams.length && !assigned; i++) {
       const team = teams[i];
-      const members = await models.TeamMember.findAll({ where: { teamId: team.id } });
+      const members = await models.TeamMember.findAll({
+        where: { teamId: team.id },
+      });
       if (members.length < (team.membersPerTeam ?? 0)) {
-        await models.TeamMember.create({ userId: foundUser.id, teamId: team.id });
+        await models.TeamMember.create({
+          userId: foundUser.id,
+          teamId: team.id,
+        });
         assigned = true;
       }
     }
@@ -459,13 +464,35 @@ export const getEventPlaces: RequestHandler = async (req, res, next) => {
 export const getEventsByUserId: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
+    const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
+    const filters: any = {};
+    if (eventStartDate && eventEndDate) {
+      filters.eventStartDate = { [Op.gte]: eventStartDate };
+      filters.eventEndDate = { [Op.lte]: eventEndDate };
+    }
+    const currentDate = new Date();
+
+    if (status === "upcoming") {
+      filters.eventStartDate = { [Op.gte]: currentDate };
+    } else if (status === "past") {
+      filters.eventEndDate = { [Op.lt]: currentDate };
+    } else if (status === "live") {
+      filters.eventStartDate = { [Op.lte]: currentDate };
+      filters.eventEndDate = { [Op.gte]: currentDate };
+    }
+    const offset =
+      (parseInt(page as string) - 1) * parseInt(pageSize as string);
     const foundUser = await models.User.findOne({ where: { id: userID.id } });
     if (!foundUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
+    filters.userEventId = userID.id;
+
     const events = await models.Event.findAndCountAll({
-      where: { userEventId: userID.id },
+      where: filters,
+      offset: offset,
+      limit: parseInt(pageSize as string),
     });
     return res.status(200).json(events);
   } catch (err) {
@@ -473,7 +500,6 @@ export const getEventsByUserId: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot get event at the moment" });
   }
 };
-
 export default {
   createEvent,
   getAllEvents,
