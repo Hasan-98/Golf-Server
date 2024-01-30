@@ -14,7 +14,7 @@ import {
     favoriteTeacher, getFavoriteTeachers, updateAppointmentStatus, getTeacherAppointmentsCount
 } from '../api/appointmentController';
 import multer from 'multer';
-import { getAllTeams, updateTeamMember } from '../api/teamController';
+import { getAllTeams, updateTeamMember , getTeamsByEvent } from '../api/teamController';
 const upload = multer();
 import {
     createPost,
@@ -65,4 +65,5 @@ router.get('/get-event-payment-details/:id', passport.authenticate('jwt', { sess
 router.get('/get-public-all-teams', getAllTeams)
 router.get('/get-all-teams' , passport.authenticate('jwt', { session: false }) , getAllTeams)
 router.put('/update-team-member',passport.authenticate('jwt', { session: false }) , updateTeamMember)
+router.get('/get-teams-by-event/:id' , getTeamsByEvent)
 export default router;
