@@ -3,4 +3,6 @@ export interface ITeamAttributes {
     eventId?: number;
     name?: string;
     membersPerTeam?: number;
+    teamImage?: string;
+
   }

@@ -229,7 +229,6 @@ router.put(
 );
 router.get(
   "/get-teams-by-event/:id",
-  passport.authenticate("jwt", { session: false }),
   getTeamsByEvent
 );
 export default router;

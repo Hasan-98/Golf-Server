@@ -7,6 +7,7 @@ export default (sequelize: Sequelize) => {
     eventId!: number;
     name!: string;
     membersPerTeam?: number | undefined;
+    teamImage?: string | undefined;
     static associate(models: any) {
       Team.belongsTo(models.Event, { foreignKey: "eventId", as: "teams" });
       Team.hasMany(models.TeamMember, { foreignKey: "teamId", as: "members" });
@@ -30,6 +31,10 @@ export default (sequelize: Sequelize) => {
       membersPerTeam: {
         type: DataTypes.INTEGER,
         field: "members_per_team",
+      },
+      teamImage: {
+        type: DataTypes.STRING,
+        field: "team_image",
       },
     },
     {
