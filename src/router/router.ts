@@ -224,11 +224,12 @@ router.get(
 );
 router.put(
   "/update-team-member",
-  passport.authenticate("jwt", { session: false }),
+  //passport.authenticate("jwt", { session: false }),
   updateTeamMember
 );
 router.get(
   "/get-teams-by-event/:id",
+  passport.authenticate("jwt", { session: false }),
   getTeamsByEvent
 );
 export default router;

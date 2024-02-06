@@ -132,8 +132,7 @@ export const getEventById: RequestHandler = async (req, res, next) => {
     const event = await models.Event.findByPk(id);
     if (event) {
       return res.status(200).json({
-        imageUrl: event.imageUrl,
-        eventVideoUrl: event.eventVideoUrl,
+        event,
       });
     }
   } catch (err) {
@@ -141,7 +140,6 @@ export const getEventById: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot get event at the moment" });
   }
 };
-
 export const markAsFavorite: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;

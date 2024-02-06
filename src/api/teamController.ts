@@ -8,7 +8,7 @@ export const getAllTeams: RequestHandler = async (req, res, next) => {
         {
           model: models.TeamMember,
           as: "members",
-          attributes: [ "userId", "teamId"],
+          attributes: ["userId", "teamId"],
           include: [
             {
               model: models.User,
@@ -20,7 +20,7 @@ export const getAllTeams: RequestHandler = async (req, res, next) => {
       ],
     });
 
-    teams = JSON.parse(JSON.stringify(teams))
+    teams = JSON.parse(JSON.stringify(teams));
     teams = teams.map((team: any) => {
       team.members = team.members.map((member: any) => {
         member.nickName = member.users.nickName;
@@ -30,8 +30,8 @@ export const getAllTeams: RequestHandler = async (req, res, next) => {
       });
       return team;
     });
-      
-    return res.status(200).json({ teams  });
+
+    return res.status(200).json({ teams });
   } catch (err) {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot get teams at the moment" });
@@ -78,35 +78,61 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot get teams at the moment" });
   }
-}
-
+};
 
 export const updateTeamMember: RequestHandler = async (req, res, next) => {
   try {
-    const { userId, teamId } = req.body;
+    const { eventId, teamSize, teams, capacity } = req.body;
 
-    const teamMember = await models.TeamMember.findOne({
-      where: {
-        userId: userId,
-      },
-    });
-
-    if (!teamMember) {
-      return res.status(404).json({ error: "Team member not found" });
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
     }
+    let updatedEvent: any = await event.update(
+      {
+        teamSize: teamSize,
+        capacity: capacity,
+      },
+      {
+        where: {
+          id: eventId,
+        },
+      }
+    );
+    updatedEvent = JSON.parse(JSON.stringify(updatedEvent));
+    const membersPerTeam = Math.floor(
+      updatedEvent.capacity / updatedEvent.teamSize
+    );
+    for (let i = 0; i < teams.length; i++) {
+      const team = await models.Team.findByPk(teams[i].id);
+      if (team) {
+        await team.update({
+          membersPerTeam: membersPerTeam,
+        });
 
-    await teamMember.update({
-      teamId: teamId,
-    });
+        for (let j = 0; j < teams[i].members.length; j++) {
+          const member = await models.TeamMember.findOne({
+            where: { userId: teams[i].members[j].userId },
+          });
+          if (member) {
+            await member.destroy();
+            await models.TeamMember.create({
+              userId: teams[i].members[j].userId,
+              teamId: teams[i].id,
+            });
+          }
+        }
+      }
+    }
 
     return res
       .status(200)
-      .json({ message: "Team member updated successfully" });
+      .json({ message: "Teams and team members updated successfully" });
   } catch (err) {
     console.error("Error:", err);
     return res
       .status(500)
-      .json({ error: "Cannot update team member at the moment" });
+      .json({ error: "Cannot update teams and team members at the moment" });
   }
 };
 
