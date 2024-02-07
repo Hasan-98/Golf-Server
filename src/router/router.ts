@@ -11,7 +11,6 @@ import {
   getFavoriteEvents,
   joinEvent,
   getJoinedEvents,
-  getPublicEvents,
   getEventPlaces,
   getEventsByUserId,
   getEventPaymentDetails,
@@ -77,6 +76,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getEventById
 );
+router.get("/get-public-event-by-id/:id", getEventById);
 router.patch(
   "/is-favourite-event/:id",
   passport.authenticate("jwt", { session: false }),
@@ -87,7 +87,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getFavoriteEvents
 );
-router.get("/get-public-events", getPublicEvents);
+router.get("/get-public-events", getAllEvents);
 router.get("/get-all-teachers-public", getAllTeachers);
 router.get("/get-public-posts", getPosts);
 router.get(
@@ -224,7 +224,7 @@ router.get(
 );
 router.put(
   "/update-team-member",
-  //passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false }),
   updateTeamMember
 );
 router.get(

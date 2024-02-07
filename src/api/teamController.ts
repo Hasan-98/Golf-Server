@@ -79,30 +79,41 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot get teams at the moment" });
   }
 };
-
 export const updateTeamMember: RequestHandler = async (req, res, next) => {
   try {
     const { eventId, teamSize, teams, capacity } = req.body;
 
+    const activeMembers =
+      teams.reduce((total: any, team: any) => total + team.members.length, 0) /
+      teamSize;
+    const reqActiveTeams =
+      teams.reduce((total: any, team: any) => total + team.members.length, 0) /
+      capacity;
+
+    if (capacity < activeMembers) {
+      return res.status(400).json({
+        error:
+          "Capacity cannot be smaller than the total number of team members ",
+      });
+    }
+
+    if (teamSize < reqActiveTeams) {
+      return res
+        .status(400)
+        .json({ error: "Teams Must have at Least " + reqActiveTeams });
+    }
     const event = await models.Event.findByPk(eventId);
     if (!event) {
       return res.status(404).json({ error: "Event not found" });
     }
-    let updatedEvent: any = await event.update(
-      {
-        teamSize: teamSize,
-        capacity: capacity,
-      },
-      {
-        where: {
-          id: eventId,
-        },
-      }
-    );
-    updatedEvent = JSON.parse(JSON.stringify(updatedEvent));
-    const membersPerTeam = Math.floor(
-      updatedEvent.capacity / updatedEvent.teamSize
-    );
+
+    const updatedEvent: any = await event.update({
+      teamSize: teamSize,
+      capacity: capacity,
+    });
+
+    let oldTeamSize = teams.length;
+    const membersPerTeam = capacity;
     for (let i = 0; i < teams.length; i++) {
       const team = await models.Team.findByPk(teams[i].id);
       if (team) {
@@ -122,6 +133,46 @@ export const updateTeamMember: RequestHandler = async (req, res, next) => {
             });
           }
         }
+      }
+    }
+
+    for (let i = 0; i < teams.length; i++) {
+      const team = await models.Team.findByPk(teams[i].id);
+      if (team) {
+        await team.update({
+          membersPerTeam: membersPerTeam,
+        });
+
+        if (teams[i].members.length > capacity) {
+          const excessMembers = teams[i].members.length - capacity;
+          for (let j = 0; j < excessMembers; j++) {
+            const nextTeamIndex = (i + 1) % teams.length;
+            const nextTeam = teams[nextTeamIndex];
+            const memberToTransfer = teams[i].members.pop();
+            await models.TeamMember.update(
+              { teamId: nextTeam.id },
+              { where: { userId: memberToTransfer.userId } }
+            );
+            nextTeam.members.push(memberToTransfer);
+          }
+        }
+      }
+    }
+    const actualTeamSize = teamSize - oldTeamSize;
+
+    if (actualTeamSize > 0) {
+      for (let i = 0; i < actualTeamSize; i++) {
+        const teamName = `Team ${oldTeamSize + i + 1}`;
+        await models.Team.create({
+          eventId: eventId,
+          name: teamName,
+          membersPerTeam: capacity,
+        });
+      }
+    } else if (actualTeamSize < 0) {
+      const teamsToRemove = teams.splice(actualTeamSize);
+      for (const teamToRemove of teamsToRemove) {
+        await models.Team.destroy({ where: { id: teamToRemove.id } });
       }
     }
 

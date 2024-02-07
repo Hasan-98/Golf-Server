@@ -85,7 +85,7 @@ export const createEvent: RequestHandler = async (req, res, next) => {
 export const getEventsColData: RequestHandler = async (req, res, next) => {
   try {
     const events = await models.Event.findAll({
-      attributes: ["id", "eventName"],
+      attributes: ["id", "eventName", "place"],
     });
     if (events) {
       return res.status(200).json({ events });
@@ -168,7 +168,8 @@ export const markAsFavorite: RequestHandler = async (req, res, next) => {
 
 export const getAllEvents: RequestHandler = async (req, res, next) => {
   try {
-    const { page, pageSize, eventStartDate, eventEndDate, status } = req.query;
+    const { page, pageSize, eventStartDate, eventEndDate, status, place } =
+      req.query;
 
     const filters: any = {};
     if (eventStartDate && eventEndDate) {
@@ -186,6 +187,9 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
       filters.eventEndDate = { [Op.gte]: currentDate };
     }
 
+    if (place) {
+      filters.place = { [Op.in]: place };
+    }
     const offset =
       (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
