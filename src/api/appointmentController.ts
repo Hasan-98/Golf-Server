@@ -422,6 +422,7 @@ export const getFavoriteTeachers: RequestHandler = async (req: any, res: any, ne
                         include: [
                             {
                                 model: models.User,
+                                as: 'teacher',
                                 attributes: ['imageUrl'],
                             },
                         ],
