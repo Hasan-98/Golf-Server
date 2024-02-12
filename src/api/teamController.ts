@@ -64,19 +64,22 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
         },
       ],
     });
-
+    let totalJoinedMembers = 0;
     teams = JSON.parse(JSON.stringify(teams));
     teams = teams.map((team: any) => {
       team.members = team.members.map((member: any) => {
         member.nickName = member.users.nickName;
         member.imageUrl = member.users.imageUrl;
+        
         delete member.users;
         return member;
       });
+      team.membersCount = team.members.length;
+      totalJoinedMembers += team.membersCount;
       return team;
     });
 
-    return res.status(200).json({ teams });
+    return res.status(200).json({ teams , totalJoinedMembers});
   } catch (err) {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot get teams at the moment" });
