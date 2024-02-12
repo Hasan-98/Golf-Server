@@ -47,14 +47,16 @@ export const createEvent: RequestHandler = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+    const membersPerTeam = eventData.capacity / eventData.teamSize;
+
     const event = await models.Event.create({
       ...eventData,
       imageUrl: mediaUrls,
       creatorId: user.id,
       userEventId: user.id,
+      capacity: membersPerTeam,
     });
 
-    const membersPerTeam = Math.floor(eventData.capacity / eventData.teamSize);
     const numberOfTeams =
       eventData.capacity % eventData.teamSize === 0
         ? eventData.teamSize

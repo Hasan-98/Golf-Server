@@ -109,14 +109,14 @@ export const updateTeamMember: RequestHandler = async (req, res, next) => {
     if (!event) {
       return res.status(404).json({ error: "Event not found" });
     }
+    const membersPerTeam = capacity / teamSize;
 
     const updatedEvent: any = await event.update({
       teamSize: teamSize,
-      capacity: capacity,
+      capacity: membersPerTeam,
     });
 
     let oldTeamSize = teams.length;
-    const membersPerTeam = capacity;
     for (let i = 0; i < teams.length; i++) {
       const team = await models.Team.findByPk(teams[i].id);
       if (team) {
