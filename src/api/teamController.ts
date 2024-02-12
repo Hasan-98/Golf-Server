@@ -28,6 +28,7 @@ export const getAllTeams: RequestHandler = async (req, res, next) => {
         delete member.users;
         return member;
       });
+      team.membersCount = team.members.length;
       return team;
     });
 
