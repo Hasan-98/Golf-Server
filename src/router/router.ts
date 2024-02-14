@@ -37,12 +37,12 @@ import {
   updateAppointmentStatus,
   getTeacherAppointmentsCount,
 } from "../api/appointmentController";
-import multer from "multer";
 import {
   getAllTeams,
   updateTeamMember,
   getTeamsByEvent,
 } from "../api/teamController";
+import multer from "multer";
 const upload = multer();
 import { createPost, getPosts, getPostById } from "../api/postController";
 import passport from "../auth/passport";
@@ -58,7 +58,7 @@ router.get(
 router.post(
   "/createEvent",
   passport.authenticate("jwt", { session: false }),
-  upload.array("files"),
+  upload.array("files[]"),
   createEvent
 );
 router.get(

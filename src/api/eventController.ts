@@ -25,16 +25,18 @@ export const createEvent: RequestHandler = async (req, res, next) => {
       let i = 0;
       mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
       i++
-    ) {
+    ) {      
       const file = mediaFiles[i];
       const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
-
+      
       if (!BUCKET_NAME) {
         throw new Error("AWS_BUCKET_NAME is not defined");
       }
+      
 
       const type = file.mimetype?.split("/")[1];
       const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+
       const params = {
         Bucket: BUCKET_NAME,
         Key: name,
@@ -195,6 +197,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     const offset =
       (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
+     
     const events = await models.Event.findAndCountAll({
       include: [
         {
@@ -234,10 +237,51 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
       limit: parseInt(pageSize as string),
       offset: offset,
     });
+  
+   
+    let eId: number[] = events.rows.map(event => event.id as number);
+    let teams = await models.Team.findAll({
+      where: {
+        eventId: eId,
+      },
+      include: [
+        {
+          model: models.TeamMember,
+          as: "members",
+          attributes: ["userId", "teamId"],
+          include: [
+            {
+              model: models.User,
+              as: "users",
+              attributes: ["id", "nickName", "imageUrl"],
+            },
+          ],
+        },
+      ],
+    });
+    let totalJoinedMembers = 0;
+    teams = JSON.parse(JSON.stringify(teams));
+    teams = teams.map((team: any) => {
+      team.members = team.members.map((member: any) => {
+        member.nickName = member.users.nickName;
+        member.imageUrl = member.users.imageUrl;
+        
+        delete member.users;
+        return member;
+      });
+      team.membersCount = team.members.length;
+      totalJoinedMembers += team.membersCount;
+      return team;
+    });
 
+    const eventsWithTeamMemberCount = events.rows.map(event => ({
+      ...event.toJSON(),
+      teamMemberCount: totalJoinedMembers,
+      teams: teams
+    }));
     if (events) {
       return res.status(200).json({
-        events: events.rows,
+        events: eventsWithTeamMemberCount,
         count: events.count,
       });
     }
