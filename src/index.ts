@@ -6,7 +6,7 @@ const test = app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
 });
 const corsOptions = {
-  origin: `http://localhost:${port}`,
+  origin: "http://localhost:3000",
   methods: ["GET", "POST"],
   allowedHeaders: ["my-custom-header"],
   credentials: true,
