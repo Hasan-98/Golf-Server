@@ -1,7 +1,12 @@
 // router.ts
 
 import express, { Router } from "express";
-import { register, login, userById } from "../api/UserController";
+import {
+  register,
+  login,
+  userById,
+  getTotalUsers,
+} from "../api/UserController";
 import {
   createEvent,
   getAllEvents,
@@ -44,7 +49,12 @@ import {
 } from "../api/teamController";
 import multer from "multer";
 const upload = multer();
-import { createPost, getPosts, getPostById } from "../api/postController";
+import {
+  createPost,
+  getPosts,
+  getPostById,
+  getAllPosts,
+} from "../api/postController";
 import passport from "../auth/passport";
 const router: Router = express.Router();
 
@@ -60,6 +70,16 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   upload.array("files[]"),
   createEvent
+);
+router.get(
+  "/get-total-users",
+  passport.authenticate("jwt", { session: false }),
+  getTotalUsers
+);
+router.get(
+  "/get-all-posts",
+  passport.authenticate("jwt", { session: false }),
+  getAllPosts
 );
 router.get(
   "/getAllEvents",

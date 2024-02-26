@@ -112,10 +112,20 @@ export const userById: any = async (req: any, res: any) => {
   }
 };
 
-
-
+export const getTotalUsers: any = async (req: any, res: any) => {
+  try {
+    const users = await models.User.findAll({
+      attributes: { exclude: ['password' , 'token'] }
+    });
+    res.status(200).json({ users: users, count: users.length });
+  } catch (err) {
+    console.log('Error: ', err);
+    res.status(500).json({ error: 'Unable to retrieve user profile at this time' });
+  }
+}
 export default {
   register,
   login,
   userById,
+  getTotalUsers
 }
