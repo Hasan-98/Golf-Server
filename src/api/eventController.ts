@@ -282,7 +282,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     if (events) {
       return res.status(200).json({
         events: eventsWithTeamMemberCount,
-        count: events.count,
+        count: eventsWithTeamMemberCount.length,
       });
     }
   } catch (err) {
