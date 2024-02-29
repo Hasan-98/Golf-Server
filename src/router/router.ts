@@ -41,6 +41,7 @@ import {
   getFavoriteTeachers,
   updateAppointmentStatus,
   getTeacherAppointmentsCount,
+  getNotifications,
 } from "../api/appointmentController";
 import {
   getAllTeams,
@@ -153,6 +154,12 @@ router.put(
   "/update-profile",
   passport.authenticate("jwt", { session: false }),
   updateProfile
+);
+
+router.get(
+  "/get-notifications",
+  passport.authenticate("jwt", { session: false }),
+  getNotifications
 );
 router.post(
   "/book-appointment",

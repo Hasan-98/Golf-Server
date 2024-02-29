@@ -158,12 +158,19 @@ export const acceptAppointment: RequestHandler = async (
           },
         });
 
-        await models.Notification.create({
-          userId: studentId,
-          teacherId: existingTeacher.id,
-          message: `Your appointment request has been ${status}`,
-          isRead: false,
+        const existingNotification = await models.Notification.findOne({
+          where: {
+            userId: studentId,
+            teacherId: existingTeacher.id,
+          },
         });
+
+        if (existingNotification) {
+          await existingNotification.update({
+            message: `Your appointment request has been ${status}`,
+            isRead: false,
+          });
+        }
         res.status(200).json({
           message: "Appointment accepted successfully",
         });
@@ -570,6 +577,7 @@ export const getFavoriteTeachers: RequestHandler = async (
 };
 
 export default {
+  getNotifications,
   bookAppointment,
   getTeacherBookedAppointments,
   getUserBookedAppointments,
