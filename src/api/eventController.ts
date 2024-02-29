@@ -238,7 +238,8 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
       offset: offset,
     });
   
-   
+    const totalEventsCount = events.count;
+
     let eId: number[] = events.rows.map(event => event.id as number);
     let teams = await models.Team.findAll({
       where: {
@@ -282,7 +283,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     if (events) {
       return res.status(200).json({
         events: eventsWithTeamMemberCount,
-        count: events.count,
+        count: totalEventsCount,
       });
     }
   } catch (err) {
