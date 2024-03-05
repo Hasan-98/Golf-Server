@@ -56,6 +56,15 @@ import {
   getPostById,
   getAllPosts,
 } from "../api/postController";
+
+import {
+  getAllScoreCards,
+  getScoreCardByEvent,
+  getScoreCardByUser,
+  addScoreCard,
+  updateScoreCard,
+} from "../api/scoreCardController";
+
 import passport from "../auth/passport";
 const router: Router = express.Router();
 
@@ -258,5 +267,31 @@ router.get(
   "/get-teams-by-event/:id",
   passport.authenticate("jwt", { session: false }),
   getTeamsByEvent
+);
+
+router.post(
+  "/add-score-card",
+  passport.authenticate("jwt", { session: false }),
+  addScoreCard
+);
+router.get(
+  "/get-all-score-cards",
+  passport.authenticate("jwt", { session: false }),
+  getAllScoreCards
+);
+router.get(
+  "/get-score-card-by-event/:id",
+  passport.authenticate("jwt", { session: false }),
+  getScoreCardByEvent
+);
+router.get(
+  "/get-score-card-by-user/:id",
+  passport.authenticate("jwt", { session: false }),
+  getScoreCardByUser
+);
+router.put(
+  "/update-score-card/:id",
+  passport.authenticate("jwt", { session: false }),
+  updateScoreCard
 );
 export default router;

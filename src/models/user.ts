@@ -20,6 +20,7 @@ export default (sequelize: Sequelize) => {
       User.belongsToMany(models.Teacher, { through: models.Favorite, as: 'favoriteTeachers' });
       User.hasMany(models.Post, { foreignKey: 'userId', as: 'posts' });
       User.hasMany(models.TeamMember, { foreignKey: 'userId', as: 'users' });
+      User.hasMany(models.ScoreCard, { foreignKey: 'userId', as: 'userScoreCard' });
     }
   }
 

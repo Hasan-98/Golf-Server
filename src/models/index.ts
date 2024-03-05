@@ -16,6 +16,7 @@ import post from './post';
 import team from './team';
 import teamMember from './teamMember';
 import notification from './notification';
+import scoreCard from './scoreCard';
 const sequelize: Sequelize = new Sequelize(
   config.database,
   config.username,
@@ -47,6 +48,7 @@ const models = {
   Team: team(sequelize),
   TeamMember: teamMember(sequelize),
   Notification: notification(sequelize),
+  ScoreCard: scoreCard(sequelize),
 };
 
 
