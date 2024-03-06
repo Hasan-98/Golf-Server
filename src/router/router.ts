@@ -268,6 +268,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getTeamsByEvent
 );
+router.get("/get-public-teams-by-event/:id", getTeamsByEvent);
 
 router.post(
   "/add-score-card",
