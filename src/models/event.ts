@@ -11,6 +11,7 @@ export default (sequelize: Sequelize) => {
     eventVideoUrl?: string;
     categories?: string;
     place?: string;
+    address?: string;
     placeCoordinates?: { lat: string; lng: string };
     capacity?:number;
     selfIncluded?: boolean;
@@ -71,6 +72,11 @@ export default (sequelize: Sequelize) => {
     imageUrl: {
       type: DataTypes.JSON,
       field: 'image_url',
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      field: 'address',
     },
     // video: {
     //   type: DataTypes.STRING,

@@ -7,6 +7,7 @@ export interface IEventAttributes {
     eventDetails?: string;
     eventVideoUrl?: string;
     categories?: string;
+    address?: string;
     place?: string;
     placeCoordinates?: { lat: string; lng: string };
     capacity?:number;

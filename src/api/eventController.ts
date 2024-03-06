@@ -25,14 +25,13 @@ export const createEvent: RequestHandler = async (req, res, next) => {
       let i = 0;
       mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
       i++
-    ) {      
+    ) {
       const file = mediaFiles[i];
       const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
-      
+
       if (!BUCKET_NAME) {
         throw new Error("AWS_BUCKET_NAME is not defined");
       }
-      
 
       const type = file.mimetype?.split("/")[1];
       const name = `${userFolder}/${Date.now()}-${i}.${type}`;
@@ -197,8 +196,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     const offset =
       (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
-     
-    const events = await models.Event.findAndCountAll({
+    let events = await models.Event.findAll({
       include: [
         {
           model: models.User,
@@ -217,7 +215,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: ['nickname'],
+              attributes: ["nickname"],
             },
           ],
         },
@@ -237,10 +235,11 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
       limit: parseInt(pageSize as string),
       offset: offset,
     });
-  
-    const totalEventsCount = events.count;
 
-    let eId: number[] = events.rows.map(event => event.id as number);
+    events = JSON.parse(JSON.stringify(events));
+    const totalEventsCount = events.length;
+
+    let eId: any = events.map((event) => event.id);
     let teams = await models.Team.findAll({
       where: {
         eventId: eId,
@@ -260,26 +259,33 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
         },
       ],
     });
-    let totalJoinedMembers = 0;
+
     teams = JSON.parse(JSON.stringify(teams));
     teams = teams.map((team: any) => {
       team.members = team.members.map((member: any) => {
         member.nickName = member.users.nickName;
         member.imageUrl = member.users.imageUrl;
-        
+
         delete member.users;
         return member;
       });
       team.membersCount = team.members.length;
-      totalJoinedMembers += team.membersCount;
       return team;
     });
 
-    const eventsWithTeamMemberCount = events.rows.map(event => ({
-      ...event.toJSON(),
-      teamMemberCount: totalJoinedMembers,
-      teams: teams
-    }));
+    const eventsWithTeamMemberCount = events.map((event) => {
+      const eventTeams = teams.filter((team) => team.eventId === event.id);
+      const teamMemberCount = eventTeams.reduce(
+        (total, team: any) => total + team.membersCount,
+        0
+      );
+      return {
+        ...event,
+        teamMemberCount,
+        teams: eventTeams,
+      };
+    });
+
     if (events) {
       return res.status(200).json({
         events: eventsWithTeamMemberCount,
