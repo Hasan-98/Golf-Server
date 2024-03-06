@@ -193,8 +193,10 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     if (place) {
       filters.place = { [Op.in]: place };
     }
-    const offset =
-      (parseInt(page as string) - 1) * parseInt(pageSize as string);
+    const totalEventsCount = await models.Event.count({
+      where: filters,
+    });
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
     let events = await models.Event.findAll({
       include: [
@@ -237,7 +239,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     });
 
     events = JSON.parse(JSON.stringify(events));
-    const totalEventsCount = events.length;
+
 
     let eId: any = events.map((event) => event.id);
     let teams = await models.Team.findAll({
