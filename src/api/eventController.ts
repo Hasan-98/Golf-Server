@@ -196,7 +196,8 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     const totalEventsCount = await models.Event.count({
       where: filters,
     });
-    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+    const offset =
+      (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
     let events = await models.Event.findAll({
       include: [
@@ -239,7 +240,6 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
     });
 
     events = JSON.parse(JSON.stringify(events));
-
 
     let eId: any = events.map((event) => event.id);
     let teams = await models.Team.findAll({
@@ -303,8 +303,13 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
 export const deleteEventById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const event = await models.Event.findOne({ where: { id } });;
+    const event = await models.Event.findOne({ where: { id } });
     if (event) {
+      await models.Comment.destroy({ where: { eventId: id } });
+      await models.Like.destroy({ where: { eventId: id } });
+      await models.Team.destroy({ where: { eventId: id } });
+      await models.ScoreCard.destroy({ where: { eventId: id } });
+
       await event.destroy();
       return res.status(200).json({ message: "Event deleted successfully" });
     } else {
@@ -314,12 +319,12 @@ export const deleteEventById: RequestHandler = async (req, res, next) => {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot delete event at the moment" });
   }
-}
+};
 
 export const updateEventById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const event = await models.Event.findOne({ where: { id } });;
+    const event = await models.Event.findOne({ where: { id } });
     if (event) {
       await event.update(req.body);
       return res.status(200).json({ message: "Event updated successfully" });
@@ -330,7 +335,7 @@ export const updateEventById: RequestHandler = async (req, res, next) => {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot update event at the moment" });
   }
-}
+};
 export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
