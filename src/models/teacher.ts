@@ -17,11 +17,22 @@ export default (sequelize: Sequelize) => {
     // hourlyRate?: number;
 
     static associate(models: any) {
-      Teacher.belongsTo(models.User, { foreignKey: "userId", as: "teacher" });
-      Teacher.hasMany(models.Schedules, { foreignKey: "teacherId" });
+      Teacher.belongsTo(models.User, {
+        foreignKey: "userId",
+        as: "teacher",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      Teacher.hasMany(models.Schedules, {
+        foreignKey: "teacherId",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
       Teacher.belongsToMany(models.User, {
         through: models.Favorite,
         as: "favoritedByUsers",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       });
     }
   }

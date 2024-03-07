@@ -11,8 +11,18 @@ export default (sequelize: Sequelize) => {
     teamId!: number;
 
     static associate(models: any) {
-      TeamMember.belongsTo(models.User, { foreignKey: "userId", as: "users" });
-      TeamMember.belongsTo(models.Team, { foreignKey: "teamId", as: "members" });
+      TeamMember.belongsTo(models.User, {
+        foreignKey: "userId",
+        as: "users",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      TeamMember.belongsTo(models.Team, {
+        foreignKey: "teamId",
+        as: "members",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
   TeamMember.init(

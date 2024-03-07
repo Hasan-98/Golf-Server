@@ -163,6 +163,9 @@ export const deletePost: RequestHandler = async (req, res, next) => {
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
+    // Delete associated comments before deleting the post
+    await models.Comment.destroy({ where: { postId: id } });
+    await models.Like.destroy({ where: { postId: id } });
     await post.destroy();
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (err) {

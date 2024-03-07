@@ -18,10 +18,14 @@ export default (sequelize: Sequelize) => {
       ScoreCard.belongsTo(models.User, {
         foreignKey: "userId",
         as: "userScoreCard",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       });
       ScoreCard.belongsTo(models.Event, {
         foreignKey: "eventId",
         as: "eventScoreCard",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       });
     }
   }

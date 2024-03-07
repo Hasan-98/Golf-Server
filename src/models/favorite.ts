@@ -2,37 +2,49 @@ import { DataTypes, Sequelize, Model } from "sequelize";
 import { IFavoriteAttributes } from "../interfaces/favourite.interface";
 
 export default (sequelize: Sequelize) => {
-    class Favorite extends Model<IFavoriteAttributes> implements IFavoriteAttributes {
-        id!: number;
-        userId!: number;
-        teacherId!: number;
+  class Favorite
+    extends Model<IFavoriteAttributes>
+    implements IFavoriteAttributes
+  {
+    id!: number;
+    userId!: number;
+    teacherId!: number;
 
-
-        static associate(models: any) {
-            Favorite.belongsTo(models.User, { foreignKey: 'userId' });
-            Favorite.belongsTo(models.Teacher, { foreignKey: 'teacherId' });
-        }
+    static associate(models: any) {
+      Favorite.belongsTo(models.User, {
+        foreignKey: "userId",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      Favorite.belongsTo(models.Teacher, {
+        foreignKey: "teacherId",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
+  }
 
+  Favorite.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        field: "user_id",
+      },
+      teacherId: {
+        type: DataTypes.INTEGER,
+        field: "teacher_id",
+      },
+    },
+    {
+      sequelize,
+      modelName: "favorite",
+    }
+  );
 
-    Favorite.init({
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        userId: {
-            type: DataTypes.INTEGER,
-            field: 'user_id'
-        },
-        teacherId: {
-            type: DataTypes.INTEGER,
-            field: 'teacher_id'
-        },
-    }, {
-        sequelize,
-        modelName: 'favorite',
-    });
-
-    return Favorite;
-}
+  return Favorite;
+};

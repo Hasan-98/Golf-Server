@@ -9,8 +9,18 @@ export default (sequelize: Sequelize) => {
     membersPerTeam?: number | undefined;
     teamImage?: string | undefined;
     static associate(models: any) {
-      Team.belongsTo(models.Event, { foreignKey: "eventId", as: "teams" });
-      Team.hasMany(models.TeamMember, { foreignKey: "teamId", as: "members" });
+      Team.belongsTo(models.Event, {
+        foreignKey: "eventId",
+        as: "teams",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      Team.hasMany(models.TeamMember, {
+        foreignKey: "teamId",
+        as: "members",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
   Team.init(
