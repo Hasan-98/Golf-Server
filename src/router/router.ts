@@ -19,6 +19,8 @@ import {
   getEventPlaces,
   getEventsByUserId,
   getEventPaymentDetails,
+  deleteEventById,
+  updateEventById
 } from "../api/eventController";
 import {
   addComment,
@@ -54,6 +56,8 @@ import {
   createPost,
   getPosts,
   getPostById,
+  updatePost,
+  deletePost,
   getAllPosts,
 } from "../api/postController";
 
@@ -95,6 +99,17 @@ router.get(
   "/getAllEvents",
   passport.authenticate("jwt", { session: false }),
   getAllEvents
+);
+router.delete(
+  "/delete-event-by-id/:id",
+  passport.authenticate("jwt", { session: false }),
+  deleteEventById
+);
+router.put(
+  "/update-event-by-id/:id",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("files[]"),
+  updateEventById
 );
 router.get(
   "/get-event-col-data",
@@ -215,6 +230,17 @@ router.post(
   upload.array("mediaFiles"),
   passport.authenticate("jwt", { session: false }),
   createPost
+);
+router.put(
+  "/update-post/:id",
+  upload.array("mediaFiles"),
+  passport.authenticate("jwt", { session: false }),
+  updatePost
+);
+router.delete(
+  "/delete-post/:id",
+  passport.authenticate("jwt", { session: false }),
+  deletePost
 );
 router.get(
   "/get-posts",

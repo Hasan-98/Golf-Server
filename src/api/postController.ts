@@ -132,6 +132,44 @@ export const getPostById: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const updatePost: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { category, tags, text } = req.body;
+    const post = await models.Post.findOne({ where: { id } });
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    const updatedPost = await post.update({
+      category,
+      tags,
+      text,
+    });
+    res.status(200).json({
+      message: "Post updated successfully",
+      updatedPost,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error updating post" });
+  }
+}
+
+
+export const deletePost: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const post = await models.Post.findOne({ where: { id } });
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    await post.destroy();
+    res.status(200).json({ message: "Post deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error deleting post" });
+  }
+}
 export const getAllPosts: RequestHandler = async (req, res, next) => {
     try {
       const posts = await models.Post.findAll({
@@ -152,5 +190,7 @@ export default {
   createPost,
   getPosts,
   getPostById,
-  getAllPosts
+  getAllPosts,
+  updatePost,
+  deletePost
 };
