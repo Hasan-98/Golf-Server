@@ -137,56 +137,12 @@ export const getPostById: RequestHandler = async (req, res, next) => {
 
 export const updatePost: RequestHandler = async (req, res, next) => {
   try {
-    const { postId, category, tags, text } = req.body;
-    let userId: any = req.user;
-    userId = JSON.parse(JSON.stringify(userId));
-    const foundUser = await models.User.findOne({ where: { id: userId.id } });
-    if (!foundUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    const userFolder = `user-${foundUser?.email}`;
-    const mediaFiles = req.files;
-    const mediaUrls = [];
-    for (
-      let i = 0;
-      mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
-      i++
-    ) {
-      const file = mediaFiles[i];
-      const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
-
-      if (!BUCKET_NAME) {
-        throw new Error("AWS_BUCKET_NAME is not defined");
-      }
-
-      const type = file.mimetype?.split("/")[1];
-      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
-      const params = {
-        Bucket: BUCKET_NAME,
-        Key: name,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
-
-      const { Location } = await s3.upload(params).promise();
-      mediaUrls.push(Location);
-    }
-
-    const updatedPost = await models.Post.update(
-      {
-        userId: userId.id,
-        category,
-        text,
-        tags,
-        mediaFile: mediaUrls,
-      },
-      { where: { id: postId } }
-    );
-
-    if (updatedPost[0] === 0) {
+    const { id } = req.params;
+    const post = await models.Post.findOne({ where: { id } });
+    if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
-
+    const updatedPost = await post.update(req.body);
     res.status(200).json({
       message: "Post updated successfully",
       updatedPost,
@@ -195,7 +151,8 @@ export const updatePost: RequestHandler = async (req, res, next) => {
     console.error(err);
     res.status(500).json({ error: "Error updating post" });
   }
-};
+}
+
 
 export const deletePost: RequestHandler = async (req, res, next) => {
   try {
@@ -213,22 +170,22 @@ export const deletePost: RequestHandler = async (req, res, next) => {
     console.error(err);
     res.status(500).json({ error: "Error deleting post" });
   }
-};
+}
 export const getAllPosts: RequestHandler = async (req, res, next) => {
-  try {
-    const posts = await models.Post.findAll({
-      attributes: { exclude: ["category"] },
-    });
-    res.status(200).json({
-      message: "Posts fetched successfully",
-      posts,
-      count: posts.length,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error fetching posts" });
-  }
-};
+    try {
+      const posts = await models.Post.findAll({
+        attributes: { exclude: ['category'] }
+      });
+      res.status(200).json({
+        message: "Posts fetched successfully",
+        posts,
+        count: posts.length,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error fetching posts" });
+    }
+  };
 
 export default {
   createPost,
@@ -236,5 +193,5 @@ export default {
   getPostById,
   getAllPosts,
   updatePost,
-  deletePost,
+  deletePost
 };
