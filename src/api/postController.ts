@@ -98,7 +98,7 @@ export const getMyPosts: RequestHandler = async (req, res, next) => {
     console.error(err);
     res.status(500).json({ error: "Error fetching posts" });
   }
-}
+};
 export const getPosts: RequestHandler = async (req, res, next) => {
   try {
     const category = req.query.category;
@@ -118,11 +118,25 @@ export const getPosts: RequestHandler = async (req, res, next) => {
           model: models.Like,
           required: false,
           as: "PostLikes",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
         },
         {
           model: models.Comment,
           required: false,
           as: "PostComments",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: 'user'
+            },
+          ],
         },
       ],
     });
@@ -189,8 +203,7 @@ export const updatePost: RequestHandler = async (req, res, next) => {
     console.error(err);
     res.status(500).json({ error: "Error updating post" });
   }
-}
-
+};
 
 export const deletePost: RequestHandler = async (req, res, next) => {
   try {
@@ -208,22 +221,22 @@ export const deletePost: RequestHandler = async (req, res, next) => {
     console.error(err);
     res.status(500).json({ error: "Error deleting post" });
   }
-}
+};
 export const getAllPosts: RequestHandler = async (req, res, next) => {
-    try {
-      const posts = await models.Post.findAll({
-        attributes: { exclude: ['category'] }
-      });
-      res.status(200).json({
-        message: "Posts fetched successfully",
-        posts,
-        count: posts.length,
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Error fetching posts" });
-    }
-  };
+  try {
+    const posts = await models.Post.findAll({
+      attributes: { exclude: ["category"] },
+    });
+    res.status(200).json({
+      message: "Posts fetched successfully",
+      posts,
+      count: posts.length,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error fetching posts" });
+  }
+};
 
 export default {
   createPost,
@@ -232,5 +245,5 @@ export default {
   getAllPosts,
   updatePost,
   deletePost,
-  getMyPosts
+  getMyPosts,
 };
