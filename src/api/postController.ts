@@ -134,7 +134,7 @@ export const getPosts: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               attributes: ["nickName", "imageUrl"],
-              as: 'user'
+              as: "user",
             },
           ],
         },
@@ -226,6 +226,38 @@ export const getAllPosts: RequestHandler = async (req, res, next) => {
   try {
     const posts = await models.Post.findAll({
       attributes: { exclude: ["category"] },
+      include: [
+        {
+          model: models.User,
+          as: "posts",
+          required: false,
+          attributes: ["id", "email", "nickName", "imageUrl"],
+        },
+        {
+          model: models.Like,
+          required: false,
+          as: "PostLikes",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+        },
+        {
+          model: models.Comment,
+          required: false,
+          as: "PostComments",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+        },
+      ],
     });
     res.status(200).json({
       message: "Posts fetched successfully",
