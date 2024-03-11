@@ -61,6 +61,44 @@ export const createPost: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const getMyPosts: RequestHandler = async (req, res, next) => {
+  try {
+    let userId: any = req.user;
+    userId = JSON.parse(JSON.stringify(userId));
+    const foundUser = await models.User.findOne({ where: { id: userId.id } });
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const posts = await models.Post.findAll({
+      where: { userId: userId.id },
+      include: [
+        {
+          model: models.User,
+          as: "posts",
+          required: false,
+          attributes: ["id", "email", "nickName", "imageUrl"],
+        },
+        {
+          model: models.Like,
+          required: false,
+          as: "PostLikes",
+        },
+        {
+          model: models.Comment,
+          required: false,
+          as: "PostComments",
+        },
+      ],
+    });
+    res.status(200).json({
+      message: "Posts fetched successfully",
+      posts,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error fetching posts" });
+  }
+}
 export const getPosts: RequestHandler = async (req, res, next) => {
   try {
     const category = req.query.category;
@@ -193,5 +231,6 @@ export default {
   getPostById,
   getAllPosts,
   updatePost,
-  deletePost
+  deletePost,
+  getMyPosts
 };

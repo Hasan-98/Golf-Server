@@ -6,6 +6,7 @@ import {
   login,
   userById,
   getTotalUsers,
+  editUserProfile,
 } from "../api/UserController";
 import {
   createEvent,
@@ -59,6 +60,7 @@ import {
   updatePost,
   deletePost,
   getAllPosts,
+  getMyPosts,
 } from "../api/postController";
 
 import {
@@ -90,10 +92,20 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getTotalUsers
 );
+router.put(
+  "/edit-user-profile/:id",
+  passport.authenticate("jwt", { session: false }),
+  editUserProfile
+);
 router.get(
   "/get-all-posts",
   passport.authenticate("jwt", { session: false }),
   getAllPosts
+);
+router.get(
+  "/get-my-posts",
+  passport.authenticate("jwt", { session: false }),
+  getMyPosts
 );
 router.get(
   "/getAllEvents",
