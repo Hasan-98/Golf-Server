@@ -21,7 +21,7 @@ import {
   getEventsByUserId,
   getEventPaymentDetails,
   deleteEventById,
-  updateEventById
+  updateEventById,
 } from "../api/eventController";
 import {
   addComment,
@@ -102,6 +102,8 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getAllPosts
 );
+
+router.get("/get-public-all-posts", getAllPosts);
 router.get(
   "/get-my-posts",
   passport.authenticate("jwt", { session: false }),
