@@ -2,7 +2,7 @@ import express, { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 import { models } from "../models/index";
-
+import { io } from "../index";
 import AWS from "aws-sdk";
 
 // Initialize AWS S3 with your credentials
@@ -395,13 +395,39 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot get event at the moment" });
   }
 };
+export const approveJoinRequest: RequestHandler = async (req, res, next) => {
+  const { userId, eventId } = req.body;
+  await models.UserEvent.update(
+    { status: 'joined' },
+    { where: { user_id: userId, event_id: eventId } }
+  );
 
+  res.status(200).json({ message: 'Join request approved' });
+};
+
+export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
+  const { eventId } = req.params;
+
+  const waitingCount = await models.UserEvent.count({
+    where: { event_id: eventId, status: 'waiting' }
+  });
+
+  const joinedCount = await models.UserEvent.count({
+    where: { event_id: eventId, status: 'joined' }
+  });
+  res.json({
+    waitingCount: waitingCount,
+    joinedCount: joinedCount
+  });
+};
 export const joinEvent: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
     const { id } = req.params;
     const foundUser = await models.User.findOne({ where: { id: userID.id } });
-    const event = await models.Event.findByPk(id);
+    let event : any = await models.Event.findByPk(id);
+    event = JSON.parse(JSON.stringify(event));
+    const organizerId = event?.userEventId;
     if (!foundUser || !event) {
       return res.status(404).json({ error: "User or event not found" });
     }
@@ -419,6 +445,7 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
     await models.UserEvent.create({
       user_id: userID.id,
       event_id: id,
+      status: 'waiting',
     });
 
     const teams = await models.Team.findAll({ where: { eventId: event.id } });
@@ -442,6 +469,11 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
         .status(500)
         .json({ error: "No available teams for user to join" });
     }
+    io.emit("joinRequest", {
+      userId: foundUser.id,
+      eventId: event.id,
+      organizerId: organizerId,
+    });
     return res.status(200).json({ message: "User successfully joined event" });
   } catch (err) {
     console.error("Error:", err);
@@ -608,4 +640,6 @@ export default {
   getEventPlaces,
   getEventsByUserId,
   getEventPaymentDetails,
+  approveJoinRequest,
+  getJoinedAndWaitList,
 };

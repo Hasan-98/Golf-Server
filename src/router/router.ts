@@ -16,6 +16,8 @@ import {
   markAsFavorite,
   getFavoriteEvents,
   joinEvent,
+  getJoinedAndWaitList,
+  approveJoinRequest,
   getJoinedEvents,
   getEventPlaces,
   getEventsByUserId,
@@ -91,6 +93,16 @@ router.get(
   "/get-total-users",
   passport.authenticate("jwt", { session: false }),
   getTotalUsers
+);
+router.put(
+  "/approve-join-request",
+  passport.authenticate("jwt", { session: false }),
+  approveJoinRequest
+);
+router.get(
+  "/get-joined-and-wait-list/:id",
+  passport.authenticate("jwt", { session: false }),
+  getJoinedAndWaitList
 );
 router.put(
   "/edit-user-profile/:id",

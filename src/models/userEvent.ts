@@ -20,6 +20,7 @@ export default (sequelize: Sequelize) => {
     },
     user_id: DataTypes.INTEGER,
     event_id: DataTypes.INTEGER,
+    status: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'UserEvent',
