@@ -39,7 +39,7 @@ export default (sequelize: Sequelize) => {
         autoIncrement: true,
       },
       text: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         field: "text",
       },
       userId: {
