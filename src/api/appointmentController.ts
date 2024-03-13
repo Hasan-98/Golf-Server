@@ -168,7 +168,7 @@ export const acceptAppointment: RequestHandler = async (
         if (existingNotification) {
           await existingNotification.update({
             message: `Your appointment request has been ${status}`,
-            isRead: false,
+            isRead: true,
           });
         }
         res.status(200).json({
@@ -191,7 +191,7 @@ export const acceptAppointment: RequestHandler = async (
   }
 };
 
-// get notfications for user or teacher
+// get notifications for user or teacher
 export const getNotifications: RequestHandler = async (
   req: any,
   res: any,
@@ -200,16 +200,22 @@ export const getNotifications: RequestHandler = async (
   try {
     const userId = req.user.id;
     const teacherId = req.query.teacherId;
+    const eventId = req.query.eventId;
     const existingUser = await models.User.findOne({
       where: { id: userId },
     });
 
     if (existingUser) {
+      const whereClause: any = { userId };
+
+      if (eventId) {
+        whereClause.eventId = eventId;
+      } else if (teacherId) {
+        whereClause.teacherId = teacherId;
+      }
+
       const notifications = await models.Notification.findAll({
-        where: {
-            userId,
-            teacherId: teacherId,
-        },
+        where: whereClause,
       });
 
       res.status(200).json({ notifications });

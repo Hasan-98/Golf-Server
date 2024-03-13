@@ -398,34 +398,39 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
 export const approveJoinRequest: RequestHandler = async (req, res, next) => {
   const { userId, eventId } = req.body;
   await models.UserEvent.update(
-    { status: 'joined' },
+    { status: "joined" },
     { where: { user_id: userId, event_id: eventId } }
   );
 
-  res.status(200).json({ message: 'Join request approved' });
+  await models.Notification.update(
+    { isRead: true, message: "Request to join the event has been approved" },
+    { where: { userId: userId, eventId: eventId } }
+  );
+  res.status(200).json({ message: "Join request approved" });
 };
 
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   const { eventId } = req.params;
 
   const waitingCount = await models.UserEvent.count({
-    where: { event_id: eventId, status: 'waiting' }
+    where: { event_id: eventId, status: "waiting" },
   });
 
   const joinedCount = await models.UserEvent.count({
-    where: { event_id: eventId, status: 'joined' }
+    where: { event_id: eventId, status: "joined" },
   });
   res.json({
     waitingCount: waitingCount,
-    joinedCount: joinedCount
+    joinedCount: joinedCount,
   });
 };
+
 export const joinEvent: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
     const { id } = req.params;
     const foundUser = await models.User.findOne({ where: { id: userID.id } });
-    let event : any = await models.Event.findByPk(id);
+    let event: any = await models.Event.findByPk(id);
     event = JSON.parse(JSON.stringify(event));
     const organizerId = event?.userEventId;
     if (!foundUser || !event) {
@@ -445,7 +450,7 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
     await models.UserEvent.create({
       user_id: userID.id,
       event_id: id,
-      status: 'waiting',
+      status: "waiting",
     });
 
     const teams = await models.Team.findAll({ where: { eventId: event.id } });
@@ -474,6 +479,14 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
       eventId: event.id,
       organizerId: organizerId,
     });
+
+    await models.Notification.create({
+      userId: organizerId,
+      eventId: event.id,
+      message: `User with ID ${foundUser.id} has requested to joined the event`,
+      isRead: false,
+    });
+
     return res.status(200).json({ message: "User successfully joined event" });
   } catch (err) {
     console.error("Error:", err);

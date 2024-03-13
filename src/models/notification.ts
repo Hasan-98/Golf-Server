@@ -25,6 +25,11 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      Notifcation.belongsTo(models.Event, {
+        foreignKey: "eventId",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
 
@@ -38,6 +43,10 @@ export default (sequelize: Sequelize) => {
       userId: {
         type: DataTypes.INTEGER,
         field: "user_id",
+      },
+      eventId: {
+        type: DataTypes.INTEGER,
+        field: "event_id",
       },
       teacherId: {
         type: DataTypes.INTEGER,
