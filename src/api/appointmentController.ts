@@ -206,7 +206,7 @@ export const getNotifications: RequestHandler = async (
     });
 
     if (existingUser) {
-      const whereClause: any = { userId };
+      const whereClause: any = { };
 
       if (eventId) {
         whereClause.eventId = eventId;
@@ -216,6 +216,12 @@ export const getNotifications: RequestHandler = async (
 
       const notifications = await models.Notification.findAll({
         where: whereClause,
+        include: [
+          {
+            model: models.User,
+            attributes: ['id','nickname', 'imageUrl'],
+          },
+        ],
       });
 
       res.status(200).json({ notifications });

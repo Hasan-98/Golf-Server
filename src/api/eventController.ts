@@ -481,7 +481,7 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
     });
 
     await models.Notification.create({
-      userId: organizerId,
+      userId: foundUser.id,
       eventId: event.id,
       message: `User with ID ${foundUser.id} has requested to joined the event`,
       isRead: false,
