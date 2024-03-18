@@ -30,6 +30,8 @@ import {
   addLike,
   addPostComment,
   addPostLike,
+  editComment,
+  deleteComment,
 } from "../api/communicationController";
 import {
   becomeTeacher,
@@ -287,6 +289,17 @@ router.post(
   "/add-post-like",
   passport.authenticate("jwt", { session: false }),
   addPostLike
+);
+router.put(
+  "/edit-comment",
+  passport.authenticate("jwt", { session: false }),
+  editComment
+);
+
+router.delete(
+  "/delete-comment/:id",
+  passport.authenticate("jwt", { session: false }),
+  deleteComment
 );
 router.get(
   "/get-event-places",
