@@ -410,14 +410,14 @@ export const approveJoinRequest: RequestHandler = async (req, res, next) => {
 };
 
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
-  const { eventId } = req.params;
+  const { id } = req.params;
 
   const waitingCount = await models.UserEvent.count({
-    where: { event_id: eventId, status: "waiting" },
+    where: { event_id: id, status: "waiting" },
   });
 
   const joinedCount = await models.UserEvent.count({
-    where: { event_id: eventId, status: "joined" },
+    where: { event_id: id, status: "joined" },
   });
   res.json({
     waitingCount: waitingCount,
