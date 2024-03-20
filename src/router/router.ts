@@ -23,6 +23,7 @@ import {
   getEventsByUserId,
   getEventPaymentDetails,
   deleteEventById,
+  searchEventByName,
   updateEventById,
 } from "../api/eventController";
 import {
@@ -100,6 +101,11 @@ router.put(
   "/approve-join-request",
   passport.authenticate("jwt", { session: false }),
   approveJoinRequest
+);
+router.get(
+  "/search-event-by-name",
+  passport.authenticate("jwt", { session: false }),
+  searchEventByName
 );
 router.get(
   "/get-joined-and-wait-list/:id",

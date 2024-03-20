@@ -99,6 +99,26 @@ export const getEventsColData: RequestHandler = async (req, res, next) => {
   }
 };
 
+
+export const searchEventByName: RequestHandler = async (req, res, next) => {
+  try {
+    const { name } = req.query;
+    const events = await models.Event.findAll({
+      where: {
+        eventName: {
+          [Op.like]: `%${name}%`,
+        },
+      },
+    });
+    if (events) {
+      return res.status(200).json({ events });
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot get event at the moment" });
+  }
+};
+
 export const getEventPaymentDetails: RequestHandler = async (
   req,
   res,
@@ -655,4 +675,5 @@ export default {
   getEventPaymentDetails,
   approveJoinRequest,
   getJoinedAndWaitList,
+  searchEventByName
 };
