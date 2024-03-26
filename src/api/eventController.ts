@@ -4,6 +4,7 @@ import { Op } from "sequelize";
 import { models } from "../models/index";
 import { io } from "../index";
 import AWS from "aws-sdk";
+import { IUserEventAttributes } from "../interfaces/userEvent.interface";
 
 // Initialize AWS S3 with your credentials
 const s3 = new AWS.S3({
@@ -432,18 +433,43 @@ export const approveJoinRequest: RequestHandler = async (req, res, next) => {
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   const { id } = req.params;
 
-  const waitingCount = await models.UserEvent.count({
-    where: { event_id: id, status: "waiting" },
-  });
+  try {
+    let waitingUsers : IUserEventAttributes[] = await models.UserEvent.findAll({
+      where: { event_id: id, status: "waiting" },
+    });
 
-  const joinedCount = await models.UserEvent.count({
-    where: { event_id: id, status: "joined" },
-  });
-  res.json({
-    waitingCount: waitingCount,
-    joinedCount: joinedCount,
-  });
+    let joinedUsers : IUserEventAttributes[] = await models.UserEvent.findAll({
+      where: { event_id: id, status: "joined" },
+    });
+
+    waitingUsers = JSON.parse(JSON.stringify(waitingUsers));
+    joinedUsers = JSON.parse(JSON.stringify(joinedUsers))
+    const waitingUserIds = waitingUsers?.map(user => user.user_id);
+    const joinedUserIds  = joinedUsers?.map(user => user.user_id);
+
+    
+    const waitingUsersDetails = await models.User.findAll({
+      where: { id: waitingUserIds },
+      attributes: ["id", "nickName", "imageUrl"],
+    });
+
+    const joinedUsersDetails = await models.User.findAll({
+      where: { id: joinedUserIds },
+      attributes: ["id", "nickName", "imageUrl"],
+    });
+
+    res.json({
+      waitingCount: waitingUsers.length,
+      waitingUsers: waitingUsersDetails,
+      joinedCount: joinedUsers.length,
+      joinedUsers: joinedUsersDetails,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
+
 
 export const joinEvent: RequestHandler = async (req, res, next) => {
   try {
