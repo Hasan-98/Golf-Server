@@ -8,4 +8,7 @@ export interface ITeacherAttributes {
     location?: string,
     rating?: any,
     hourlyRate?: number,
+    profileImage?: string;
+    portfolioVideo?: string;
+    introductionVideo?: string;
   }

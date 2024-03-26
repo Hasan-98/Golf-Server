@@ -36,6 +36,7 @@ import {
 } from "../api/communicationController";
 import {
   becomeTeacher,
+  updateTeacherProfile,
   updateProfile,
   getAllTeachers,
   getTeacherById,
@@ -197,6 +198,16 @@ router.post(
   "/become-teacher",
   passport.authenticate("jwt", { session: false }),
   becomeTeacher
+);
+router.put(
+  "/update-teacher-profile",
+  passport.authenticate("jwt", { session: false }),
+  upload.fields([
+    { name: "profileImage", maxCount: 1 },
+    { name: "portfolioVideo", maxCount: 1 },
+    { name: "introductionVideo", maxCount: 1 },
+  ]),
+  updateTeacherProfile
 );
 router.get(
   "/get-all-teachers",

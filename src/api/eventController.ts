@@ -269,6 +269,8 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
       where: filters,
       limit: parseInt(pageSize as string),
       offset: offset,
+      order: [['updatedAt', 'DESC']]
+    
     });
 
     events = JSON.parse(JSON.stringify(events));

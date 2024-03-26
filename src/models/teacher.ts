@@ -76,6 +76,18 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         field: "hourly_rate",
       },
+      profileImage: {
+        type: DataTypes.STRING,
+        field: "profile_image",
+      },
+      portfolioVideo: {
+        type: DataTypes.STRING,
+        field: "portfolio_video",
+      },
+      introductionVideo: {
+        type: DataTypes.STRING,
+        field: "introduction_video",
+      },
     },
     {
       sequelize,
