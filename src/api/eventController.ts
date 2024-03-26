@@ -153,7 +153,18 @@ export const getEventPaymentDetails: RequestHandler = async (
 export const getEventById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const event = await models.Event.findByPk(id);
+    const event = await models.Event.findByPk(id, {
+      include: [
+        {
+          model: models.Comment,
+          as: "comments",
+        },
+        {
+          model: models.Like,
+          as: "likes",
+        },
+      ],
+    });
     if (event) {
       return res.status(200).json({
         event,
