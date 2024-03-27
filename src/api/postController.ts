@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index";
+const { Op } = require("sequelize");
 import AWS from "aws-sdk";
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -269,7 +270,108 @@ export const getAllPosts: RequestHandler = async (req, res, next) => {
     res.status(500).json({ error: "Error fetching posts" });
   }
 };
+export const getTopLikedPost: RequestHandler = async (req, res, next) => {
+  try {
+    let posts: any= await models.Post.findAll({
+      attributes: { exclude: ["category"] },
+      include: [
+        {
+          model: models.User,
+          as: "posts",
+          required: false,
+          attributes: ["id", "email", "nickName", "imageUrl"],
+        },
+        {
+          model: models.Like,
+          required: false,
+          as: "PostLikes",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+        },
+        {
+          model: models.Comment,
+          required: false,
+          as: "PostComments",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+        },
+      ],
+    });
 
+     posts.sort((a: any, b: any) => b.PostLikes.length - a.PostLikes.length);
+
+     const topLikedPost = posts[0];
+ 
+     res.status(200).json({
+       message: "Top liked post fetched successfully",
+       topLikedPost,
+     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error fetching top liked post" });
+  }
+};
+export const getTopCommetedPost: RequestHandler = async (req, res, next) => {
+  try {
+    let comments: any= await models.Post.findAll({
+      attributes: { exclude: ["category"] },
+      include: [
+        {
+          model: models.User,
+          as: "posts",
+          required: false,
+          attributes: ["id", "email", "nickName", "imageUrl"],
+        },
+        {
+          model: models.Like,
+          required: false,
+          as: "PostLikes",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+        },
+        {
+          model: models.Comment,
+          required: false,
+          as: "PostComments",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+        },
+      ],
+    });
+
+    comments.sort((a: any, b: any) => b.PostComments.length - a.PostComments.length);
+
+     const topCommentedPost = comments[0];
+ 
+     res.status(200).json({
+       message: "Top Commented post fetched successfully",
+       topCommentedPost,
+     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error fetching top commented post" });
+  }
+};
 export default {
   createPost,
   getPosts,
@@ -278,4 +380,6 @@ export default {
   updatePost,
   deletePost,
   getMyPosts,
+  getTopLikedPost,
+  getTopCommetedPost
 };
