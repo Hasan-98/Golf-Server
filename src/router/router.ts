@@ -216,7 +216,7 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   upload.fields([
     { name: "profileImage", maxCount: 1 },
-    { name: "portfolioVideo", maxCount: 1 },
+    { name: "portfolioVideo", maxCount: 5 },
     { name: "introductionVideo", maxCount: 1 },
   ]),
   updateTeacherProfile

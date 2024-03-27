@@ -17,7 +17,9 @@ export const updateTeacherProfile: RequestHandler = async (
     const userId = req.user.id;
     const { firstName } = req.body;
     const userFolder = `teacher-${firstName}`;
-    const { profileImage, portfolioVideo, introductionVideo } = req.files;
+    const { profileImage, introductionVideo } = req.files;
+    const portfolioVideos = req.files['portfolioVideo'];
+
     // Find the teacher record
     const existingTeacher = await models.Teacher.findOne({ where: { userId } });
 
@@ -29,45 +31,36 @@ export const updateTeacherProfile: RequestHandler = async (
         throw new Error("AWS_BUCKET_NAME is not defined");
       }
 
-      // profile image
-      let type = profileImage[0].mimetype?.split("/")[1];
-      let name = `${userFolder}/${Date.now()}-profile.${type}`;
-      let params = {
-        Bucket: BUCKET_NAME,
-        Key: name,
-        Body: profileImage[0].buffer,
-        ContentType: profileImage[0].mimetype,
+      const uploadFile = async (file: Express.Multer.File, type: string) => {
+        const fileType = file.mimetype?.split("/")[1];
+        const name = `${userFolder}/${Date.now()}-${type}.${fileType}`;
+        const params = {
+          Bucket: BUCKET_NAME,
+          Key: name,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        const uploadResult = await s3.upload(params).promise();
+        return uploadResult.Location;
       };
-      const profileUploadResult = await s3.upload(params).promise();
-      const profileImagePath = profileUploadResult.Location;
 
-      // portfolioVideo
-      type = portfolioVideo[0].mimetype?.split("/")[1];
-      name = `${userFolder}/${Date.now()}-portfolio.${type}`;
-      params = {
-        Bucket: BUCKET_NAME,
-        Key: name,
-        Body: portfolioVideo[0].buffer,
-        ContentType: portfolioVideo[0].mimetype,
-      };
-      const portfolioUploadResult = await s3.upload(params).promise();
-      const portfolioVideoPath = portfolioUploadResult.Location;
+      // Upload profile image
+      const profileImagePath = await uploadFile(profileImage[0], 'profile');
 
-      // instructionVudeo
-      type = introductionVideo[0].mimetype?.split("/")[1];
-      name = `${userFolder}/${Date.now()}-introduction.${type}`;
-      params = {
-        Bucket: BUCKET_NAME,
-        Key: name,
-        Body: introductionVideo[0].buffer,
-        ContentType: introductionVideo[0].mimetype,
-      };
-      const introductionUploadResult = await s3.upload(params).promise();
-      const introductionVideoPath = introductionUploadResult.Location;
+      // Upload introduction video
+      const introductionVideoPath = await uploadFile(introductionVideo[0], 'introduction');
 
+      // Upload portfolio videos
+      const portfolioVideoPaths: any = [];
+      for (let i = 0; i < portfolioVideos.length; i++) {
+        const portfolioVideoPath = await uploadFile(portfolioVideos[i], `portfolio${i+1}`);
+        portfolioVideoPaths.push(portfolioVideoPath);
+      }
+
+      // Update the teacher record with the file paths
       const updatedTeacher = await existingTeacher.update({
         profileImage: profileImagePath,
-        portfolioVideo: portfolioVideoPath,
+        portfolioVideo: portfolioVideoPaths.join(','),
         introductionVideo: introductionVideoPath,
       });
 
@@ -83,6 +76,7 @@ export const updateTeacherProfile: RequestHandler = async (
     res.status(500).json({ error: "Error updating teacher profile" });
   }
 };
+
 
 export const becomeTeacher: RequestHandler = async (
   req: any,
