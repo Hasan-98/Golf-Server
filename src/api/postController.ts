@@ -310,11 +310,11 @@ export const getTopLikedPost: RequestHandler = async (req, res, next) => {
 
      posts.sort((a: any, b: any) => b.PostLikes.length - a.PostLikes.length);
 
-     const topLikedPost = posts[0];
+     const topLikedPosts = posts.slice(0, 3);
  
      res.status(200).json({
        message: "Top liked post fetched successfully",
-       topLikedPost,
+       topLikedPosts,
      });
   } catch (err) {
     console.error(err);
@@ -361,11 +361,11 @@ export const getTopCommetedPost: RequestHandler = async (req, res, next) => {
 
     comments.sort((a: any, b: any) => b.PostComments.length - a.PostComments.length);
 
-     const topCommentedPost = comments[0];
+     const topCommentedPosts = comments.slice(0, 3);
  
      res.status(200).json({
        message: "Top Commented post fetched successfully",
-       topCommentedPost,
+       topCommentedPosts,
      });
   } catch (err) {
     console.error(err);
