@@ -22,6 +22,7 @@ export interface IEventAttributes {
     eventDeadlineTime?: string;
     matchType?: string;
     paymentType?: string;
+    cancellationFee?: string;
     bankName?: string;
     branchName?: string;
     branchNumber?: number;

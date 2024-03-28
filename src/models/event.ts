@@ -29,6 +29,7 @@ export default (sequelize: Sequelize) => {
     branchName?: string;
     branchNumber?: number;
     accountHolderName?: string;
+    cancellationFee?: string | undefined;
     accountNumber?: number;
     paypalId?: string;
     teamSize?: number;
@@ -124,6 +125,10 @@ export default (sequelize: Sequelize) => {
       categories: {
         type: DataTypes.STRING,
         field: "categories",
+      },
+      cancellationFee: {
+        type: DataTypes.STRING,
+        field: "cancellation_fee",
       },
       place: {
         type: DataTypes.STRING,
