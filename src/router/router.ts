@@ -67,8 +67,6 @@ import {
   deletePost,
   getAllPosts,
   getMyPosts,
-  getTopLikedPost,
-  getTopCommetedPost,
 } from "../api/postController";
 
 import {
@@ -131,16 +129,6 @@ router.get(
   "/get-my-posts",
   passport.authenticate("jwt", { session: false }),
   getMyPosts
-);
-router.get(
-  "/get-top-liked-post",
-  passport.authenticate("jwt", { session: false }),
-  getTopLikedPost
-);
-router.get(
-  "/get-top-commented-post",
-  passport.authenticate("jwt", { session: false }),
-  getTopCommetedPost
 );
 router.get(
   "/getAllEvents",

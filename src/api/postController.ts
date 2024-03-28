@@ -225,7 +225,10 @@ export const deletePost: RequestHandler = async (req, res, next) => {
 };
 export const getAllPosts: RequestHandler = async (req, res, next) => {
   try {
-    const posts = await models.Post.findAll({
+    const { page, pageSize, topLiked, topCommented } = req.query;
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    let posts = await models.Post.findAll({
       attributes: { exclude: ["category"] },
       include: [
         {
@@ -259,7 +262,17 @@ export const getAllPosts: RequestHandler = async (req, res, next) => {
           ],
         },
       ],
+      limit: parseInt(pageSize as string),
+      offset: offset,
+      order: [['updatedAt', 'DESC']]
     });
+
+    if (topLiked) {
+      posts = posts.sort((a: any, b: any) => b.PostLikes.length - a.PostLikes.length);
+    } else if (topCommented) {
+      posts = posts.sort((a: any, b: any) => b.PostComments.length - a.PostComments.length);
+    }
+
     res.status(200).json({
       message: "Posts fetched successfully",
       posts,
@@ -270,108 +283,6 @@ export const getAllPosts: RequestHandler = async (req, res, next) => {
     res.status(500).json({ error: "Error fetching posts" });
   }
 };
-export const getTopLikedPost: RequestHandler = async (req, res, next) => {
-  try {
-    let posts: any= await models.Post.findAll({
-      attributes: { exclude: ["category"] },
-      include: [
-        {
-          model: models.User,
-          as: "posts",
-          required: false,
-          attributes: ["id", "email", "nickName", "imageUrl"],
-        },
-        {
-          model: models.Like,
-          required: false,
-          as: "PostLikes",
-          include: [
-            {
-              model: models.User,
-              attributes: ["nickName", "imageUrl"],
-              as: "user",
-            },
-          ],
-        },
-        {
-          model: models.Comment,
-          required: false,
-          as: "PostComments",
-          include: [
-            {
-              model: models.User,
-              attributes: ["nickName", "imageUrl"],
-              as: "user",
-            },
-          ],
-        },
-      ],
-    });
-
-     posts.sort((a: any, b: any) => b.PostLikes.length - a.PostLikes.length);
-
-     const topLikedPosts = posts.slice(0, 3);
- 
-     res.status(200).json({
-       message: "Top liked post fetched successfully",
-       topLikedPosts,
-     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error fetching top liked post" });
-  }
-};
-export const getTopCommetedPost: RequestHandler = async (req, res, next) => {
-  try {
-    let comments: any= await models.Post.findAll({
-      attributes: { exclude: ["category"] },
-      include: [
-        {
-          model: models.User,
-          as: "posts",
-          required: false,
-          attributes: ["id", "email", "nickName", "imageUrl"],
-        },
-        {
-          model: models.Like,
-          required: false,
-          as: "PostLikes",
-          include: [
-            {
-              model: models.User,
-              attributes: ["nickName", "imageUrl"],
-              as: "user",
-            },
-          ],
-        },
-        {
-          model: models.Comment,
-          required: false,
-          as: "PostComments",
-          include: [
-            {
-              model: models.User,
-              attributes: ["nickName", "imageUrl"],
-              as: "user",
-            },
-          ],
-        },
-      ],
-    });
-
-    comments.sort((a: any, b: any) => b.PostComments.length - a.PostComments.length);
-
-     const topCommentedPosts = comments.slice(0, 3);
- 
-     res.status(200).json({
-       message: "Top Commented post fetched successfully",
-       topCommentedPosts,
-     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error fetching top commented post" });
-  }
-};
 export default {
   createPost,
   getPosts,
@@ -380,6 +291,4 @@ export default {
   updatePost,
   deletePost,
   getMyPosts,
-  getTopLikedPost,
-  getTopCommetedPost
 };
