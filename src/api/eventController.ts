@@ -158,10 +158,24 @@ export const getEventById: RequestHandler = async (req, res, next) => {
         {
           model: models.Comment,
           as: "comments",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
         },
         {
           model: models.Like,
           as: "likes",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
         },
       ],
     });
@@ -331,6 +345,90 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
   } catch (err) {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot get event at the moment" });
+  }
+};
+
+export const getAllUserEvents: RequestHandler = async (req, res, next) => {
+  try {
+    const { page, pageSize, eventStartDate, eventEndDate, status, place } =
+      req.query;
+    const { id } = req.params;
+    const filters: any = {};
+
+    if (eventStartDate && eventEndDate) {
+      filters.eventStartDate = { [Op.gte]: eventStartDate };
+      filters.eventEndDate = { [Op.lte]: eventEndDate };
+    }
+    const currentDate = new Date();
+
+    if (status === "upcoming") {
+      filters.eventStartDate = { [Op.gte]: currentDate };
+    } else if (status === "past") {
+      filters.eventEndDate = { [Op.lt]: currentDate };
+    } else if (status === "live") {
+      filters.eventStartDate = { [Op.lte]: currentDate };
+      filters.eventEndDate = { [Op.gte]: currentDate };
+    }
+
+    if (place) {
+      filters.place = { [Op.in]: place };
+    }
+
+    filters.creatorId = id; 
+
+    const totalEventsCount = await models.Event.count({
+      where: filters
+    });
+    const offset =
+      (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    let events = await models.Event.findAll({
+      include: [
+        {
+          model: models.User,
+          as: "creator",
+          attributes: ["nickName"],
+        },
+        {
+          model: models.Comment,
+          as: "comments",
+          include: [
+            {
+              model: models.User,
+              as: "user",
+              attributes: ["nickname"],
+            },
+          ],
+        },
+        {
+          model: models.Like,
+          as: "likes",
+          include: [
+            {
+              model: models.User,
+              as: "user",
+              attributes: [],
+            },
+          ],
+        },
+      ],
+      where: filters,
+      limit: parseInt(pageSize as string),
+      offset: offset,
+      order: [['updatedAt', 'DESC']],
+    });
+
+    if (events.length > 0) {
+      return res.status(200).json({
+        events,
+        count: totalEventsCount,
+      });
+    } else {
+      return res.status(204).json({ message: "No events found for this user" });
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot get events at the moment" });
   }
 };
 
@@ -684,7 +782,7 @@ export const getEventsByUserId: RequestHandler = async (req, res, next) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    filters.userEventId = userID.id;
+    filters.creatorId = userID.id;
 
     const events = await models.Event.findAndCountAll({
       where: filters,
@@ -714,5 +812,6 @@ export default {
   getEventPaymentDetails,
   approveJoinRequest,
   getJoinedAndWaitList,
-  searchEventByName
+  searchEventByName,
+  getAllUserEvents
 };

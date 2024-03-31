@@ -41,4 +41,5 @@ export interface IEventAttributes {
     nearPinContest?: number;
     isFavorite?: boolean;
     userEventId?: number;
+    creatorId?: any;
 }

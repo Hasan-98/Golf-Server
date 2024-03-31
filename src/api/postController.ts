@@ -103,8 +103,10 @@ export const getMyPosts: RequestHandler = async (req, res, next) => {
 export const getPosts: RequestHandler = async (req, res, next) => {
   try {
     const category = req.query.category;
-
-    const posts = await models.Post.findAll({
+    const { page, pageSize} = req.query;
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+    const postCount = await models.Post.count()
+    let posts = await models.Post.findAll({
       where: {
         category: category as string | undefined,
       },
@@ -140,16 +142,23 @@ export const getPosts: RequestHandler = async (req, res, next) => {
           ],
         },
       ],
+      limit: parseInt(pageSize as string),
+      offset: offset,
+      order: [['updatedAt', 'DESC']]
     });
+
+
     res.status(200).json({
       message: "Posts fetched successfully",
       posts,
+      count: postCount
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error fetching posts" });
   }
 };
+
 export const getPostById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -223,10 +232,71 @@ export const deletePost: RequestHandler = async (req, res, next) => {
     res.status(500).json({ error: "Error deleting post" });
   }
 };
+
+export const getAllPostsOfUser: RequestHandler = async (req, res, next) => {
+  try {
+    const { page, pageSize } = req.query;
+    const { id } = req.params;
+    const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    const postCount = await models.Post.count()
+    let posts = await models.Post.findAll({
+      include: [
+        {
+          model: models.User,
+          as: "posts",
+          required: false,
+          attributes: ["id", "email", "nickName", "imageUrl"],
+        },
+        {
+          model: models.Like,
+          required: false,
+          as: "PostLikes",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+        },
+        {
+          model: models.Comment,
+          required: false,
+          as: "PostComments",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+        },
+      ],
+      where: {
+        userId: id
+      },
+      limit: parseInt(pageSize as string),
+      offset: offset,
+      order: [['updatedAt', 'DESC']]
+    });
+
+    res.status(200).json({
+      message: "Posts fetched successfully",
+      posts,
+      count: postCount,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error fetching posts" });
+  }
+};
 export const getAllPosts: RequestHandler = async (req, res, next) => {
   try {
     const { page, pageSize, topLiked, topCommented } = req.query;
     const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
+
+    const postCount = await models.Post.count()
 
     let posts = await models.Post.findAll({
       attributes: { exclude: ["category"] },
@@ -276,7 +346,7 @@ export const getAllPosts: RequestHandler = async (req, res, next) => {
     res.status(200).json({
       message: "Posts fetched successfully",
       posts,
-      count: posts.length,
+      count: postCount
     });
   } catch (err) {
     console.error(err);
@@ -291,4 +361,5 @@ export default {
   updatePost,
   deletePost,
   getMyPosts,
+  getAllPostsOfUser
 };

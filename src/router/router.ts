@@ -25,6 +25,7 @@ import {
   deleteEventById,
   searchEventByName,
   updateEventById,
+  getAllUserEvents
 } from "../api/eventController";
 import {
   addComment,
@@ -67,6 +68,7 @@ import {
   deletePost,
   getAllPosts,
   getMyPosts,
+  getAllPostsOfUser,
 } from "../api/postController";
 
 import {
@@ -97,6 +99,12 @@ router.get(
   "/get-total-users",
   passport.authenticate("jwt", { session: false }),
   getTotalUsers
+);
+
+router.get(
+  "/get-user-all-events/:id",
+  passport.authenticate("jwt", { session: false }),
+  getAllUserEvents
 );
 router.put(
   "/approve-join-request",
@@ -130,6 +138,11 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getMyPosts
 );
+router.get(
+  '/get-user-all-posts/:id',
+  passport.authenticate("jwt", { session: false }),
+  getAllPostsOfUser
+)
 router.get(
   "/getAllEvents",
   passport.authenticate("jwt", { session: false }),
