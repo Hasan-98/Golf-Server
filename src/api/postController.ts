@@ -105,7 +105,14 @@ export const getPosts: RequestHandler = async (req, res, next) => {
     const category = req.query.category;
     const { page, pageSize} = req.query;
     const offset = (parseInt(page as string) - 1) * parseInt(pageSize as string);
-    const postCount = await models.Post.count()
+    const postCount = category
+        ? await models.Post.count({
+            where: {
+              category: category as string,
+            },
+          })
+        : await models.Post.count();
+      
     let posts = await models.Post.findAll({
       where: {
         category: category as string | undefined,
