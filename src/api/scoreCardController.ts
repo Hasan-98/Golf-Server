@@ -16,6 +16,7 @@ export const getAllScoreCards: RequestHandler = async (req, res, next) => {
           attributes: [],
         },
       ],
+      order : [['totalScore' , 'DESC']]
     });
 
     return res.status(200).json(scoreCards);
