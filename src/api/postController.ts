@@ -191,6 +191,7 @@ export const getPostById: RequestHandler = async (req, res, next) => {
               attributes: ["id", "nickName", "imageUrl"],
             },
           ],
+          order: [['id', 'DESC']]
         },
       ],
     });
@@ -203,6 +204,7 @@ export const getPostById: RequestHandler = async (req, res, next) => {
     res.status(500).json({ error: "Error fetching post" });
   }
 };
+
 
 export const updatePost: RequestHandler = async (req, res, next) => {
   try {

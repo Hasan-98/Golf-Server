@@ -165,6 +165,7 @@ export const getEventById: RequestHandler = async (req, res, next) => {
               as: "user",
             },
           ],
+          order: [['id', 'DESC']]
         },
         {
           model: models.Like,
