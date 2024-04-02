@@ -55,6 +55,10 @@ export default (sequelize: Sequelize) => {
       message: {
         type: DataTypes.STRING,
       },
+      organizerId: {
+        type: DataTypes.INTEGER,
+        field: 'organizer_id',
+      },
       isRead: {
         type: DataTypes.BOOLEAN,
         field: "is_read",
