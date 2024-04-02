@@ -7,4 +7,5 @@ export interface INotificationAttributes {
     isRead?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
+    organizerId?: number
   }
