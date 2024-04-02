@@ -37,10 +37,10 @@ export default (sequelize: Sequelize) => {
     isEventPublished?: boolean;
     hideParticipantName?: boolean;
     isRequiresApproval?: boolean;
-    fullNameCheckBox?: boolean;
-    emailCheckBox?: boolean;
-    telephoneCheckBox?: boolean;
-    handicapCheckBox?: boolean;
+    fullNameCheckBox?: number;
+    emailCheckBox?: number;
+    telephoneCheckBox?: number;
+    handicapCheckBox?: number;
     scoringType?: string;
     selectedHoles?: JSON;
     shotsPerHoles?: JSON;
@@ -153,19 +153,19 @@ export default (sequelize: Sequelize) => {
         field: "self_included",
       },
       fullNameCheckBox: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.INTEGER,
         field: 'full_name_check_box'
       },
       emailCheckBox: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.INTEGER,
         field: 'email_check_box'
       },
       telephoneCheckBox: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.INTEGER,
         field: 'telephone_check_box'
       },
       handicapCheckBox: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.INTEGER,
         field: 'handicap_check_box'
       },
       eventStartDate: {

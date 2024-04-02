@@ -16,10 +16,10 @@ export interface IEventAttributes {
     eventStartTime?: string;
     eventEndDate?: string;
     eventEndTime?: string;
-    fullNameCheckBox?: boolean;
-    emailCheckBox?: boolean;
-    telephoneCheckBox?: boolean;
-    handicapCheckBox?: boolean;
+    fullNameCheckBox?: number;
+    emailCheckBox?: number;
+    telephoneCheckBox?: number;
+    handicapCheckBox?: number;
     recruitmentStartDate?: string;
     recruitmentStartTime?: string;
     eventDeadlineDate?: string;
