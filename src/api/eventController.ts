@@ -749,9 +749,16 @@ export const getJoinedEvents: RequestHandler = async (req, res, next) => {
     const joinedEvents = await models.Event.findAndCountAll({
       where: {
         id: {
-          [Op.in]: joinedEventIds,
-        },
+          [Op.in]: joinedEventIds
+        }
       },
+      include: [
+        {
+          model: models.User,
+          as: 'creator',
+          attributes: ["id", "nickName", "imageUrl"],
+        }
+      ]
     });
 
     return res
