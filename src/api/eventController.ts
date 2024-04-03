@@ -483,12 +483,12 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
         {
           model: models.User,
           as: "creator",
-          attributes: [],
+          attributes: ["id", "nickName", "imageUrl"],
         },
         {
           model: models.User,
           as: "participants",
-          attributes: [],
+          attributes: ["id", "nickName", "imageUrl"],
         },
         {
           model: models.Comment,
@@ -497,7 +497,7 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: [],
+              attributes: ["id", "nickName", "imageUrl"],
             },
           ],
         },
@@ -508,7 +508,7 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: [],
+              attributes: ["id", "nickName", "imageUrl"],
             },
           ],
         },
