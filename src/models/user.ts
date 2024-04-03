@@ -20,8 +20,6 @@ export default (sequelize: Sequelize) => {
       User.belongsToMany(models.Event, {
         through: "UserEvent",
         as: "participatedEvents",
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
       });
       User.hasMany(models.Comment, {
         foreignKey: "userId",
