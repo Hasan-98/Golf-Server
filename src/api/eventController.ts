@@ -250,7 +250,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
         {
           model: models.User,
           as: "creator",
-          attributes: ["nickName"],
+          attributes: ["id", "nickName", "imageUrl"],
         },
         {
           model: models.User,
@@ -264,7 +264,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: ["nickname"],
+              attributes: ["id", "nickName", "imageUrl"],
             },
           ],
         },
@@ -275,7 +275,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: [],
+              attributes: ["id", "nickName", "imageUrl"],
             },
           ],
         },
