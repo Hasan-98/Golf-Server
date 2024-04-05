@@ -118,17 +118,29 @@ export const addScoreCard: RequestHandler = async (req, res, next) => {
           .status(400)
           .json({ error: `Event with id ${scoreCard.eventId} not found` });
       }
+
+      const existingScore = await models.ScoreCard.findOne({
+        where: {
+          userId: scoreCard.userId,
+          eventId: scoreCard.eventId,
+        },
+      });
+
+      if (existingScore) {
+        await models.ScoreCard.update(scoreCard, {
+          where: {
+            id: existingScore.id,
+          },
+        });
+      } else {
+        await models.ScoreCard.bulkCreate(scoreCard);
+      }
     }
 
-    const createdScoreCards = await models.ScoreCard.bulkCreate(scoreCards);
-
-    res.status(201).send({
-      message: "Score Cards added successfully",
-      scoreCards: createdScoreCards,
-    });
+    res.status(201).send({ message: "Score Cards added/updated successfully" });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ error: "Error adding score cards" });
+    res.status(500).json({ error: "Error adding/updating score cards" });
   }
 };
 export const updateScoreCard: RequestHandler = async (req, res, next) => {
