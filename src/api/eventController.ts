@@ -100,7 +100,6 @@ export const getEventsColData: RequestHandler = async (req, res, next) => {
   }
 };
 
-
 export const searchEventByName: RequestHandler = async (req, res, next) => {
   try {
     const { name } = req.query;
@@ -165,7 +164,7 @@ export const getEventById: RequestHandler = async (req, res, next) => {
               as: "user",
             },
           ],
-          order: [['id', 'DESC']]
+          order: [["id", "DESC"]],
         },
         {
           model: models.Like,
@@ -251,7 +250,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
         {
           model: models.User,
           as: "creator",
-          attributes: ["nickName"],
+          attributes: ["id", "nickName", "imageUrl"],
         },
         {
           model: models.User,
@@ -265,7 +264,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: ["nickname"],
+              attributes: ["id", "nickName", "imageUrl"],
             },
           ],
         },
@@ -276,7 +275,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: [],
+              attributes: ["id", "nickName", "imageUrl"],
             },
           ],
         },
@@ -284,8 +283,7 @@ export const getAllEvents: RequestHandler = async (req, res, next) => {
       where: filters,
       limit: parseInt(pageSize as string),
       offset: offset,
-      order: [['updatedAt', 'DESC']]
-    
+      order: [["updatedAt", "DESC"]],
     });
 
     events = JSON.parse(JSON.stringify(events));
@@ -375,10 +373,10 @@ export const getAllUserEvents: RequestHandler = async (req, res, next) => {
       filters.place = { [Op.in]: place };
     }
 
-    filters.creatorId = id; 
+    filters.creatorId = id;
 
     const totalEventsCount = await models.Event.count({
-      where: filters
+      where: filters,
     });
     const offset =
       (parseInt(page as string) - 1) * parseInt(pageSize as string);
@@ -416,7 +414,7 @@ export const getAllUserEvents: RequestHandler = async (req, res, next) => {
       where: filters,
       limit: parseInt(pageSize as string),
       offset: offset,
-      order: [['updatedAt', 'DESC']],
+      order: [["updatedAt", "DESC"]],
     });
 
     if (events.length > 0) {
@@ -477,17 +475,20 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
     const offset =
       (parseInt(page as string) - 1) * parseInt(pageSize as string);
 
-    const events = await models.Event.findAndCountAll({
+    const eventCount = await models.Event.count({
+      where: { isFavorite: true },
+    });
+    const events = await models.Event.findAll({
       include: [
         {
           model: models.User,
           as: "creator",
-          attributes: [],
+          attributes: ["id", "nickName", "imageUrl"],
         },
         {
           model: models.User,
           as: "participants",
-          attributes: [],
+          attributes: ["id", "nickName", "imageUrl"],
         },
         {
           model: models.Comment,
@@ -496,7 +497,7 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: [],
+              attributes: ["id", "nickName", "imageUrl"],
             },
           ],
         },
@@ -507,7 +508,7 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "user",
-              attributes: [],
+              attributes: ["id", "nickName", "imageUrl"],
             },
           ],
         },
@@ -519,8 +520,8 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
 
     if (events) {
       return res.status(200).json({
-        events: events.rows,
-        count: events.count,
+        events,
+        count: eventCount,
       });
     }
   } catch (err) {
@@ -557,20 +558,19 @@ export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   const { id } = req.params;
 
   try {
-    let waitingUsers : IUserEventAttributes[] = await models.UserEvent.findAll({
+    let waitingUsers: IUserEventAttributes[] = await models.UserEvent.findAll({
       where: { event_id: id, status: "waiting" },
     });
 
-    let joinedUsers : IUserEventAttributes[] = await models.UserEvent.findAll({
+    let joinedUsers: IUserEventAttributes[] = await models.UserEvent.findAll({
       where: { event_id: id, status: "joined" },
     });
 
     waitingUsers = JSON.parse(JSON.stringify(waitingUsers));
-    joinedUsers = JSON.parse(JSON.stringify(joinedUsers))
-    const waitingUserIds = waitingUsers?.map(user => user.user_id);
-    const joinedUserIds  = joinedUsers?.map(user => user.user_id);
+    joinedUsers = JSON.parse(JSON.stringify(joinedUsers));
+    const waitingUserIds = waitingUsers?.map((user) => user.user_id);
+    const joinedUserIds = joinedUsers?.map((user) => user.user_id);
 
-    
     const waitingUsersDetails = await models.User.findAll({
       where: { id: waitingUserIds },
       attributes: ["id", "nickName", "imageUrl"],
@@ -592,7 +592,6 @@ export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 export const joinEvent: RequestHandler = async (req, res, next) => {
   try {
@@ -648,7 +647,6 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
       eventId: event.id,
       organizerId: organizerId,
     });
-    
 
     await models.Notification.create({
       userId: foundUser.id,
@@ -741,21 +739,49 @@ export const getPublicEvents: RequestHandler = async (req, res, next) => {
 };
 
 export const getJoinedEvents: RequestHandler = async (req, res, next) => {
-  const userID: any = req.user;
-  const foundUser = await models.User.findOne({ where: { id: userID.id } });
-  if (!foundUser) {
-    return res.status(404).json({ error: "User not found" });
+  try {
+    const userID: any = req.user;
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const joinedUserEvents = await models.UserEvent.findAll({
+      where: {
+        user_id: userID.id,
+        status: "joined",
+      },
+      attributes: ["event_id"],
+    });
+
+    const joinedEventIds = joinedUserEvents.map((ue) => ue.event_id);
+
+    const joinedEvents = await models.Event.findAndCountAll({
+      where: {
+        id: {
+          [Op.in]: joinedEventIds
+        }
+      },
+      include: [
+        {
+          model: models.User,
+          as: 'creator',
+          attributes: ["id", "nickName", "imageUrl"],
+        }
+      ]
+    });
+
+    return res
+      .status(200)
+      .json({ joinedEvents: joinedEvents.rows, count: joinedEvents.count });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot fetch joined events at the moment" });
   }
-
-  const events = await models.Event.findAll({
-    include: {
-      model: models.User,
-      where: { id: userID.id },
-    },
-  });
-  return res.status(200).json(events);
 };
-
 export const getEventPlaces: RequestHandler = async (req, res, next) => {
   try {
     const events = await models.Event.findAll({
@@ -827,5 +853,5 @@ export default {
   approveJoinRequest,
   getJoinedAndWaitList,
   searchEventByName,
-  getAllUserEvents
+  getAllUserEvents,
 };

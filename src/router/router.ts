@@ -376,6 +376,10 @@ router.get(
   getAllScoreCards
 );
 router.get(
+  "/get-all-public-score-cards",
+  getAllScoreCards
+);
+router.get(
   "/get-score-card-by-event/:id",
   passport.authenticate("jwt", { session: false }),
   getScoreCardByEvent
