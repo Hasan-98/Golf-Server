@@ -222,6 +222,7 @@ export const getNotifications: RequestHandler = async (
             attributes: ['id','nickname', 'imageUrl'],
           },
         ],
+        order: [['created_at', 'DESC']],
       });
 
       res.status(200).json({ notifications });
