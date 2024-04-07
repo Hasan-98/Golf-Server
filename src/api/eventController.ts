@@ -530,28 +530,33 @@ export const getFavoriteEvents: RequestHandler = async (req, res, next) => {
   }
 };
 export const approveJoinRequest: RequestHandler = async (req, res, next) => {
-  const { userId, eventId } = req.body;
-  await models.UserEvent.update(
-    { status: "joined" },
-    { where: { user_id: userId, event_id: eventId } }
-  );
-  io.emit("joinRequest", {
-    userId: userId,
-    eventId: eventId,
-    organizerId: userId,
-  });
-  await models.Notification.create({
-    userId: userId,
-    eventId: eventId,
-    organizerId: userId,
-    message: "Request to join the event has been approved",
-    isRead: false,
-  });
-  await models.Notification.update(
-    { isRead: true, message: "Request to join the event has been approved" },
-    { where: { userId: userId, eventId: eventId } }
-  );
-  res.status(200).json({ message: "Join request approved" });
+  try {
+    const { userId, eventId } = req.body;
+    await models.UserEvent.update(
+      { status: "joined" },
+      { where: { user_id: userId, event_id: eventId } }
+    );
+    io.emit("joinRequest", {
+      userId: userId,
+      eventId: eventId,
+      organizerId: userId,
+    });
+    await models.Notification.create({
+      userId: userId,
+      eventId: eventId,
+      organizerId: userId,
+      message: "Request to join the event has been approved",
+      isRead: false,
+    });
+    await models.Notification.update(
+      { isRead: true, message: "Request to join the event has been approved" },
+      { where: { userId: userId, eventId: eventId } }
+    );
+    res.status(200).json({ message: "Join request approved" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot approve join request at the moment" });
+  }
 };
 
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
