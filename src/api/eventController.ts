@@ -535,7 +535,18 @@ export const approveJoinRequest: RequestHandler = async (req, res, next) => {
     { status: "joined" },
     { where: { user_id: userId, event_id: eventId } }
   );
-
+  io.emit("joinRequest", {
+    userId: userId,
+    eventId: eventId,
+    organizerId: userId,
+  });
+  await models.Notification.create({
+    userId: userId,
+    eventId: eventId,
+    organizerId: userId,
+    message: "Request to join the event has been approved",
+    isRead: false,
+  });
   await models.Notification.update(
     { isRead: true, message: "Request to join the event has been approved" },
     { where: { userId: userId, eventId: eventId } }
@@ -749,16 +760,16 @@ export const getJoinedEvents: RequestHandler = async (req, res, next) => {
     const joinedEvents = await models.Event.findAndCountAll({
       where: {
         id: {
-          [Op.in]: joinedEventIds
-        }
+          [Op.in]: joinedEventIds,
+        },
       },
       include: [
         {
           model: models.User,
-          as: 'creator',
+          as: "creator",
           attributes: ["id", "nickName", "imageUrl"],
-        }
-      ]
+        },
+      ],
     });
 
     return res
