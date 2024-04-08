@@ -201,6 +201,7 @@ export const getNotifications: RequestHandler = async (
     const userId = req.user.id;
     const teacherId = req.query.teacherId;
     const eventId = req.query.eventId;
+    const organizerId = req.query.organizerId;
     const existingUser = await models.User.findOne({
       where: { id: userId },
     });
@@ -210,9 +211,13 @@ export const getNotifications: RequestHandler = async (
 
       if (eventId) {
         whereClause.eventId = eventId;
-      } else if (teacherId) {
+      } 
+      if (teacherId) {
         whereClause.teacherId = teacherId;
       }
+      if (organizerId){
+        whereClause.organizerId = organizerId
+      } 
 
       const notifications = await models.Notification.findAll({
         where: whereClause,

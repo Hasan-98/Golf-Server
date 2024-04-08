@@ -560,9 +560,8 @@ export const approveJoinRequest: RequestHandler = async (req, res, next) => {
 };
 
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
     let waitingUsers: IUserEventAttributes[] = await models.UserEvent.findAll({
       where: { event_id: id, status: "waiting" },
     });
