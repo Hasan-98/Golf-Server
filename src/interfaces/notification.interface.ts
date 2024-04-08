@@ -3,6 +3,7 @@ export interface INotificationAttributes {
     userId?: number;
     eventId?: number;
     teacherId?: number;
+    postId?: number;
     message?: string;
     isRead?: boolean;
     createdAt?: Date;

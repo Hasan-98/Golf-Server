@@ -25,7 +25,8 @@ import {
   deleteEventById,
   searchEventByName,
   updateEventById,
-  getAllUserEvents
+  getAllUserEvents,
+  updateNotificationResponse
 } from "../api/eventController";
 import {
   addComment,
@@ -105,6 +106,11 @@ router.get(
   "/get-user-all-events/:id",
   passport.authenticate("jwt", { session: false }),
   getAllUserEvents
+);
+router.put(
+  "/update-notification-response",
+  passport.authenticate("jwt", { session: false }),
+  updateNotificationResponse
 );
 router.put(
   "/approve-join-request",

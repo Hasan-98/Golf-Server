@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { models } from "../models";
+import { io } from "..";
 
 export const addComment: RequestHandler = async (req, res, next) => {
   try {
@@ -17,6 +18,20 @@ export const addComment: RequestHandler = async (req, res, next) => {
       eventId: event.id,
     });
     if (comment) {
+      io.emit("joinRequest", {
+        event: eventId,
+        user: userID,
+        organizer: event.creatorId,
+        nickname: foundUser.nickName,
+        comment: content
+      });
+      await models.Notification.create({
+        userId: userID,
+        eventId: eventId,
+        organizerId: event.creatorId,
+        message: `You have a new comment added`,
+        isRead: false,
+      });
       return res
         .status(201)
         .json({ message: "Comment created successfully", comment, foundUser });
@@ -112,6 +127,21 @@ export const addLike: RequestHandler = async (req, res, next) => {
       await like.update({ counter: Count });
     }
 
+    io.emit("joinRequest", {
+      event: eventId,
+      user: userID,
+      organizer: event.creatorId,
+      nickname: foundUser.nickName,
+
+    });
+    await models.Notification.create({
+      userId: userID,
+      eventId: eventId,
+      organizerId: event.creatorId,
+      message: `${foundUser.nickName} liked your event ${event.eventName}`,
+      isRead: false,
+    });
+
     return res
       .status(200)
       .json({ message: "Like updated successfully", foundUser });
@@ -150,6 +180,20 @@ export const addPostLike: RequestHandler = async (req, res, next) => {
       });
     }
 
+    io.emit("joinRequest", {
+      post: postId,
+      user: userID,
+      organizer: post.userId,
+      nickname: foundUser.nickName,
+
+    });
+    await models.Notification.create({
+      userId: userID,
+      postId: postId,
+      organizerId: post.userId,
+      message: `${foundUser.nickName} liked your post ${post.id}`,
+      isRead: false,
+    });
     return res.status(200).json({
       message: "Like updated successfully",
       foundUser,
@@ -178,6 +222,21 @@ export const addPostComment: RequestHandler = async (req, res, next) => {
       postId: post.id,
     });
     if (comment) {
+      io.emit("joinRequest", {
+        post: postId,
+        user: userID,
+        organizer: post.userId,
+        nickname: foundUser.nickName,
+        comment: content
+  
+      });
+      await models.Notification.create({
+        userId: userID,
+        postId: postId,
+        organizerId: post.userId,
+        message: content,
+        isRead: false,
+      });
       return res
         .status(201)
         .json({ message: "Comment created successfully", comment, foundUser });

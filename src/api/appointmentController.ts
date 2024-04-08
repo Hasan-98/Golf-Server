@@ -114,7 +114,7 @@ export const acceptAppointment: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { scheduleId, day, startTime, endTime, status, studentId } = req.body;
+    const { scheduleId, day, startTime, endTime, status, studentId, notificationId} = req.body;
 
     const existingTeacher = await models.Teacher.findOne({
       where: { userId },
@@ -159,9 +159,8 @@ export const acceptAppointment: RequestHandler = async (
         });
 
         const existingNotification = await models.Notification.findOne({
-          where: {
-            userId: studentId,
-            teacherId: existingTeacher.id,
+          where: {  
+            id: notificationId
           },
         });
 

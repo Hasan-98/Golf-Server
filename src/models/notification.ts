@@ -9,6 +9,7 @@ export default (sequelize: Sequelize) => {
     id!: number;
     userId!: number;
     teacherId!: number;
+    postId!: number;
     message!: string;
     isRead!: boolean;
     createdAt!: Date;
@@ -30,6 +31,11 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      Notifcation.belongsTo(models.Post, {
+        foreignKey: "postId",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
 
@@ -47,6 +53,10 @@ export default (sequelize: Sequelize) => {
       eventId: {
         type: DataTypes.INTEGER,
         field: "event_id",
+      },
+      postId: {
+        type: DataTypes.INTEGER,
+        field: "post_id",
       },
       teacherId: {
         type: DataTypes.INTEGER,

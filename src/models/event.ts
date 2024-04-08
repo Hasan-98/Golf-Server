@@ -47,6 +47,7 @@ export default (sequelize: Sequelize) => {
     driverContest?: number;
     nearPinContest?: number;
     isFavorite?: boolean;
+    creatorId?: any;
     user_event_id?: number;
     static associate(models: any) {
       Event.belongsTo(models.User, {
@@ -283,6 +284,10 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         field: "user_event_id",
       },
+      creatorId: {
+        type: DataTypes.INTEGER,
+        field: "creator_id",
+      }
     },
     {
       sequelize,

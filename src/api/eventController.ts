@@ -548,16 +548,26 @@ export const approveJoinRequest: RequestHandler = async (req, res, next) => {
       message: "Request to join the event has been approved",
       isRead: false,
     });
-    await models.Notification.update(
-      { isRead: true, message: "Request to join the event has been approved" },
-      { where: { userId: userId, eventId: eventId } }
-    );
+    
     res.status(200).json({ message: "Join request approved" });
   } catch (err) {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot approve join request at the moment" });
   }
 };
+
+export const updateNotificationResponse: RequestHandler = async (req, res) => {
+  try {
+    const { notificationId, message} = req.body;
+    await models.Notification.update(
+      { isRead: true, message},
+      { where: { id: notificationId} }
+    );
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Cannot approve join request at the moment" });
+  }
+}
 
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   try {
@@ -650,13 +660,15 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
       userId: foundUser.id,
       eventId: event.id,
       organizerId: organizerId,
+      nickname: foundUser.nickName,
+      eventName: event.eventName
     });
 
     await models.Notification.create({
       userId: foundUser.id,
       eventId: event.id,
       organizerId: organizerId,
-      message: `User with ID ${foundUser.id} has requested to joined the event`,
+      message: `${foundUser.nickName} has requested to joined the event ${event.eventName}`,
       isRead: false,
     });
 
@@ -858,4 +870,5 @@ export default {
   getJoinedAndWaitList,
   searchEventByName,
   getAllUserEvents,
+  updateNotificationResponse,
 };
