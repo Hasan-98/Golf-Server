@@ -33,8 +33,6 @@ export default (sequelize: Sequelize) => {
       });
       Notifcation.belongsTo(models.Post, {
         foreignKey: "postId",
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
       });
     }
   }
@@ -57,6 +55,7 @@ export default (sequelize: Sequelize) => {
       postId: {
         type: DataTypes.INTEGER,
         field: "post_id",
+        allowNull: true,
       },
       teacherId: {
         type: DataTypes.INTEGER,

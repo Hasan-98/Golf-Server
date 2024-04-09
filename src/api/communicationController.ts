@@ -7,11 +7,12 @@ export const addComment: RequestHandler = async (req, res, next) => {
     const userID: any = req.user;
     const { eventId, content } = req.body;
     const foundUser = await models.User.findOne({ where: { id: userID.id } });
-    const event = await models.Event.findByPk(eventId);
+    let event: any = await models.Event.findByPk(eventId);
     if (!foundUser || !event) {
       return res.status(404).json({ error: "User or event not found" });
     }
-
+    event = JSON.parse(JSON.stringify(event));
+    const creatorId = event.creatorId
     const comment = await models.Comment.create({
       content,
       userId: userID.id,
@@ -20,15 +21,15 @@ export const addComment: RequestHandler = async (req, res, next) => {
     if (comment) {
       io.emit("joinRequest", {
         event: eventId,
-        user: userID,
-        organizer: event.creatorId,
+        user: userID.id,
+        organizer: creatorId,
         nickname: foundUser.nickName,
         comment: content
       });
       await models.Notification.create({
-        userId: userID,
+        userId: userID.id,
         eventId: eventId,
-        organizerId: event.creatorId,
+        organizerId: creatorId,
         message: `You have a new comment added`,
         isRead: false,
       });
@@ -107,12 +108,12 @@ export const addLike: RequestHandler = async (req, res, next) => {
     const userID: any = req.user;
     const { eventId, Count } = req.body;
     const foundUser = await models.User.findOne({ where: { id: userID.id } });
-    const event = await models.Event.findByPk(eventId);
-
+    let event = await models.Event.findByPk(eventId);
+    event = JSON.parse(JSON.stringify(event));
     if (!foundUser || !event) {
       return res.status(404).json({ error: "User or event not found" });
     }
-
+   
     const [like, created] = await models.Like.findOrCreate({
       where: {
         userId: userID.id,
@@ -126,18 +127,18 @@ export const addLike: RequestHandler = async (req, res, next) => {
     if (!created) {
       await like.update({ counter: Count });
     }
-
+    const creatorId = event.creatorId
     io.emit("joinRequest", {
       event: eventId,
-      user: userID,
-      organizer: event.creatorId,
+      user: userID.id,
+      organizer: creatorId,
       nickname: foundUser.nickName,
 
     });
     await models.Notification.create({
-      userId: userID,
+      userId: userID.id,
       eventId: eventId,
-      organizerId: event.creatorId,
+      organizerId: creatorId,
       message: `${foundUser.nickName} liked your event ${event.eventName}`,
       isRead: false,
     });
@@ -182,13 +183,13 @@ export const addPostLike: RequestHandler = async (req, res, next) => {
 
     io.emit("joinRequest", {
       post: postId,
-      user: userID,
+      user: userID.id,
       organizer: post.userId,
       nickname: foundUser.nickName,
 
     });
     await models.Notification.create({
-      userId: userID,
+      userId: userID.id,
       postId: postId,
       organizerId: post.userId,
       message: `${foundUser.nickName} liked your post ${post.id}`,
@@ -224,14 +225,14 @@ export const addPostComment: RequestHandler = async (req, res, next) => {
     if (comment) {
       io.emit("joinRequest", {
         post: postId,
-        user: userID,
+        user: userID.id,
         organizer: post.userId,
         nickname: foundUser.nickName,
         comment: content
   
       });
       await models.Notification.create({
-        userId: userID,
+        userId: userID.id,
         postId: postId,
         organizerId: post.userId,
         message: content,

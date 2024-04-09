@@ -29,6 +29,11 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      // Post.hasMany(models.Notification, {
+      //   foreignKey: "postId",
+      //   onDelete: "CASCADE",
+      //   onUpdate: "CASCADE",
+      // })
     }
   }
   Post.init(

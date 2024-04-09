@@ -284,10 +284,10 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         field: "user_event_id",
       },
-      creatorId: {
-        type: DataTypes.INTEGER,
-        field: "creator_id",
-      }
+      // creatorId: {
+      //   type: DataTypes.INTEGER,
+      //   field: "creator_id",
+      // }
     },
     {
       sequelize,
