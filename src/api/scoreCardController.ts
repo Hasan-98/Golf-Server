@@ -16,7 +16,7 @@ export const getAllScoreCards: RequestHandler = async (req, res, next) => {
           attributes: [],
         },
       ],
-      order : [['totalScore' , 'DESC']]
+      order: [["totalScore", "DESC"]],
     });
 
     return res.status(200).json(scoreCards);
@@ -133,11 +133,13 @@ export const addScoreCard: RequestHandler = async (req, res, next) => {
           },
         });
       } else {
-        await models.ScoreCard.bulkCreate(scoreCard);
+        await models.ScoreCard.create(scoreCard);
       }
     }
 
-    res.status(201).send({ message: "Score Cards added/updated successfully" });
+    res
+      .status(201)
+      .send({ message: "Score Cards added/updated successfully", scoreCards });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Error adding/updating score cards" });
@@ -146,7 +148,15 @@ export const addScoreCard: RequestHandler = async (req, res, next) => {
 export const updateScoreCard: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userId, eventId, scorePerShot, handiCapPerShot, totalScore , handiCapValue , netValue  } = req.body;
+    const {
+      userId,
+      eventId,
+      scorePerShot,
+      handiCapPerShot,
+      totalScore,
+      handiCapValue,
+      netValue,
+    } = req.body;
 
     const foundUser = await models.User.findOne({ where: { id: userId } });
     const foundEvent = await models.Event.findOne({ where: { id: eventId } });
@@ -163,17 +173,20 @@ export const updateScoreCard: RequestHandler = async (req, res, next) => {
         .json({ error: `Event with id ${eventId} not found` });
     }
 
-    const scoreCard = await models.ScoreCard.update({
-      scorePerShot: JSON.stringify(scorePerShot),
-      handiCapPerShot: JSON.stringify(handiCapPerShot),
-      totalScore,
-      handiCapValue,
-      netValue,
-    }, {
-      where: {
-        id,
+    const scoreCard = await models.ScoreCard.update(
+      {
+        scorePerShot: JSON.stringify(scorePerShot),
+        handiCapPerShot: JSON.stringify(handiCapPerShot),
+        totalScore,
+        handiCapValue,
+        netValue,
       },
-    });
+      {
+        where: {
+          id,
+        },
+      }
+    );
 
     res.status(201).send({
       message: "Score Card updated successfully",
