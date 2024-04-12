@@ -46,7 +46,7 @@ export const getScoreCardByEvent: RequestHandler = async (req, res, next) => {
         {
           model: models.User,
           as: "userScoreCard",
-          attributes: [],
+          attributes: ["id", "nickName", "imageUrl"],
         },
       ],
     });
