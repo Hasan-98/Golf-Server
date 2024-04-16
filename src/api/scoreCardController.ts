@@ -48,6 +48,11 @@ export const getScoreCardByEvent: RequestHandler = async (req, res, next) => {
           as: "userScoreCard",
           attributes: ["id", "nickName", "imageUrl"],
         },
+        {
+          model: models.Event,
+          as: "eventScoreCard",
+          attributes: ['id' , 'driverContest' , 'nearPinContest' ],
+        },
       ],
     });
 
