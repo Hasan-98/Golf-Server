@@ -773,7 +773,7 @@ export const getJoinedEvents: RequestHandler = async (req, res, next) => {
 
     const joinedEventIds = joinedUserEvents.map((ue) => ue.event_id);
 
-    const joinedEvents = await models.Event.findAndCountAll({
+    const joinedEvents = await models.Event.findAll({
       where: {
         id: {
           [Op.in]: joinedEventIds,
@@ -781,16 +781,34 @@ export const getJoinedEvents: RequestHandler = async (req, res, next) => {
       },
       include: [
         {
-          model: models.User,
-          as: "creator",
-          attributes: ["id", "nickName", "imageUrl"],
+          model: models.Comment,
+          as: "comments",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
+          order: [["id", "DESC"]],
+        },
+        {
+          model: models.Like,
+          as: "likes",
+          include: [
+            {
+              model: models.User,
+              attributes: ["nickName", "imageUrl"],
+              as: "user",
+            },
+          ],
         },
       ],
     });
 
     return res
       .status(200)
-      .json({ joinedEvents: joinedEvents.rows, count: joinedEvents.count });
+      .json({ joinedEvents: joinedEvents, count: joinedEvents.length });
   } catch (err) {
     console.error("Error:", err);
     return res
