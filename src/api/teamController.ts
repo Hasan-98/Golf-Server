@@ -204,7 +204,7 @@ export const getTeamById: RequestHandler = async (req, res, next) => {
         {
           model: models.ScoreCard,
           as: "teamCard",
-          attributes: ["id", "userId", "eventId", "scorePerShot", "handiCapPerShot", "totalScore", "handiCapValue", "netValue"],
+          attributes: ["id", "userId", "eventId", "scorePerShot", "handiCapPerShot", "totalScore", "handiCapValue", "netValue" , "nearPinContest" , "driverContest"],
         },
       ],
     });

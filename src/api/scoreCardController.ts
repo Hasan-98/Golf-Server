@@ -102,6 +102,7 @@ export const addScoreCard: RequestHandler = async (req, res, next) => {
       ...scoreCard,
       scorePerShot: JSON.stringify(scoreCard.scorePerShot),
       handiCapPerShot: JSON.stringify(scoreCard.handiCapPerShot),
+      ///
     }));
 
     for (const scoreCard of scoreCards) {
@@ -170,6 +171,8 @@ export const updateScoreCard: RequestHandler = async (req, res, next) => {
       handiCapPerShot,
       totalScore,
       handiCapValue,
+      driverContest,
+      nearPinContest,
       netValue,
     } = req.body;
 
@@ -195,6 +198,8 @@ export const updateScoreCard: RequestHandler = async (req, res, next) => {
         totalScore,
         handiCapValue,
         netValue,
+        driverContest,
+        nearPinContest,
       },
       {
         where: {

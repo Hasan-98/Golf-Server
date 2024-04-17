@@ -14,6 +14,8 @@ export default (sequelize: Sequelize) => {
     totalScore!: number;
     handiCapValue!: number;
     netValue!: number;
+    driverContest?: string;
+    nearPinContest?: string;
 
     static associate(models: any) {
       ScoreCard.belongsTo(models.User, {
@@ -63,6 +65,14 @@ export default (sequelize: Sequelize) => {
       handiCapPerShot: {
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      driverContest: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      nearPinContest: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       totalScore: {
         type: DataTypes.INTEGER,
