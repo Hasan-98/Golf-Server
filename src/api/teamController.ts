@@ -192,8 +192,36 @@ export const updateTeamMember: RequestHandler = async (req, res, next) => {
       .json({ error: "Cannot update teams and team members at the moment" });
   }
 };
+export const getTeamById: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const teamData = await models.Team.findOne({
+      where: {
+        id: id,
+      },
+      include: [
+        {
+          model: models.ScoreCard,
+          as: "teamCard",
+          attributes: ["id", "userId", "eventId", "scorePerShot", "handiCapPerShot", "totalScore", "handiCapValue", "netValue"],
+        },
+      ],
+    });
+
+    if (!teamData) {
+      return res.status(404).json({ error: "Team not found" });
+    }
+
+    return res.status(200).json(teamData);
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot get team data at the moment" });
+  }
+};
 
 export default {
+  getTeamById,
   getAllTeams,
   updateTeamMember,
   getTeamsByEvent,

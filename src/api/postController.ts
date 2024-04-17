@@ -61,6 +61,58 @@ export const createPost: RequestHandler = async (req, res, next) => {
     res.status(500).json({ error: "Error creating post" });
   }
 };
+export const updatePostMedia: RequestHandler = async (req, res, next) => {
+  try {
+    let { postId, removedMediaUrls } = req.body;
+    removedMediaUrls = removedMediaUrls.split(',');
+    
+    let userId: any = req.user;
+    userId = JSON.parse(JSON.stringify(userId));
+
+    const foundPost: any = await models.Post.findOne({ where: { id: postId, userId: userId.id } });
+    if (!foundPost) {
+      return res.status(404).json({ error: "Unauthorized Post" });
+    }
+
+    foundPost.mediaFile = foundPost.mediaFile.filter((url: string) => !removedMediaUrls.includes(url));
+
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+    if (!BUCKET_NAME) {
+      throw new Error("AWS_BUCKET_NAME is not defined");
+    }
+
+    const userFolder = `user-${userId.email}`;
+    const mediaFiles = req.files;
+    for (
+      let i = 0;
+      mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
+      i++
+    ) {
+      const file = mediaFiles[i];
+      const type = file.mimetype?.split("/")[1];
+      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: name,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+
+      const { Location } = await s3.upload(params).promise();
+      foundPost.mediaFile.push(Location);
+    }
+
+    await foundPost.save();
+
+    res.status(200).json({
+      message: "Post media updated successfully",
+      post: foundPost,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error updating post media" });
+  }
+};
 
 export const getMyPosts: RequestHandler = async (req, res, next) => {
   try {
@@ -370,5 +422,6 @@ export default {
   updatePost,
   deletePost,
   getMyPosts,
-  getAllPostsOfUser
+  getAllPostsOfUser,
+  updatePostMedia
 };

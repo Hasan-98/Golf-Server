@@ -21,6 +21,12 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      Team.hasOne(models.ScoreCard, {
+        foreignKey: "teamId",
+        as: "teamCard",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
   Team.init(

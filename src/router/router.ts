@@ -7,6 +7,7 @@ import {
   userById,
   getTotalUsers,
   editUserProfile,
+  editProfilePic,
 } from "../api/UserController";
 import {
   createEvent,
@@ -26,7 +27,8 @@ import {
   searchEventByName,
   updateEventById,
   getAllUserEvents,
-  updateNotificationResponse
+  updateNotificationResponse,
+  updateEventMedia,
 } from "../api/eventController";
 import {
   addComment,
@@ -58,6 +60,7 @@ import {
   getAllTeams,
   updateTeamMember,
   getTeamsByEvent,
+  getTeamById,
 } from "../api/teamController";
 import multer from "multer";
 const upload = multer();
@@ -70,6 +73,7 @@ import {
   getAllPosts,
   getMyPosts,
   getAllPostsOfUser,
+  updatePostMedia
 } from "../api/postController";
 
 import {
@@ -95,6 +99,12 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   upload.array("files[]"),
   createEvent
+);
+router.put(
+  "/update-event-media",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles"),
+  updateEventMedia
 );
 router.get(
   "/get-total-users",
@@ -131,6 +141,12 @@ router.put(
   "/edit-user-profile/:id",
   passport.authenticate("jwt", { session: false }),
   editUserProfile
+);
+router.put(
+  "/edit-profile-pic/:id",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  editProfilePic
 );
 router.get(
   "/get-all-posts",
@@ -296,6 +312,12 @@ router.post(
   createPost
 );
 router.put(
+  "/update-post-media",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles"),
+  updatePostMedia
+);
+router.put(
   "/update-post/:id",
   upload.array("mediaFiles"),
   passport.authenticate("jwt", { session: false }),
@@ -363,6 +385,12 @@ router.put(
   "/update-team-member",
   passport.authenticate("jwt", { session: false }),
   updateTeamMember
+);
+
+router.get(
+  "/get-teams-by-id/:id",
+  passport.authenticate("jwt", { session: false }),
+  getTeamById
 );
 router.get(
   "/get-teams-by-event/:id",

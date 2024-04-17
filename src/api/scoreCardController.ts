@@ -111,6 +111,9 @@ export const addScoreCard: RequestHandler = async (req, res, next) => {
       const foundEvent = await models.Event.findOne({
         where: { id: scoreCard.eventId },
       });
+      const foundTeam = await models.Team.findOne({
+        where: { id: scoreCard.teamId },
+      });
 
       if (!foundUser) {
         return res
@@ -124,10 +127,17 @@ export const addScoreCard: RequestHandler = async (req, res, next) => {
           .json({ error: `Event with id ${scoreCard.eventId} not found` });
       }
 
+      if (!foundTeam) {
+        return res
+          .status(400)
+          .json({ error: `Team with id ${scoreCard.teamId} not found` });
+      }
+
       const existingScore = await models.ScoreCard.findOne({
         where: {
           userId: scoreCard.userId,
           eventId: scoreCard.eventId,
+          teamId: scoreCard.teamId,
         },
       });
 

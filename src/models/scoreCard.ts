@@ -8,6 +8,7 @@ export default (sequelize: Sequelize) => {
     id!: number;
     userId!: number;
     eventId!: number;
+    teamId!: number;
     scorePerShot!: string;
     handiCapPerShot!: string;
     totalScore!: number;
@@ -27,6 +28,12 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      ScoreCard.belongsTo(models.Team, {
+        foreignKey: "teamId",
+        as: "teamCard",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
 
@@ -38,6 +45,10 @@ export default (sequelize: Sequelize) => {
         autoIncrement: true,
       },
       userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      teamId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
