@@ -45,6 +45,8 @@ import {
   getAllTeachers,
   getTeacherById,
   addGigs,
+  getGigsByTeacher,
+  getAllTeachersGigs,
   deleteTeacher,
 } from "../api/teacherController";
 import {
@@ -118,6 +120,25 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   upload.array("mediaFiles"),
   addGigs
+);
+router.get(
+  "/get-gigs-by-teacher/:id",
+  passport.authenticate("jwt", { session: false }),
+  getGigsByTeacher
+);
+router.get(
+  "/get-all-teachers-gigs",
+  passport.authenticate("jwt", { session: false }),
+  getAllTeachersGigs
+);
+
+router.get(
+  "/get-public-gigs-by-teacher/:id",
+  getGigsByTeacher
+);
+router.get(
+  "/get-public-all-teachers-gigs",
+  getAllTeachersGigs
 );
 router.get(
   "/get-total-users",
