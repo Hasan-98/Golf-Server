@@ -320,6 +320,22 @@ export const updateProfile: RequestHandler = async (
   }
 };
 
+export const deleteTeacher: RequestHandler = async (req: any, res: any, next: any) => {
+  try {
+    const userId = req.user.id;
+    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
+
+    if (!existingTeacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    await models.Teacher.destroy({ where: { userId } });
+    return res.status(200).json({ message: "Teacher deleted successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error deleting teacher" });
+  }
+};
 export const addGigs: RequestHandler = async (req: any, res: any, next: any) => {
   try {
     const userId = req.user.id;
@@ -381,4 +397,5 @@ export default {
   getAllTeachers,
   updateTeacherProfile,
   addGigs,
+  deleteTeacher
 };

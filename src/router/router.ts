@@ -45,6 +45,7 @@ import {
   getAllTeachers,
   getTeacherById,
   addGigs,
+  deleteTeacher,
 } from "../api/teacherController";
 import {
   bookAppointment,
@@ -106,6 +107,11 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   upload.array("mediaFiles"),
   updateEventMedia
+);
+router.delete(
+  "/delete-teacher",
+  passport.authenticate("jwt", { session: false }),
+  deleteTeacher
 );
 router.post(
   "/add-gigs",
