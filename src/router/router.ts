@@ -423,6 +423,15 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getScoreCardByUser
 );
+router.get(
+  "/get-public-score-card-by-event/:id",
+  getScoreCardByEvent
+);
+router.get(
+  "/get-public-score-card-by-user/:id",
+  getScoreCardByUser
+);
+
 router.put(
   "/update-score-card/:id",
   passport.authenticate("jwt", { session: false }),
