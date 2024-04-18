@@ -288,6 +288,10 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getTeacherById
 );
+router.get(
+  "/get-public-teacher-by-id/:id",
+  getTeacherById
+);
 router.put(
   "/update-profile",
   passport.authenticate("jwt", { session: false }),
