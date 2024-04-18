@@ -4,8 +4,7 @@ import { ITeacherAttributes } from "../interfaces/teacher.interface";
 export default (sequelize: Sequelize) => {
   class Teacher
     extends Model<ITeacherAttributes>
-    implements ITeacherAttributes
-  {
+    implements ITeacherAttributes {
     id!: number;
     userId!: number;
     firstName?: string;
@@ -32,6 +31,12 @@ export default (sequelize: Sequelize) => {
       Teacher.belongsToMany(models.User, {
         through: models.Favorite,
         as: "favoritedByUsers",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      Teacher.hasMany(models.Gigs, {
+        foreignKey: "teacherId",
+        as: "teacherGigs",
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });

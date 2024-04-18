@@ -53,7 +53,7 @@ export const updateTeacherProfile: RequestHandler = async (
       // Upload portfolio videos
       const portfolioVideoPaths: any = [];
       for (let i = 0; i < portfolioVideos.length; i++) {
-        const portfolioVideoPath = await uploadFile(portfolioVideos[i], `portfolio${i+1}`);
+        const portfolioVideoPath = await uploadFile(portfolioVideos[i], `portfolio${i + 1}`);
         portfolioVideoPaths.push(portfolioVideoPath);
       }
 
@@ -185,7 +185,7 @@ export const getAllTeachers: RequestHandler = async (
   next: any
 ) => {
   try {
-    const { page, pageSize, rating, location, availability, search, status, level} =
+    const { page, pageSize, rating, location, availability, search, status, level } =
       req.query;
 
     const offset =
@@ -319,10 +319,66 @@ export const updateProfile: RequestHandler = async (
     return res.status(500).json({ error: "Error updating the profile" });
   }
 };
+
+export const addGigs: RequestHandler = async (req: any, res: any, next: any) => {
+  try {
+    const userId = req.user.id;
+    const { title, description, price } = req.body;
+
+    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
+    if (!existingTeacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    const teacherGigs = await models.Gigs.findAll({ where: { teacherId: existingTeacher.id } });
+    if (teacherGigs.length >= 5) {
+      return res.status(400).json({ error: "Gigs Limit Exceeded. You can only have a maximum of 5 gigs" });
+    }
+
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+    if (!BUCKET_NAME) {
+      throw new Error("AWS_BUCKET_NAME is not defined");
+    }
+
+    const userFolder = `user-${userId.email}`;
+    const mediaFiles = req.files;
+    const imageUrls = [];
+
+    for (let i = 0; mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length; i++) {
+      const file = mediaFiles[i];
+      const type = file.mimetype?.split("/")[1];
+      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: name,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+
+      const { Location } = await s3.upload(params).promise();
+      imageUrls.push(Location);
+    }
+
+    const newGig = await models.Gigs.create({
+      teacherId: existingTeacher.id,
+      title,
+      description,
+      price,
+      imageUrl: imageUrls.join(',')
+    });
+
+    return res.status(201).json({ message: "Gig added successfully", gig: newGig });
+
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error adding gigs" });
+  }
+}
 export default {
   becomeTeacher,
   updateProfile,
   getTeacherById,
   getAllTeachers,
   updateTeacherProfile,
+  addGigs,
 };

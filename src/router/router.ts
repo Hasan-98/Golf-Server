@@ -44,6 +44,7 @@ import {
   updateProfile,
   getAllTeachers,
   getTeacherById,
+  addGigs,
 } from "../api/teacherController";
 import {
   bookAppointment,
@@ -105,6 +106,12 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   upload.array("mediaFiles"),
   updateEventMedia
+);
+router.post(
+  "/add-gigs",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles"),
+  addGigs
 );
 router.get(
   "/get-total-users",
