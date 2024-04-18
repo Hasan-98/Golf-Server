@@ -5,6 +5,7 @@ export interface ITeacherAttributes {
     lastName?: string
     aboutMyself?: string
     phoneNumber?: string
+    level?: string;
     location?: string,
     rating?: any,
     hourlyRate?: number,

@@ -93,6 +93,7 @@ export const becomeTeacher: RequestHandler = async (
       location,
       hourlyRate,
       schedules,
+      level,
     } = req.body;
 
     const teacher = await models.Teacher.create({
@@ -103,6 +104,7 @@ export const becomeTeacher: RequestHandler = async (
       aboutMyself,
       location,
       hourlyRate,
+      level,
     });
 
     const shiftsToCreate: any = [];
@@ -183,7 +185,7 @@ export const getAllTeachers: RequestHandler = async (
   next: any
 ) => {
   try {
-    const { page, pageSize, rating, location, availability, search, status } =
+    const { page, pageSize, rating, location, availability, search, status, level} =
       req.query;
 
     const offset =
@@ -192,6 +194,7 @@ export const getAllTeachers: RequestHandler = async (
     const whereClause = {
       ...(rating && { rating: { [Op.gte]: rating } }),
       ...(location && { location: { [Op.like]: `%${location}` } }),
+      ...(level && { level: { [Op.like]: `%${level}` } }),
       ...(search && {
         [Op.or]: [
           { firstName: { [Op.like]: `%${search}%` } },
@@ -259,6 +262,7 @@ export const updateProfile: RequestHandler = async (
       phoneNumber,
       aboutMyself,
       location,
+      level,
       schedules,
     } = req.body;
     const existingTeacher = await models.Teacher.findOne({ where: { userId } });
@@ -271,6 +275,7 @@ export const updateProfile: RequestHandler = async (
           lastName,
           phoneNumber,
           aboutMyself,
+          level,
           location,
         },
         {
@@ -314,7 +319,6 @@ export const updateProfile: RequestHandler = async (
     return res.status(500).json({ error: "Error updating the profile" });
   }
 };
-
 export default {
   becomeTeacher,
   updateProfile,

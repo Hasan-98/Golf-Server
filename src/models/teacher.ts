@@ -11,6 +11,7 @@ export default (sequelize: Sequelize) => {
     firstName?: string;
     lastName?: string;
     aboutMyself?: string;
+    level?: string
     phoneNumber?: string;
     location?: string;
     // rating?: any;
@@ -63,6 +64,10 @@ export default (sequelize: Sequelize) => {
       phoneNumber: {
         type: DataTypes.STRING,
         field: "phone_number",
+      },
+      level: {
+        type: DataTypes.STRING,
+        field: "level",
       },
       location: {
         type: DataTypes.STRING,
