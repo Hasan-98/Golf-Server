@@ -390,6 +390,45 @@ export const addGigs: RequestHandler = async (req: any, res: any, next: any) => 
     return res.status(500).json({ error: "Error adding gigs" });
   }
 }
+
+export const getGigsByTeacher: RequestHandler = async (req: any, res: any, next: any) => {
+  try {
+    const { id } = req.params;
+    const existingTeacher = await models.Teacher.findOne({ where: { id } });
+    if (!existingTeacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    const teacherGigs = await models.Gigs.findAndCountAll({ where: { teacherId: existingTeacher.id } });
+    return res.status(200).json({ gigs: teacherGigs.rows, count: teacherGigs.count});
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error fetching gigs" });
+  }
+}
+export const getAllTeachersGigs: RequestHandler = async (req: any, res: any, next: any) => {
+  try {
+    const teachers = await models.Teacher.findAll({
+      include: [{
+        model: models.Gigs,
+        as: 'teacherGigs',
+        required: true,
+      }],
+    });
+
+    if (!teachers) {
+      return res.status(404).json({ error: "No teachers found" });
+    }
+
+    return res.status(200).json({ teachers });
+
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get teachers and their gigs at the moment" });
+  }
+};
 export default {
   becomeTeacher,
   updateProfile,
@@ -397,5 +436,7 @@ export default {
   getAllTeachers,
   updateTeacherProfile,
   addGigs,
-  deleteTeacher
+  deleteTeacher,
+  getGigsByTeacher,
+  getAllTeachersGigs,
 };
