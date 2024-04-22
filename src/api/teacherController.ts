@@ -15,7 +15,7 @@ export const updateTeacherProfile: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { firstName } = req.body;
+    const { firstName , movieUrl , portfolioUrl} = req.body;
     const userFolder = `teacher-${firstName}`;
     const { profileImage, introductionVideo } = req.files;
     const portfolioVideos = req.files['portfolioVideo[]'];
@@ -62,6 +62,8 @@ export const updateTeacherProfile: RequestHandler = async (
         profileImage: profileImagePath,
         portfolioVideo: portfolioVideoPaths.join(','),
         introductionVideo: introductionVideoPath,
+        movieUrl,
+        portfolioUrl,
       });
 
       res.status(201).json({
