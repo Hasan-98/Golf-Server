@@ -12,4 +12,6 @@ export interface ITeacherAttributes {
     profileImage?: string;
     portfolioVideo?: string;
     introductionVideo?: string;
+    portfolioUrl?: string;
+    movieUrl?: string;
   }

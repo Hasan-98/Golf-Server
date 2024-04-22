@@ -94,6 +94,14 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         field: "portfolio_video",
       },
+      portfolioUrl: {
+        type: DataTypes.STRING,
+        field: "portfolio_url",
+      },
+      movieUrl: {
+        type: DataTypes.STRING,
+        field: "movie_url",
+      },
       introductionVideo: {
         type: DataTypes.STRING,
         field: "introduction_video",
