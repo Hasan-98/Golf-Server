@@ -24,13 +24,14 @@ export const addComment: RequestHandler = async (req, res, next) => {
         user: userID.id,
         organizer: creatorId,
         nickname: foundUser.nickName,
+        message: `${foundUser.nickName} commented on your event ${event.eventName}`,
         comment: content
       });
       await models.Notification.create({
         userId: userID.id,
         eventId: eventId,
         organizerId: creatorId,
-        message: `You have a new comment added`,
+        message: `${foundUser.nickName} commented on your event ${event.eventName}`,
         isRead: false,
       });
       return res
@@ -228,7 +229,8 @@ export const addPostComment: RequestHandler = async (req, res, next) => {
         user: userID.id,
         organizer: post.userId,
         nickname: foundUser.nickName,
-        comment: content
+        comment: content,
+        message: `${foundUser.nickName} commented on your post ${post.id}`,
   
       });
       await models.Notification.create({
