@@ -7,6 +7,7 @@ import {
   userById,
   getTotalUsers,
   editUserProfile,
+  editProfilePic,
 } from "../api/UserController";
 import {
   createEvent,
@@ -26,7 +27,8 @@ import {
   searchEventByName,
   updateEventById,
   getAllUserEvents,
-  updateNotificationResponse
+  updateNotificationResponse,
+  updateEventMedia,
 } from "../api/eventController";
 import {
   addComment,
@@ -42,6 +44,10 @@ import {
   updateProfile,
   getAllTeachers,
   getTeacherById,
+  addGigs,
+  getGigsByTeacher,
+  getAllTeachersGigs,
+  deleteTeacher,
 } from "../api/teacherController";
 import {
   bookAppointment,
@@ -58,6 +64,7 @@ import {
   getAllTeams,
   updateTeamMember,
   getTeamsByEvent,
+  getTeamById,
 } from "../api/teamController";
 import multer from "multer";
 const upload = multer();
@@ -70,6 +77,7 @@ import {
   getAllPosts,
   getMyPosts,
   getAllPostsOfUser,
+  updatePostMedia
 } from "../api/postController";
 
 import {
@@ -95,6 +103,42 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   upload.array("files[]"),
   createEvent
+);
+router.put(
+  "/update-event-media",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles"),
+  updateEventMedia
+);
+router.delete(
+  "/delete-teacher",
+  passport.authenticate("jwt", { session: false }),
+  deleteTeacher
+);
+router.post(
+  "/add-gigs",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles"),
+  addGigs
+);
+router.get(
+  "/get-gigs-by-teacher/:id",
+  passport.authenticate("jwt", { session: false }),
+  getGigsByTeacher
+);
+router.get(
+  "/get-all-teachers-gigs",
+  passport.authenticate("jwt", { session: false }),
+  getAllTeachersGigs
+);
+
+router.get(
+  "/get-public-gigs-by-teacher/:id",
+  getGigsByTeacher
+);
+router.get(
+  "/get-public-all-teachers-gigs",
+  getAllTeachersGigs
 );
 router.get(
   "/get-total-users",
@@ -131,6 +175,12 @@ router.put(
   "/edit-user-profile/:id",
   passport.authenticate("jwt", { session: false }),
   editUserProfile
+);
+router.put(
+  "/edit-profile-pic/:id",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  editProfilePic
 );
 router.get(
   "/get-all-posts",
@@ -238,6 +288,10 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getTeacherById
 );
+router.get(
+  "/get-public-teacher-by-id/:id",
+  getTeacherById
+);
 router.put(
   "/update-profile",
   passport.authenticate("jwt", { session: false }),
@@ -294,6 +348,12 @@ router.post(
   upload.array("mediaFiles"),
   passport.authenticate("jwt", { session: false }),
   createPost
+);
+router.put(
+  "/update-post-media",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles"),
+  updatePostMedia
 );
 router.put(
   "/update-post/:id",
@@ -364,6 +424,12 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   updateTeamMember
 );
+
+router.get(
+  "/get-teams-by-id/:id",
+  passport.authenticate("jwt", { session: false }),
+  getTeamById
+);
 router.get(
   "/get-teams-by-event/:id",
   passport.authenticate("jwt", { session: false }),
@@ -395,6 +461,15 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getScoreCardByUser
 );
+router.get(
+  "/get-public-score-card-by-event/:id",
+  getScoreCardByEvent
+);
+router.get(
+  "/get-public-score-card-by-user/:id",
+  getScoreCardByUser
+);
+
 router.put(
   "/update-score-card/:id",
   passport.authenticate("jwt", { session: false }),

@@ -6,7 +6,7 @@ const test = app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
 });
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://golf-encounters.com"],
+  origin: ["http://localhost:3000", "https://golf-encounters.com"],
   methods: ["GET", "POST"],
   allowedHeaders: ["my-custom-header"],
   credentials: true,

@@ -86,6 +86,57 @@ export const createEvent: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const updateEventMedia: RequestHandler = async (req, res, next) => {
+  let { eventId, removedMediaUrls } = req.body;
+  removedMediaUrls = removedMediaUrls.split(',');
+
+  let userId: any = req.user;
+  userId = JSON.parse(JSON.stringify(userId));
+
+  try {
+    const foundEvent: any = await models.Event.findOne({ where: { id: eventId, creatorId: userId.id } });
+    if (!foundEvent) {
+      return res.status(404).json({ error: "Unauthorized Event" });
+    }
+
+    foundEvent.imageUrl = foundEvent.imageUrl.filter((url: string) => !removedMediaUrls.includes(url));
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+    if (!BUCKET_NAME) {
+      throw new Error("AWS_BUCKET_NAME is not defined");
+    }
+
+    const userFolder = `user-${userId.email}`;
+    const mediaFiles = req.files;
+    for (
+      let i = 0;
+      mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
+      i++
+    ) {
+      const file = mediaFiles[i];
+      const type = file.mimetype?.split("/")[1];
+      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: name,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+
+      const { Location } = await s3.upload(params).promise();
+      foundEvent.imageUrl.push(Location);
+    }
+
+    await foundEvent.save();
+
+    res.status(200).json({
+      message: "Event Media updated successfully",
+      event: foundEvent,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error updating event" });
+  }
+};
 export const getEventsColData: RequestHandler = async (req, res, next) => {
   try {
     const events = await models.Event.findAll({
@@ -889,4 +940,5 @@ export default {
   searchEventByName,
   getAllUserEvents,
   updateNotificationResponse,
+  updateEventMedia,
 };

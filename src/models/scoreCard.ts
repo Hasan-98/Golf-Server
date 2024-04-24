@@ -8,11 +8,14 @@ export default (sequelize: Sequelize) => {
     id!: number;
     userId!: number;
     eventId!: number;
+    teamId!: number;
     scorePerShot!: string;
     handiCapPerShot!: string;
     totalScore!: number;
     handiCapValue!: number;
     netValue!: number;
+    driverContest?: string;
+    nearPinContest?: string;
 
     static associate(models: any) {
       ScoreCard.belongsTo(models.User, {
@@ -24,6 +27,12 @@ export default (sequelize: Sequelize) => {
       ScoreCard.belongsTo(models.Event, {
         foreignKey: "eventId",
         as: "eventScoreCard",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      ScoreCard.belongsTo(models.Team, {
+        foreignKey: "teamId",
+        as: "teamCard",
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
@@ -41,6 +50,10 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      teamId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       eventId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -52,6 +65,14 @@ export default (sequelize: Sequelize) => {
       handiCapPerShot: {
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      driverContest: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      nearPinContest: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       totalScore: {
         type: DataTypes.INTEGER,
