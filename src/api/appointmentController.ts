@@ -144,7 +144,7 @@ export const acceptAppointment: RequestHandler = async (
               endTime,
               isBooked: true,
               bookedBy: studentId,
-              status: "PENDING",
+              status: "BOOKED",
             },
           }
         );
