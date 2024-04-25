@@ -144,7 +144,7 @@ export const acceptAppointment: RequestHandler = async (
               endTime,
               isBooked: true,
               bookedBy: studentId,
-              status: "BOOKED",
+              status: "PENDING",
             },
           }
         );
@@ -398,7 +398,7 @@ export const updateAppointmentStatus: RequestHandler = async (
               endTime,
               isBooked: true,
               bookedBy: userId,
-              status: "BOOKED",
+              status: "PENDING",
             },
           }
         );
