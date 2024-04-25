@@ -398,7 +398,7 @@ export const updateAppointmentStatus: RequestHandler = async (
               endTime,
               isBooked: true,
               bookedBy: userId,
-              status: "PENDING",
+              status: "BOOKED",
             },
           }
         );
