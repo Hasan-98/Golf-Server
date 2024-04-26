@@ -1,3 +1,4 @@
+import cors from "cors";
 import { app } from "./app";
 const socketio = require("socket.io");
 const port = process.env.PORT || 5000;
@@ -14,6 +15,8 @@ const corsOptions = {
 const io = socketio(test, {
   cors: corsOptions,
 });
+io.use(cors(corsOptions));
+
 io.on("connection", (socket: any) => {
   console.log("New client connected" + socket);
 });
