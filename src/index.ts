@@ -20,12 +20,11 @@ server.listen(port, () => {
 });
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "https://golf-encounters.com"],
-  methods: ["GET", "POST"],
+  origin: '*',
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["my-custom-header"],
   credentials: true,
 };
-
 const io = socketio(server, {
   cors: corsOptions,
 });
