@@ -124,7 +124,7 @@ export const updateEventMedia: RequestHandler = async (req, res, next) => {
       const { Location } = await s3.upload(params).promise();
       foundEvent.imageUrl.push(Location);
     }
-
+    foundEvent.changed('imageUrl', true);
     await foundEvent.save();
 
     res.status(200).json({

@@ -101,7 +101,7 @@ export const updatePostMedia: RequestHandler = async (req, res, next) => {
       const { Location } = await s3.upload(params).promise();
       foundPost.mediaFile.push(Location);
     }
-
+    foundPost.changed('mediaFile', true)
     await foundPost.save();
 
     res.status(200).json({
