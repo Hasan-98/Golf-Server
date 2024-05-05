@@ -89,7 +89,7 @@ export const createEvent: RequestHandler = async (req, res, next) => {
 export const updateEventMedia: RequestHandler = async (req, res, next) => {
   try {
   let { eventId, removedMediaUrls } = req.body;
-  removedMediaUrls = removedMediaUrls.split(',');
+  removedMediaUrls = removedMediaUrls?.split(',');
 
   let userId: any = req.user;
   userId = JSON.parse(JSON.stringify(userId));

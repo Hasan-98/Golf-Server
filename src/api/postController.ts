@@ -64,7 +64,7 @@ export const createPost: RequestHandler = async (req, res, next) => {
 export const updatePostMedia: RequestHandler = async (req, res, next) => {
   try {
     let { postId, removedMediaUrls } = req.body;
-    removedMediaUrls = removedMediaUrls.split(',');
+    removedMediaUrls = removedMediaUrls?.split(',');
     
     let userId: any = req.user;
     userId = JSON.parse(JSON.stringify(userId));
