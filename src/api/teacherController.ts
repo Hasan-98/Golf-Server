@@ -18,7 +18,7 @@ export const updateTeacherProfile: RequestHandler = async (
     const { firstName } = req.body;
     const userFolder = `teacher-${firstName}`;
     const { profileImage, introductionVideo } = req.files;
-    const portfolioVideos = req.files['portfolioVideo'];
+    const portfolioVideos = req.files['portfolioVideo[]'];
 
     // Find the teacher record
     const existingTeacher = await models.Teacher.findOne({ where: { userId } });
