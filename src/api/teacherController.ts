@@ -14,8 +14,8 @@ export const updateTeacherProfile: RequestHandler = async (
   next: any
 ) => {
   try {
-    const userId = req.user.id;
-    const { firstName , movieUrl , portfolioUrl} = req.body;
+    const userId = req.user.id;dda
+    const { firstName } = req.body;
     const userFolder = `teacher-${firstName}`;
     const { profileImage, introductionVideo } = req.files;
     const portfolioVideos = req.files['portfolioVideo[]'];
@@ -53,7 +53,7 @@ export const updateTeacherProfile: RequestHandler = async (
       // Upload portfolio videos
       const portfolioVideoPaths: any = [];
       for (let i = 0; i < portfolioVideos.length; i++) {
-        const portfolioVideoPath = await uploadFile(portfolioVideos[i], `portfolio${i + 1}`);
+        const portfolioVideoPath = await uploadFile(portfolioVideos[i], `portfolio${i+1}`);
         portfolioVideoPaths.push(portfolioVideoPath);
       }
 
@@ -62,8 +62,6 @@ export const updateTeacherProfile: RequestHandler = async (
         profileImage: profileImagePath,
         portfolioVideo: portfolioVideoPaths.join(','),
         introductionVideo: introductionVideoPath,
-        movieUrl,
-        portfolioUrl,
       });
 
       res.status(201).json({
@@ -95,7 +93,6 @@ export const becomeTeacher: RequestHandler = async (
       location,
       hourlyRate,
       schedules,
-      level,
     } = req.body;
 
     const teacher = await models.Teacher.create({
@@ -106,7 +103,6 @@ export const becomeTeacher: RequestHandler = async (
       aboutMyself,
       location,
       hourlyRate,
-      level,
     });
 
     const shiftsToCreate: any = [];
@@ -187,7 +183,7 @@ export const getAllTeachers: RequestHandler = async (
   next: any
 ) => {
   try {
-    const { page, pageSize, rating, location, availability, search, status, level } =
+    const { page, pageSize, rating, location, availability, search, status } =
       req.query;
 
     const offset =
@@ -196,7 +192,6 @@ export const getAllTeachers: RequestHandler = async (
     const whereClause = {
       ...(rating && { rating: { [Op.gte]: rating } }),
       ...(location && { location: { [Op.like]: `%${location}` } }),
-      ...(level && { level: { [Op.like]: `%${level}` } }),
       ...(search && {
         [Op.or]: [
           { firstName: { [Op.like]: `%${search}%` } },
@@ -264,7 +259,6 @@ export const updateProfile: RequestHandler = async (
       phoneNumber,
       aboutMyself,
       location,
-      level,
       schedules,
     } = req.body;
     const existingTeacher = await models.Teacher.findOne({ where: { userId } });
@@ -277,7 +271,6 @@ export const updateProfile: RequestHandler = async (
           lastName,
           phoneNumber,
           aboutMyself,
-          level,
           location,
         },
         {
@@ -322,123 +315,10 @@ export const updateProfile: RequestHandler = async (
   }
 };
 
-export const deleteTeacher: RequestHandler = async (req: any, res: any, next: any) => {
-  try {
-    const userId = req.user.id;
-    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
-
-    if (!existingTeacher) {
-      return res.status(404).json({ error: "Teacher not found" });
-    }
-
-    await models.Teacher.destroy({ where: { userId } });
-    return res.status(200).json({ message: "Teacher deleted successfully" });
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ error: "Error deleting teacher" });
-  }
-};
-export const addGigs: RequestHandler = async (req: any, res: any, next: any) => {
-  try {
-    const userId = req.user.id;
-    const { title, description, price } = req.body;
-
-    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
-    if (!existingTeacher) {
-      return res.status(404).json({ error: "Teacher not found" });
-    }
-
-    const teacherGigs = await models.Gigs.findAll({ where: { teacherId: existingTeacher.id } });
-    if (teacherGigs.length >= 5) {
-      return res.status(400).json({ error: "Gigs Limit Exceeded. You can only have a maximum of 5 gigs" });
-    }
-
-    const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
-    if (!BUCKET_NAME) {
-      throw new Error("AWS_BUCKET_NAME is not defined");
-    }
-
-    const userFolder = `user-${userId.email}`;
-    const mediaFiles = req.files;
-    const imageUrls = [];
-
-    for (let i = 0; mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length; i++) {
-      const file = mediaFiles[i];
-      const type = file.mimetype?.split("/")[1];
-      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
-      const params = {
-        Bucket: BUCKET_NAME,
-        Key: name,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
-
-      const { Location } = await s3.upload(params).promise();
-      imageUrls.push(Location);
-    }
-
-    const newGig = await models.Gigs.create({
-      teacherId: existingTeacher.id,
-      title,
-      description,
-      price,
-      imageUrl: imageUrls.join(',')
-    });
-
-    return res.status(201).json({ message: "Gig added successfully", gig: newGig });
-
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ error: "Error adding gigs" });
-  }
-}
-
-export const getGigsByTeacher: RequestHandler = async (req: any, res: any, next: any) => {
-  try {
-    const { id } = req.params;
-    const existingTeacher = await models.Teacher.findOne({ where: { id } });
-    if (!existingTeacher) {
-      return res.status(404).json({ error: "Teacher not found" });
-    }
-
-    const teacherGigs = await models.Gigs.findAndCountAll({ where: { teacherId: existingTeacher.id } });
-    return res.status(200).json({ gigs: teacherGigs.rows, count: teacherGigs.count});
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ error: "Error fetching gigs" });
-  }
-}
-export const getAllTeachersGigs: RequestHandler = async (req: any, res: any, next: any) => {
-  try {
-    const teachers = await models.Teacher.findAll({
-      include: [{
-        model: models.Gigs,
-        as: 'teacherGigs',
-        required: true,
-      }],
-    });
-
-    if (!teachers) {
-      return res.status(404).json({ error: "No teachers found" });
-    }
-
-    return res.status(200).json({ teachers });
-
-  } catch (err) {
-    console.error("Error:", err);
-    return res
-      .status(500)
-      .json({ error: "Cannot get teachers and their gigs at the moment" });
-  }
-};
 export default {
   becomeTeacher,
   updateProfile,
   getTeacherById,
   getAllTeachers,
   updateTeacherProfile,
-  addGigs,
-  deleteTeacher,
-  getGigsByTeacher,
-  getAllTeachersGigs,
 };

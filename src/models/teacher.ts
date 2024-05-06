@@ -4,13 +4,13 @@ import { ITeacherAttributes } from "../interfaces/teacher.interface";
 export default (sequelize: Sequelize) => {
   class Teacher
     extends Model<ITeacherAttributes>
-    implements ITeacherAttributes {
+    implements ITeacherAttributes
+  {
     id!: number;
     userId!: number;
     firstName?: string;
     lastName?: string;
     aboutMyself?: string;
-    level?: string
     phoneNumber?: string;
     location?: string;
     // rating?: any;
@@ -31,12 +31,6 @@ export default (sequelize: Sequelize) => {
       Teacher.belongsToMany(models.User, {
         through: models.Favorite,
         as: "favoritedByUsers",
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      });
-      Teacher.hasMany(models.Gigs, {
-        foreignKey: "teacherId",
-        as: "teacherGigs",
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
@@ -70,10 +64,6 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         field: "phone_number",
       },
-      level: {
-        type: DataTypes.STRING,
-        field: "level",
-      },
       location: {
         type: DataTypes.STRING,
         field: "location",
@@ -93,14 +83,6 @@ export default (sequelize: Sequelize) => {
       portfolioVideo: {
         type: DataTypes.STRING,
         field: "portfolio_video",
-      },
-      portfolioUrl: {
-        type: DataTypes.STRING,
-        field: "portfolio_url",
-      },
-      movieUrl: {
-        type: DataTypes.STRING,
-        field: "movie_url",
       },
       introductionVideo: {
         type: DataTypes.STRING,

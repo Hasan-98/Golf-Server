@@ -87,12 +87,13 @@ export const createEvent: RequestHandler = async (req, res, next) => {
 };
 
 export const updateEventMedia: RequestHandler = async (req, res, next) => {
-  try {
   let { eventId, removedMediaUrls } = req.body;
-  removedMediaUrls = removedMediaUrls?.split(',');
+  removedMediaUrls = removedMediaUrls.split(',');
 
   let userId: any = req.user;
   userId = JSON.parse(JSON.stringify(userId));
+
+  try {
     const foundEvent: any = await models.Event.findOne({ where: { id: eventId, creatorId: userId.id } });
     if (!foundEvent) {
       return res.status(404).json({ error: "Unauthorized Event" });
@@ -124,7 +125,7 @@ export const updateEventMedia: RequestHandler = async (req, res, next) => {
       const { Location } = await s3.upload(params).promise();
       foundEvent.imageUrl.push(Location);
     }
-    foundEvent.changed('imageUrl', true);
+
     await foundEvent.save();
 
     res.status(200).json({

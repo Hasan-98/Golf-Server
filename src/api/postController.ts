@@ -64,7 +64,7 @@ export const createPost: RequestHandler = async (req, res, next) => {
 export const updatePostMedia: RequestHandler = async (req, res, next) => {
   try {
     let { postId, removedMediaUrls } = req.body;
-    removedMediaUrls = removedMediaUrls?.split(',');
+    removedMediaUrls = removedMediaUrls.split(',');
     
     let userId: any = req.user;
     userId = JSON.parse(JSON.stringify(userId));
@@ -101,7 +101,7 @@ export const updatePostMedia: RequestHandler = async (req, res, next) => {
       const { Location } = await s3.upload(params).promise();
       foundPost.mediaFile.push(Location);
     }
-    foundPost.changed('mediaFile', true)
+
     await foundPost.save();
 
     res.status(200).json({

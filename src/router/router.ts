@@ -44,10 +44,6 @@ import {
   updateProfile,
   getAllTeachers,
   getTeacherById,
-  addGigs,
-  getGigsByTeacher,
-  getAllTeachersGigs,
-  deleteTeacher,
 } from "../api/teacherController";
 import {
   bookAppointment,
@@ -107,38 +103,8 @@ router.post(
 router.put(
   "/update-event-media",
   passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles[]"),
+  upload.array("mediaFiles"),
   updateEventMedia
-);
-router.delete(
-  "/delete-teacher",
-  passport.authenticate("jwt", { session: false }),
-  deleteTeacher
-);
-router.post(
-  "/add-gigs",
-  passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles[]"),
-  addGigs
-);
-router.get(
-  "/get-gigs-by-teacher/:id",
-  passport.authenticate("jwt", { session: false }),
-  getGigsByTeacher
-);
-router.get(
-  "/get-all-teachers-gigs",
-  passport.authenticate("jwt", { session: false }),
-  getAllTeachersGigs
-);
-
-router.get(
-  "/get-public-gigs-by-teacher/:id",
-  getGigsByTeacher
-);
-router.get(
-  "/get-public-all-teachers-gigs",
-  getAllTeachersGigs
 );
 router.get(
   "/get-total-users",
@@ -288,10 +254,6 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getTeacherById
 );
-router.get(
-  "/get-public-teacher-by-id/:id",
-  getTeacherById
-);
 router.put(
   "/update-profile",
   passport.authenticate("jwt", { session: false }),
@@ -352,7 +314,7 @@ router.post(
 router.put(
   "/update-post-media",
   passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles[]"),
+  upload.array("mediaFiles"),
   updatePostMedia
 );
 router.put(
@@ -461,15 +423,6 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getScoreCardByUser
 );
-router.get(
-  "/get-public-score-card-by-event/:id",
-  getScoreCardByEvent
-);
-router.get(
-  "/get-public-score-card-by-user/:id",
-  getScoreCardByUser
-);
-
 router.put(
   "/update-score-card/:id",
   passport.authenticate("jwt", { session: false }),
