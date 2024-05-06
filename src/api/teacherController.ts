@@ -14,7 +14,7 @@ export const updateTeacherProfile: RequestHandler = async (
   next: any
 ) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.id;dda
     const { firstName } = req.body;
     const userFolder = `teacher-${firstName}`;
     const { profileImage, introductionVideo } = req.files;
