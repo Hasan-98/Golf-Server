@@ -107,7 +107,7 @@ router.post(
 router.put(
   "/update-event-media",
   passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles"),
+  upload.array("mediaFiles[]"),
   updateEventMedia
 );
 router.delete(
@@ -118,7 +118,7 @@ router.delete(
 router.post(
   "/add-gigs",
   passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles"),
+  upload.array("mediaFiles[]"),
   addGigs
 );
 router.get(
@@ -352,7 +352,7 @@ router.post(
 router.put(
   "/update-post-media",
   passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles"),
+  upload.array("mediaFiles[]"),
   updatePostMedia
 );
 router.put(
