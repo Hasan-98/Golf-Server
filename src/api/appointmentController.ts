@@ -114,7 +114,7 @@ export const acceptAppointment: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { scheduleId, day, startTime, endTime, status, studentId, notificationId} = req.body;
+    const { scheduleId, day, startTime, endTime, status, studentId, notificationId } = req.body;
 
     const existingTeacher = await models.Teacher.findOne({
       where: { userId },
@@ -159,7 +159,7 @@ export const acceptAppointment: RequestHandler = async (
         });
 
         const existingNotification = await models.Notification.findOne({
-          where: {  
+          where: {
             id: notificationId
           },
         });
@@ -206,24 +206,26 @@ export const getNotifications: RequestHandler = async (
     });
 
     if (existingUser) {
-      const whereClause: any = { };
+      const whereConditions: any[] = [];
 
       if (eventId) {
-        whereClause.eventId = eventId;
-      } 
-      if (teacherId) {
-        whereClause.teacherId = teacherId;
+        whereConditions.push({ eventId: eventId });
       }
-      if (organizerId){
-        whereClause.organizerId = organizerId
-      } 
+      if (teacherId) {
+        whereConditions.push({ teacherId: teacherId });
+      }
+      if (organizerId) {
+        whereConditions.push({ organizerId: organizerId });
+      }
 
       const notifications = await models.Notification.findAll({
-        where: whereClause,
+        where: {
+          [Op.or]: whereConditions
+        },
         include: [
           {
             model: models.User,
-            attributes: ['id','nickname', 'imageUrl'],
+            attributes: ['id', 'nickname', 'imageUrl'],
           },
         ],
         order: [['created_at', 'DESC']],
