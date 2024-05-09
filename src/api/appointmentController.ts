@@ -337,7 +337,7 @@ export const getTeacherBookedAppointments: RequestHandler = async (
           {
             model: models.User,
             as: "bookedShifts",
-            attributes: ["nickName", "email"],
+            attributes: ["nickName", "email", "imageUrl"],
           },
           {
             model: models.Schedules,
@@ -381,7 +381,7 @@ export const getUserBookedAppointments: RequestHandler = async (
           {
             model: models.User,
             as: "bookedShifts",
-            attributes: ["nickName", "email"],
+            attributes: ["nickName", "email", "imageUrl"],
           },
         ],
       });
