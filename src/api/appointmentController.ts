@@ -369,7 +369,7 @@ export const getUserBookedAppointments: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const existingUser = await models.Teacher.findOne({ where: { userId } });
+    const existingUser = await models.User.findOne({ where: { id: userId } });
     if (existingUser) {
       const bookedAppointments = await models.Shifts.findAll({
         where: {
@@ -379,9 +379,19 @@ export const getUserBookedAppointments: RequestHandler = async (
         },
         include: [
           {
-            model: models.User,
-            as: "bookedShifts",
-            attributes: ["nickName", "email", "imageUrl"],
+            model: models.Schedules,
+            include: [
+              {
+                model: models.Teacher,
+                include: [
+                  {
+                    model: models.User,
+                    as: "teacher",
+                    attributes: ["nickName", "email", "imageUrl"],
+                  },
+                ],
+              },
+            ],
           },
         ],
       });
