@@ -54,6 +54,7 @@ import {
   getTeacherBookedAppointments,
   getUserBookedAppointments,
   acceptAppointment,
+  declineAppointment,
   favoriteTeacher,
   getFavoriteTeachers,
   updateAppointmentStatus,
@@ -323,6 +324,11 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   acceptAppointment
 );
+router.post(
+  "/decline-appointment",
+  passport.authenticate("jwt", { session: false }),
+  declineAppointment
+)
 router.put(
   "/update-appointment-status",
   passport.authenticate("jwt", { session: false }),

@@ -189,6 +189,81 @@ export const acceptAppointment: RequestHandler = async (
       .json({ success: false, error: "Error accepting appointment" });
   }
 };
+export const declineAppointment: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const userId = req.user.id;
+    const { scheduleId, day, startTime, endTime, studentId, status } = req.body;
+
+    const existingTeacher = await models.Teacher.findOne({
+      where: { userId },
+    });
+
+    if (existingTeacher) {
+      const isSlotBooked = await models.Shifts.findOne({
+        where: {
+          scheduleId,
+          day,
+          startTime,
+          endTime,
+          isBooked: true,
+          bookedBy: studentId,
+          status: "PENDING",
+        },
+      });
+
+      if (isSlotBooked) {
+        await models.Shifts.update(
+          { 
+            status,
+            isBooked: false,
+            bookedBy: null || undefined
+          },
+          {
+            where: {
+              scheduleId,
+              day,
+              startTime,
+              endTime,
+              isBooked: true,
+              bookedBy: studentId,
+              status: "PENDING",
+            },
+          }
+        );
+
+        io.emit("appointmentDeclined", {
+          studentId,
+          appointment: {
+            day,
+            startTime,
+            endTime,
+            status,
+          },
+        });
+
+        res.status(200).json({
+          message: `Appointment ${status.toLowerCase()} successfully`,
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: "Selected time slot is not booked or already accepted",
+        });
+      }
+    } else {
+      res.status(404).json({ success: false, error: "User is not a teacher" });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res
+      .status(500)
+      .json({ success: false, error: `Error ${status.toLowerCase()} the appointment` });
+  }
+};
 
 // get notifications for user or teacher
 export const getNotifications: RequestHandler = async (
@@ -598,6 +673,7 @@ export const getFavoriteTeachers: RequestHandler = async (
 export default {
   getNotifications,
   bookAppointment,
+  declineAppointment,
   getTeacherBookedAppointments,
   getUserBookedAppointments,
   acceptAppointment,
