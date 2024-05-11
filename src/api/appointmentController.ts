@@ -189,6 +189,7 @@ export const acceptAppointment: RequestHandler = async (
       .json({ success: false, error: "Error accepting appointment" });
   }
 };
+
 export const declineAppointment: RequestHandler = async (
   req: any,
   res: any,
@@ -196,7 +197,7 @@ export const declineAppointment: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { scheduleId, day, startTime, endTime, studentId, status } = req.body;
+    const { scheduleId, day, startTime, endTime, studentId, status, notificationId } = req.body;
 
     const existingTeacher = await models.Teacher.findOne({
       where: { userId },
@@ -245,6 +246,19 @@ export const declineAppointment: RequestHandler = async (
           },
         });
 
+        const existingNotification = await models.Notification.findOne({
+          where: {
+            id: notificationId
+          },
+        });
+
+        if (existingNotification) {
+          await existingNotification.update({
+            message: `Your appointment request has been ${status}`,
+            isRead: true,
+          });
+        }
+
         res.status(200).json({
           message: `Appointment ${status.toLowerCase()} successfully`,
         });
@@ -264,6 +278,7 @@ export const declineAppointment: RequestHandler = async (
       .json({ success: false, error: `Error ${status.toLowerCase()} the appointment` });
   }
 };
+
 
 // get notifications for user or teacher
 export const getNotifications: RequestHandler = async (
