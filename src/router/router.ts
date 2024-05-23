@@ -47,6 +47,8 @@ import {
   addGigs,
   getGigsByTeacher,
   getAllTeachersGigs,
+  deleteSchedule,
+  deleteShift,
   deleteTeacher,
 } from "../api/teacherController";
 import {
@@ -115,6 +117,16 @@ router.delete(
   "/delete-teacher",
   passport.authenticate("jwt", { session: false }),
   deleteTeacher
+);
+router.delete(
+  "/delete-schedule",
+  passport.authenticate("jwt", { session: false }),
+  deleteSchedule
+);
+router.delete(
+  "/delete-shift",
+  passport.authenticate("jwt", { session: false }),
+  deleteShift
 );
 router.post(
   "/add-gigs",
