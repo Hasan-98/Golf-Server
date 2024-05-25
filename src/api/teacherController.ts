@@ -15,10 +15,10 @@ export const updateTeacherProfile: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { firstName , movieUrl , portfolioUrl} = req.body;
+    const { firstName, movieUrl, portfolioUrl } = req.body;
     const userFolder = `teacher-${firstName}`;
     const { profileImage, introductionVideo } = req.files;
-    const portfolioVideos = req.files['portfolioVideo[]'];
+    const portfolioVideos = req.files["portfolioVideo[]"];
 
     // Find the teacher record
     const existingTeacher = await models.Teacher.findOne({ where: { userId } });
@@ -44,27 +44,58 @@ export const updateTeacherProfile: RequestHandler = async (
         return uploadResult.Location;
       };
 
-      // Upload profile image
-      const profileImagePath = await uploadFile(profileImage[0], 'profile');
-
-      // Upload introduction video
-      const introductionVideoPath = await uploadFile(introductionVideo[0], 'introduction');
-
-      // Upload portfolio videos
+      let profileImagePath, introductionVideoPath;
       const portfolioVideoPaths: any = [];
-      for (let i = 0; i < portfolioVideos.length; i++) {
-        const portfolioVideoPath = await uploadFile(portfolioVideos[i], `portfolio${i + 1}`);
-        portfolioVideoPaths.push(portfolioVideoPath);
+
+      // Upload profile image if it exists
+      if (profileImage && profileImage.length > 0) {
+        profileImagePath = await uploadFile(profileImage[0], "profile");
+      }
+
+      // Upload introduction video if it exists
+      if (introductionVideo && introductionVideo.length > 0) {
+        introductionVideoPath = await uploadFile(
+          introductionVideo[0],
+          "introduction"
+        );
+      }
+
+      // Upload portfolio videos if they exist
+      if (portfolioVideos && portfolioVideos.length > 0) {
+        for (let i = 0; i < portfolioVideos.length; i++) {
+          const portfolioVideoPath = await uploadFile(
+            portfolioVideos[i],
+            `portfolio${i + 1}`
+          );
+          portfolioVideoPaths.push(portfolioVideoPath);
+        }
+      }
+
+      // Build the update object
+      const updateObject: any = {};
+
+      if (movieUrl !== undefined) {
+        updateObject.movieUrl = movieUrl;
+      }
+
+      if (portfolioUrl !== undefined) {
+        updateObject.portfolioUrl = portfolioUrl;
+      }
+
+      if (profileImagePath !== undefined) {
+        updateObject.profileImage = profileImagePath;
+      }
+
+      if (portfolioVideoPaths.length > 0) {
+        updateObject.portfolioVideo = portfolioVideoPaths.join(",");
+      }
+
+      if (introductionVideoPath !== undefined) {
+        updateObject.introductionVideo = introductionVideoPath;
       }
 
       // Update the teacher record with the file paths
-      const updatedTeacher = await existingTeacher.update({
-        profileImage: profileImagePath,
-        portfolioVideo: portfolioVideoPaths.join(','),
-        introductionVideo: introductionVideoPath,
-        movieUrl,
-        portfolioUrl,
-      });
+      const updatedTeacher = await existingTeacher.update(updateObject);
 
       res.status(201).json({
         message: "Teacher Profile Updated successfully",
@@ -78,7 +109,6 @@ export const updateTeacherProfile: RequestHandler = async (
     res.status(500).json({ error: "Error updating teacher profile" });
   }
 };
-
 
 export const becomeTeacher: RequestHandler = async (
   req: any,
@@ -187,8 +217,16 @@ export const getAllTeachers: RequestHandler = async (
   next: any
 ) => {
   try {
-    const { page, pageSize, rating, location, availability, search, status, level } =
-      req.query;
+    const {
+      page,
+      pageSize,
+      rating,
+      location,
+      availability,
+      search,
+      status,
+      level,
+    } = req.query;
 
     const offset =
       (parseInt(page as string) - 1) * parseInt(pageSize as string);
@@ -285,31 +323,71 @@ export const updateProfile: RequestHandler = async (
         }
       );
 
-      for (const schedule of schedules) {
-        await models.Schedules.upsert(
-          {
-            teacherId: existingTeacher.id,
-            startDate: schedule.startDate,
-            endDate: schedule.endDate,
-          },
-          {
-            fields: ["startDate", "endDate"],
-          }
-        );
+      const existingSchedules = await models.Schedules.findAll({ where: { teacherId: existingTeacher.id } });
+      const existingScheduleIds = existingSchedules.map(schedule => schedule.id);
 
-        for (const shift of schedule.shifts) {
-          await models.Shifts.upsert(
+      for (const schedule of schedules) {
+        let scheduleId;
+        if (schedule.id && existingScheduleIds.includes(schedule.id)) {
+          // Update existing schedule
+          await models.Schedules.update(
             {
-              scheduleId: existingTeacher.id,
-              day: shift.day,
-              startTime: shift.startTime,
-              endTime: shift.endTime,
+              startDate: schedule.startDate,
+              endDate: schedule.endDate,
             },
             {
-              fields: ["day", "startTime", "endTime"],
+              where: { id: schedule.id },
             }
           );
+          scheduleId = schedule.id;
+        } else {
+          // Insert new schedule
+          const newSchedule = await models.Schedules.create(
+            {
+              teacherId: existingTeacher.id,
+              startDate: schedule.startDate,
+              endDate: schedule.endDate,
+            }
+          );
+          scheduleId = newSchedule.id;
         }
+
+        const existingShifts = await models.Shifts.findAll({ where: { scheduleId } });
+        const existingShiftIds = existingShifts.map(shift => shift.id);
+
+        for (const shift of schedule.shifts) {
+          if (shift.id && existingShiftIds.includes(shift.id)) {
+            // Update existing shift
+            await models.Shifts.update(
+              {
+                day: shift.day,
+                startTime: shift.startTime,
+                endTime: shift.endTime,
+              },
+              {
+                where: { id: shift.id },
+              }
+            );
+          } else {
+            // Insert new shift
+            await models.Shifts.create(
+              {
+                scheduleId,
+                day: shift.day,
+                startTime: shift.startTime,
+                endTime: shift.endTime,
+              }
+            );
+          }
+        }
+      }
+
+      // Delete schedules and shifts that were removed by the user
+      const newScheduleIds = (schedules as { id: number }[]).map(schedule => schedule.id);
+      const schedulesToDelete = existingSchedules.filter(schedule => !newScheduleIds.includes(schedule.id));
+      for (const schedule of schedulesToDelete) {
+        await models.Schedules.destroy({ where: { id: schedule.id } });
+        await models.Shifts.destroy({ where: { scheduleId: schedule.id } });
       }
 
       res.status(200).json({ message: "Profile updated successfully" });
@@ -322,7 +400,11 @@ export const updateProfile: RequestHandler = async (
   }
 };
 
-export const deleteTeacher: RequestHandler = async (req: any, res: any, next: any) => {
+export const deleteTeacher: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
   try {
     const userId = req.user.id;
     const existingTeacher = await models.Teacher.findOne({ where: { userId } });
@@ -354,13 +436,15 @@ export const deleteShift: RequestHandler = async (
       return res.status(403).json({ error: "Unauthorized" });
     }
 
-    const shift = await models.Shifts.findOne({ 
+    const shift = await models.Shifts.findOne({
       where: { id: shiftId },
-      include: [{
-        model: models.Schedules,
-        as: 'schedule',
-        where: { teacherId: teacher.id }
-      }]
+      include: [
+        {
+          model: models.Schedules,
+          as: "schedule",
+          where: { teacherId: teacher.id },
+        },
+      ],
     });
 
     if (!shift) {
@@ -394,13 +478,17 @@ export const deleteSchedule: RequestHandler = async (
       return res.status(403).json({ error: "Unauthorized" });
     }
 
-    const schedule = await models.Schedules.findOne({ where: { id: scheduleId } });
+    const schedule = await models.Schedules.findOne({
+      where: { id: scheduleId },
+    });
 
     if (!schedule || schedule.teacherId !== teacher.id) {
       return res.status(403).json({ error: "Unauthorized" });
     }
 
-    const deletedRows = await models.Schedules.destroy({ where: { id: scheduleId } });
+    const deletedRows = await models.Schedules.destroy({
+      where: { id: scheduleId },
+    });
 
     if (deletedRows > 0) {
       res.status(200).json({ message: "Schedule deleted successfully" });
@@ -413,7 +501,11 @@ export const deleteSchedule: RequestHandler = async (
   }
 };
 
-export const addGigs: RequestHandler = async (req: any, res: any, next: any) => {
+export const addGigs: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
   try {
     const userId = req.user.id;
     const { title, description, price } = req.body;
@@ -423,9 +515,15 @@ export const addGigs: RequestHandler = async (req: any, res: any, next: any) => 
       return res.status(404).json({ error: "Teacher not found" });
     }
 
-    const teacherGigs = await models.Gigs.findAll({ where: { teacherId: existingTeacher.id } });
+    const teacherGigs = await models.Gigs.findAll({
+      where: { teacherId: existingTeacher.id },
+    });
     if (teacherGigs.length >= 5) {
-      return res.status(400).json({ error: "Gigs Limit Exceeded. You can only have a maximum of 5 gigs" });
+      return res
+        .status(400)
+        .json({
+          error: "Gigs Limit Exceeded. You can only have a maximum of 5 gigs",
+        });
     }
 
     const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
@@ -437,7 +535,11 @@ export const addGigs: RequestHandler = async (req: any, res: any, next: any) => 
     const mediaFiles = req.files;
     const imageUrls = [];
 
-    for (let i = 0; mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length; i++) {
+    for (
+      let i = 0;
+      mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
+      i++
+    ) {
       const file = mediaFiles[i];
       const type = file.mimetype?.split("/")[1];
       const name = `${userFolder}/${Date.now()}-${i}.${type}`;
@@ -457,18 +559,23 @@ export const addGigs: RequestHandler = async (req: any, res: any, next: any) => 
       title,
       description,
       price,
-      imageUrl: imageUrls.join(',')
+      imageUrl: imageUrls.join(","),
     });
 
-    return res.status(201).json({ message: "Gig added successfully", gig: newGig });
-
+    return res
+      .status(201)
+      .json({ message: "Gig added successfully", gig: newGig });
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({ error: "Error adding gigs" });
   }
-}
+};
 
-export const getGigsByTeacher: RequestHandler = async (req: any, res: any, next: any) => {
+export const getGigsByTeacher: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
   try {
     const { id } = req.params;
     const existingTeacher = await models.Teacher.findOne({ where: { id } });
@@ -476,21 +583,31 @@ export const getGigsByTeacher: RequestHandler = async (req: any, res: any, next:
       return res.status(404).json({ error: "Teacher not found" });
     }
 
-    const teacherGigs = await models.Gigs.findAndCountAll({ where: { teacherId: existingTeacher.id } });
-    return res.status(200).json({ gigs: teacherGigs.rows, count: teacherGigs.count});
+    const teacherGigs = await models.Gigs.findAndCountAll({
+      where: { teacherId: existingTeacher.id },
+    });
+    return res
+      .status(200)
+      .json({ gigs: teacherGigs.rows, count: teacherGigs.count });
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({ error: "Error fetching gigs" });
   }
-}
-export const getAllTeachersGigs: RequestHandler = async (req: any, res: any, next: any) => {
+};
+export const getAllTeachersGigs: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
   try {
     const teachers = await models.Teacher.findAll({
-      include: [{
-        model: models.Gigs,
-        as: 'teacherGigs',
-        required: true,
-      }],
+      include: [
+        {
+          model: models.Gigs,
+          as: "teacherGigs",
+          required: true,
+        },
+      ],
     });
 
     if (!teachers) {
@@ -498,7 +615,6 @@ export const getAllTeachersGigs: RequestHandler = async (req: any, res: any, nex
     }
 
     return res.status(200).json({ teachers });
-
   } catch (err) {
     console.error("Error:", err);
     return res
