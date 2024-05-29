@@ -323,8 +323,12 @@ export const updateProfile: RequestHandler = async (
         }
       );
 
-      const existingSchedules = await models.Schedules.findAll({ where: { teacherId: existingTeacher.id } });
-      const existingScheduleIds = existingSchedules.map(schedule => schedule.id);
+      const existingSchedules = await models.Schedules.findAll({
+        where: { teacherId: existingTeacher.id },
+      });
+      const existingScheduleIds = existingSchedules.map(
+        (schedule) => schedule.id
+      );
 
       for (const schedule of schedules) {
         let scheduleId;
@@ -342,18 +346,18 @@ export const updateProfile: RequestHandler = async (
           scheduleId = schedule.id;
         } else {
           // Insert new schedule
-          const newSchedule = await models.Schedules.create(
-            {
-              teacherId: existingTeacher.id,
-              startDate: schedule.startDate,
-              endDate: schedule.endDate,
-            }
-          );
+          const newSchedule = await models.Schedules.create({
+            teacherId: existingTeacher.id,
+            startDate: schedule.startDate,
+            endDate: schedule.endDate,
+          });
           scheduleId = newSchedule.id;
         }
 
-        const existingShifts = await models.Shifts.findAll({ where: { scheduleId } });
-        const existingShiftIds = existingShifts.map(shift => shift.id);
+        const existingShifts = await models.Shifts.findAll({
+          where: { scheduleId },
+        });
+        const existingShiftIds = existingShifts.map((shift) => shift.id);
 
         for (const shift of schedule.shifts) {
           if (shift.id && existingShiftIds.includes(shift.id)) {
@@ -370,21 +374,23 @@ export const updateProfile: RequestHandler = async (
             );
           } else {
             // Insert new shift
-            await models.Shifts.create(
-              {
-                scheduleId,
-                day: shift.day,
-                startTime: shift.startTime,
-                endTime: shift.endTime,
-              }
-            );
+            await models.Shifts.create({
+              scheduleId,
+              day: shift.day,
+              startTime: shift.startTime,
+              endTime: shift.endTime,
+            });
           }
         }
       }
 
       // Delete schedules and shifts that were removed by the user
-      const newScheduleIds = (schedules as { id: number }[]).map(schedule => schedule.id);
-      const schedulesToDelete = existingSchedules.filter(schedule => !newScheduleIds.includes(schedule.id));
+      const newScheduleIds = (schedules as { id: number }[]).map(
+        (schedule) => schedule.id
+      );
+      const schedulesToDelete = existingSchedules.filter(
+        (schedule) => !newScheduleIds.includes(schedule.id)
+      );
       for (const schedule of schedulesToDelete) {
         await models.Schedules.destroy({ where: { id: schedule.id } });
         await models.Shifts.destroy({ where: { scheduleId: schedule.id } });
@@ -519,11 +525,9 @@ export const addGigs: RequestHandler = async (
       where: { teacherId: existingTeacher.id },
     });
     if (teacherGigs.length >= 5) {
-      return res
-        .status(400)
-        .json({
-          error: "Gigs Limit Exceeded. You can only have a maximum of 5 gigs",
-        });
+      return res.status(400).json({
+        error: "Gigs Limit Exceeded. You can only have a maximum of 5 gigs",
+      });
     }
 
     const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
@@ -594,6 +598,116 @@ export const getGigsByTeacher: RequestHandler = async (
     return res.status(500).json({ error: "Error fetching gigs" });
   }
 };
+
+export const deleteGig: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
+    if (!existingTeacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    const gig = await models.Gigs.findOne({
+      where: { id, teacherId: existingTeacher.id },
+    });
+    if (!gig) {
+      return res.status(404).json({ error: "Gig not found" });
+    }
+
+    await models.Gigs.destroy({ where: { id } });
+    return res.status(200).json({ message: "Gig deleted successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error deleting gig" });
+  }
+};
+
+export const updateGig: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const { title, description, price } = req.body;
+
+    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
+    if (!existingTeacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    const teacherGigs = await models.Gigs.findAll({
+      where: { teacherId: existingTeacher.id },
+    });
+    if (teacherGigs.length > 5) {
+      return res.status(400).json({
+        error: "Gigs Limit Exceeded. You can only have a maximum of 5 gigs",
+      });
+    }
+
+    const existingGig = await models.Gigs.findOne({ where: { id } });
+    if (!existingGig) {
+      return res.status(404).json({ error: "Gig not found" });
+    }
+
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+    if (!BUCKET_NAME) {
+      throw new Error("AWS_BUCKET_NAME is not defined");
+    }
+
+    const userFolder = `user-${userId.email}`;
+    const mediaFiles = req.files;
+    let imageUrls = existingGig.imageUrl.split(",");
+
+    if (mediaFiles && Array.isArray(mediaFiles) && mediaFiles.length > 0) {
+      imageUrls = [];
+
+      for (let i = 0; i < mediaFiles.length; i++) {
+        const file = mediaFiles[i];
+        const type = file.mimetype?.split("/")[1];
+        const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+        const params = {
+          Bucket: BUCKET_NAME,
+          Key: name,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+
+        const { Location } = await s3.upload(params).promise();
+        imageUrls.push(Location);
+      }
+    }
+
+    await models.Gigs.update(
+      {
+        title,
+        description,
+        price,
+        imageUrl: imageUrls.join(","),
+      },
+      {
+        where: { id },
+      }
+    );
+
+    const updatedGig = await models.Gigs.findOne({ where: { id } });
+
+    return res
+      .status(200)
+      .json({ message: "Gig updated successfully", gig: updatedGig });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error updating gig" });
+  }
+};
+
 export const getAllTeachersGigs: RequestHandler = async (
   req: any,
   res: any,
@@ -630,6 +744,8 @@ export default {
   updateTeacherProfile,
   addGigs,
   deleteTeacher,
+  deleteGig,
+  updateGig,
   getGigsByTeacher,
   getAllTeachersGigs,
   deleteShift,
