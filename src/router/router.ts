@@ -46,6 +46,7 @@ import {
   getTeacherById,
   addGigs,
   deleteGig,
+  getGigById,
   updateGig,
   getGigsByTeacher,
   getAllTeachersGigs,
@@ -160,6 +161,15 @@ router.put(
   updateGig
 );
 
+router.get(
+  "/get-gig-by-id/:id",
+  passport.authenticate("jwt", { session: false }),
+  getGigById
+);
+router.get(
+  "/get-public-gig-by-id/:id",
+  getGigById
+);
 
 router.get(
   "/get-public-gigs-by-teacher/:id",

@@ -708,6 +708,26 @@ export const updateGig: RequestHandler = async (
   }
 };
 
+export const getGigById: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const { id } = req.params;
+    const gig = await models.Gigs.findOne({ where: { id } });
+
+    if (!gig) {
+      return res.status(404).json({ error: "Gig not found" });
+    }
+
+    return res.status(200).json({ gig });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error fetching gig" });
+  }
+}
+
 export const getAllTeachersGigs: RequestHandler = async (
   req: any,
   res: any,
@@ -746,6 +766,7 @@ export default {
   deleteTeacher,
   deleteGig,
   updateGig,
+  getGigById,
   getGigsByTeacher,
   getAllTeachersGigs,
   deleteShift,
