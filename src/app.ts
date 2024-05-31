@@ -11,7 +11,7 @@ require('./models/index');
 
 import middlewares from './middlewares';
 import user from './router/router';
-
+import admin from './router/adminRouter'; 
 const app: any = express();
 // const http = require('http');
 // const server = http.createServer(app);
@@ -31,6 +31,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api', user);
+app.use('/admin', admin);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
