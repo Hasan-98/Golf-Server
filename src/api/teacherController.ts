@@ -18,7 +18,7 @@ export const updateTeacherProfile: RequestHandler = async (
     const { firstName , movieUrl , portfolioUrl} = req.body;
     const userFolder = `teacher-${firstName}`;
     const { profileImage, introductionVideo } = req.files;
-    const portfolioVideos = req.files['portfolioVideo'];
+    const portfolioVideos = req.files['portfolioVideo[]'];
 
     // Find the teacher record
     const existingTeacher = await models.Teacher.findOne({ where: { userId } });
@@ -338,6 +338,81 @@ export const deleteTeacher: RequestHandler = async (req: any, res: any, next: an
     return res.status(500).json({ error: "Error deleting teacher" });
   }
 };
+
+export const deleteShift: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const { shiftId } = req.body;
+    const userId = req.user.id; // Assuming user id is available in req.user
+
+    const teacher = await models.Teacher.findOne({ where: { userId: userId } });
+
+    if (!teacher) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const shift = await models.Shifts.findOne({ 
+      where: { id: shiftId },
+      include: [{
+        model: models.Schedules,
+        as: 'schedule',
+        where: { teacherId: teacher.id }
+      }]
+    });
+
+    if (!shift) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const deletedRows = await models.Shifts.destroy({ where: { id: shiftId } });
+
+    if (deletedRows > 0) {
+      res.status(200).json({ message: "Shift deleted successfully" });
+    } else {
+      return res.status(404).json({ error: "Shift not found" });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error deleting shift" });
+  }
+};
+export const deleteSchedule: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const { scheduleId } = req.body;
+    const userId = req.user.id; // Assuming user id is available in req.user
+
+    const teacher = await models.Teacher.findOne({ where: { userId: userId } });
+
+    if (!teacher) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const schedule = await models.Schedules.findOne({ where: { id: scheduleId } });
+
+    if (!schedule || schedule.teacherId !== teacher.id) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const deletedRows = await models.Schedules.destroy({ where: { id: scheduleId } });
+
+    if (deletedRows > 0) {
+      res.status(200).json({ message: "Schedule deleted successfully" });
+    } else {
+      return res.status(404).json({ error: "Schedule not found" });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error deleting schedule" });
+  }
+};
+
 export const addGigs: RequestHandler = async (req: any, res: any, next: any) => {
   try {
     const userId = req.user.id;
@@ -441,4 +516,6 @@ export default {
   deleteTeacher,
   getGigsByTeacher,
   getAllTeachersGigs,
+  deleteShift,
+  deleteSchedule,
 };

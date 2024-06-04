@@ -47,6 +47,8 @@ import {
   addGigs,
   getGigsByTeacher,
   getAllTeachersGigs,
+  deleteSchedule,
+  deleteShift,
   deleteTeacher,
 } from "../api/teacherController";
 import {
@@ -54,6 +56,7 @@ import {
   getTeacherBookedAppointments,
   getUserBookedAppointments,
   acceptAppointment,
+  declineAppointment,
   favoriteTeacher,
   getFavoriteTeachers,
   updateAppointmentStatus,
@@ -107,7 +110,7 @@ router.post(
 router.put(
   "/update-event-media",
   passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles"),
+  upload.array("mediaFiles[]"),
   updateEventMedia
 );
 router.delete(
@@ -115,10 +118,20 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   deleteTeacher
 );
+router.delete(
+  "/delete-schedule",
+  passport.authenticate("jwt", { session: false }),
+  deleteSchedule
+);
+router.delete(
+  "/delete-shift",
+  passport.authenticate("jwt", { session: false }),
+  deleteShift
+);
 router.post(
   "/add-gigs",
   passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles"),
+  upload.array("mediaFiles[]"),
   addGigs
 );
 router.get(
@@ -273,7 +286,7 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   upload.fields([
     { name: "profileImage", maxCount: 1 },
-    { name: "portfolioVideo", maxCount: 5 },
+    { name: "portfolioVideo[]", maxCount: 5 },
     { name: "introductionVideo", maxCount: 1 },
   ]),
   updateTeacherProfile
@@ -323,6 +336,11 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   acceptAppointment
 );
+router.post(
+  "/decline-appointment",
+  passport.authenticate("jwt", { session: false }),
+  declineAppointment
+)
 router.put(
   "/update-appointment-status",
   passport.authenticate("jwt", { session: false }),
@@ -352,7 +370,7 @@ router.post(
 router.put(
   "/update-post-media",
   passport.authenticate("jwt", { session: false }),
-  upload.array("mediaFiles"),
+  upload.array("mediaFiles[]"),
   updatePostMedia
 );
 router.put(
