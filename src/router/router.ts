@@ -45,6 +45,9 @@ import {
   getAllTeachers,
   getTeacherById,
   addGigs,
+  deleteGig,
+  getGigById,
+  updateGig,
   getGigsByTeacher,
   getAllTeachersGigs,
   deleteSchedule,
@@ -143,6 +146,29 @@ router.get(
   "/get-all-teachers-gigs",
   passport.authenticate("jwt", { session: false }),
   getAllTeachersGigs
+);
+
+router.delete(
+  "/delete-gig/:id",
+  passport.authenticate("jwt", { session: false }),
+  deleteGig
+);
+
+router.put(
+  "/update-gig/:id",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles[]"),
+  updateGig
+);
+
+router.get(
+  "/get-gig-by-id/:id",
+  passport.authenticate("jwt", { session: false }),
+  getGigById
+);
+router.get(
+  "/get-public-gig-by-id/:id",
+  getGigById
 );
 
 router.get(

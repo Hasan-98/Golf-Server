@@ -4,6 +4,7 @@ export default (sequelize: Sequelize) => {
   class User extends Model<IUserAttributes> implements IUserAttributes {
     id!: number;
     nickName!: string;
+    role?: string | undefined;
     email!: string;
     password!: string;
     token!: string;
@@ -79,6 +80,7 @@ export default (sequelize: Sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      role: DataTypes.STRING,
       nickName: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,

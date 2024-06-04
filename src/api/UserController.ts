@@ -118,7 +118,6 @@ export const editProfilePic: RequestHandler = async (req, res, next) => {
 export const login: RequestHandler = async (req: any, res: any, next: any) => {
   try {
     const { email, password } = req.body;
-    console.log("login callded");
     const userWithEmail = await models.User.findOne({ where: { email } }).catch(
       (err: Error) => {
         console.log("Error: ", err);
@@ -133,6 +132,9 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
       return res
         .status(400)
         .json({ message: "Email or password does not match!" });
+    }
+    if (userWithEmail.role === 'admin') {
+      return res.status(403).json({ error: 'User is admin, Use Admin Portal' });
     }
     const { id } = userWithEmail;
     const jwtToken = jwt.sign(
@@ -149,6 +151,54 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
       id,
       jwtToken,
       teacherId,
+      role: userWithEmail.role
+    });
+  } catch (err) {
+    console.log("Error: ", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot Login user at the moment!" });
+  }
+};
+export const adminLogin: RequestHandler = async (req: any, res: any, next: any) => {
+  try {
+    const { email, password } = req.body;
+    const userWithEmail = await models.User.findOne({ where: { email } }).catch(
+      (err: Error) => {
+        console.log("Error: ", err);
+      }
+    );
+    if (!userWithEmail) {
+      return res
+        .status(400)
+        .json({ message: "Email or password does not match!" });
+    }
+    if (userWithEmail.password !== password) {
+      return res
+        .status(400)
+        .json({ message: "Email or password does not match!" });
+    }
+
+    if (userWithEmail.role !== 'admin') {
+      return res.status(403).json({ error: 'User is not an admin' });
+    }
+
+    const { id } = userWithEmail;
+    const jwtToken = jwt.sign(
+      { id: userWithEmail.id, email: userWithEmail.email },
+      "secret"
+    );
+    const teacher = await models.Teacher.findOne({
+      where: { userId: userWithEmail.id },
+    });
+    const teacherId = teacher ? teacher.id : null;
+
+    res.status(200).json({
+      message: "Welcome Back!",
+      id,
+      jwtToken,
+      teacherId,
+      role: userWithEmail.role
     });
   } catch (err) {
     console.log("Error: ", err);
@@ -206,6 +256,7 @@ export const getTotalUsers: any = async (req: any, res: any) => {
 export default {
   register,
   login,
+  adminLogin,
   editProfilePic,
   userById,
   getTotalUsers,
