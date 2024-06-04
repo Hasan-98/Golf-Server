@@ -151,6 +151,7 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
       id,
       jwtToken,
       teacherId,
+      role: userWithEmail.role
     });
   } catch (err) {
     console.log("Error: ", err);
@@ -197,6 +198,7 @@ export const adminLogin: RequestHandler = async (req: any, res: any, next: any) 
       id,
       jwtToken,
       teacherId,
+      role: userWithEmail.role
     });
   } catch (err) {
     console.log("Error: ", err);
