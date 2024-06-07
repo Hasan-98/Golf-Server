@@ -117,7 +117,7 @@ router.put(
   updateEventMedia
 );
 router.delete(
-  "/delete-teacher",
+  "/delete-teacher/:id",
   passport.authenticate("jwt", { session: false }),
   deleteTeacher
 );

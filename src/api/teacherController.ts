@@ -412,14 +412,13 @@ export const deleteTeacher: RequestHandler = async (
   next: any
 ) => {
   try {
-    const userId = req.user.id;
-    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
-
+    const { id } = req.params;
+    const existingTeacher = await models.Teacher.findOne({ where: { id } });
     if (!existingTeacher) {
       return res.status(404).json({ error: "Teacher not found" });
     }
 
-    await models.Teacher.destroy({ where: { userId } });
+    await models.Teacher.destroy({ where: { id } });
     return res.status(200).json({ message: "Teacher deleted successfully" });
   } catch (error) {
     console.error("Error:", error);

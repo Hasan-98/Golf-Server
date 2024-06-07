@@ -189,7 +189,7 @@ adminRouter.post("/create-post", upload.array("mediaFiles[]"), createPost);
 adminRouter.get("/get-posts", getPosts);
 adminRouter.get("/get-post-by-id/:id", getPostById);
 adminRouter.put("/update-post", updatePost);
-adminRouter.delete("/delete-post", deletePost);
+adminRouter.delete("/delete-post/:id", deletePost);
 adminRouter.get("/get-all-posts", getAllPosts);
 adminRouter.get("/get-my-posts", getMyPosts);
 adminRouter.get("/get-all-posts-of-user", getAllPostsOfUser);
