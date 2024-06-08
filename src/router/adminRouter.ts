@@ -188,7 +188,7 @@ adminRouter.get("/get-team-by-id/:id", getTeamById);
 adminRouter.post("/create-post", upload.array("mediaFiles[]"), createPost);
 adminRouter.get("/get-posts", getPosts);
 adminRouter.get("/get-post-by-id/:id", getPostById);
-adminRouter.put("/update-post", updatePost);
+adminRouter.put("/update-post/:id", upload.array("mediaFiles"), updatePost);
 adminRouter.delete("/delete-post/:id", deletePost);
 adminRouter.get("/get-all-posts", getAllPosts);
 adminRouter.get("/get-my-posts", getMyPosts);
