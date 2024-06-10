@@ -69,9 +69,9 @@ export const updatePostMedia: RequestHandler = async (req, res, next) => {
     let userId: any = req.user;
     userId = JSON.parse(JSON.stringify(userId));
 
-    const foundPost: any = await models.Post.findOne({ where: { id: postId, userId: userId.id } });
+    const foundPost: any = await models.Post.findOne({ where: { id: postId } });
     if (!foundPost) {
-      return res.status(404).json({ error: "Unauthorized Post" });
+      return res.status(404).json({ error: "Post Not Found" });
     }
 
     foundPost.mediaFile = foundPost.mediaFile.filter((url: string) => !removedMediaUrls.includes(url));
