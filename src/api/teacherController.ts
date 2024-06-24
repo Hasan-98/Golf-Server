@@ -303,11 +303,14 @@ export const updateProfile: RequestHandler = async (
       aboutMyself,
       location,
       level,
+      rating,
       schedules,
     } = req.body;
-    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
-
-    if (existingTeacher) {
+    const existingTeacher: any = await models.Teacher.findOne({ where: { userId } });
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userId, role: "admin" },
+    });
+    if (existingTeacher || isAdmin) {
       // Update teacher's profile
       await models.Teacher.update(
         {
@@ -316,6 +319,7 @@ export const updateProfile: RequestHandler = async (
           phoneNumber,
           aboutMyself,
           level,
+          rating,
           location,
         },
         {
