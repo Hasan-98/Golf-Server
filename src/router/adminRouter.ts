@@ -8,6 +8,7 @@ const adminRouter = express.Router();
 import {
   register,
   adminLogin,
+  login,
   userById,
   getTotalUsers,
   editUserProfile,
@@ -121,7 +122,7 @@ const isAdmin = async (
   }
   next();
 };
-adminRouter.post("/login", adminLogin);
+adminRouter.post("/login", login);
 adminRouter.use(passport.authenticate("jwt", { session: false }), isAdmin);
 adminRouter.get("/user/:id", userById);
 adminRouter.get("/total-users", getTotalUsers);
