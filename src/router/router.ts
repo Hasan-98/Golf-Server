@@ -58,6 +58,7 @@ import {
   bookAppointment,
   getTeacherBookedAppointments,
   getUserBookedAppointments,
+  feedbackTeacher,
   acceptAppointment,
   declineAppointment,
   favoriteTeacher,
@@ -321,6 +322,11 @@ router.get(
   "/get-all-teachers",
   passport.authenticate("jwt", { session: false }),
   getAllTeachers
+);
+router.post(
+  "/feedback-teacher",
+  passport.authenticate("jwt", { session: false }),
+  feedbackTeacher
 );
 router.get(
   "/get-teacher-by-id/:id",

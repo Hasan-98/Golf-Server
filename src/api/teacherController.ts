@@ -196,6 +196,10 @@ export const getTeacherById: RequestHandler = async (
             },
           ],
         },
+        {
+          model: models.TeacherRating,
+          as: "teacherRatings",
+        }
       ],
     });
 
@@ -260,6 +264,10 @@ export const getAllTeachers: RequestHandler = async (
               required: true,
             },
           ],
+        },
+        {
+          model: models.TeacherRating,
+          as: "teacherRatings",
         },
         {
           model: models.User,

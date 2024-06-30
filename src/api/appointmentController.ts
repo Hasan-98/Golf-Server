@@ -463,6 +463,46 @@ export const favoriteTeacher: RequestHandler = async (
   }
 };
 
+export const feedbackTeacher: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const userId = req.user.id;
+    const { teacherId, rating, feedback } = req.body;
+
+    const existingUser = await models.User.findOne({
+      where: { id: userId },
+    });
+
+    const existingTeacher = await models.Teacher.findOne({
+      where: { id: teacherId },
+    });
+
+    if (existingUser && existingTeacher) {
+      await models.TeacherRating.create({
+        userId: userId,
+        teacherId: teacherId,
+        rating: rating,
+        feedback: feedback,
+      });
+
+      res.status(200).json({
+        message: "Feedback submitted successfully",
+      });
+    } else {
+      res
+        .status(400)
+        .json({ success: false, error: "User or teacher not found" });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Error submitting feedback" });
+  }
+}
 export const updateAppointmentStatus: RequestHandler = async (
   req: any,
   res: any,
@@ -706,4 +746,5 @@ export default {
   getFavoriteTeachers,
   updateAppointmentStatus,
   getTeacherAppointmentsCount,
+  feedbackTeacher,
 };
