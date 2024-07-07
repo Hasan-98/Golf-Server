@@ -126,8 +126,8 @@ adminRouter.post("/login", login);
 adminRouter.use(passport.authenticate("jwt", { session: false }), isAdmin);
 adminRouter.get("/user/:id", userById);
 adminRouter.get("/total-users", getTotalUsers);
-adminRouter.put("/edit-user-profile", editUserProfile);
-adminRouter.put("/edit-profile-pic", upload.single("image"), editProfilePic);
+//adminRouter.put("/edit-user-profile", editUserProfile);
+//adminRouter.put("/edit-profile-pic", upload.single("image"), editProfilePic);
 adminRouter.post("/register", register);
 adminRouter.post("/create-event", upload.array("mediaFiles[]"), createEvent);
 adminRouter.get("/get-all-events", getAllEvents);
@@ -144,18 +144,18 @@ adminRouter.get("/get-events-by-user-id", getEventsByUserId);
 adminRouter.get("/get-event-payment-details", getEventPaymentDetails);
 adminRouter.delete("/delete-event-by-id/:id", deleteEventById);
 adminRouter.get("/search-event-by-name", searchEventByName);
-adminRouter.put(
-  "/update-event-by-id/:id",
-  upload.array("mediaFiles[]"),
-  updateEventById
-);
+// adminRouter.put(
+//   "/update-event-by-id/:id",
+//   upload.array("mediaFiles[]"),
+//   updateEventById
+// );
 adminRouter.get("/get-all-user-events", getAllUserEvents);
 adminRouter.put("/update-notification-response", updateNotificationResponse);
-adminRouter.put(
-  "/update-event-media",
-  upload.array("mediaFiles[]"),
-  updateEventMedia
-);
+// adminRouter.put(
+//   "/update-event-media",
+//   upload.array("mediaFiles[]"),
+//   updateEventMedia
+// );
 adminRouter.post("/add-comment", addComment);
 adminRouter.post("/add-like", addLike);
 adminRouter.post("/add-post-comment", addPostComment);
@@ -189,7 +189,7 @@ adminRouter.get("/get-team-by-id/:id", getTeamById);
 adminRouter.post("/create-post", upload.array("mediaFiles[]"), createPost);
 adminRouter.get("/get-posts", getPosts);
 adminRouter.get("/get-post-by-id/:id", getPostById);
-adminRouter.put("/update-post/:id", upload.array("mediaFiles"), updatePost);
+//adminRouter.put("/update-post/:id", upload.array("mediaFiles"), updatePost);
 adminRouter.delete("/delete-post/:id", deletePost);
 adminRouter.get("/get-all-posts", getAllPosts);
 adminRouter.get("/get-my-posts", getMyPosts);
