@@ -339,14 +339,13 @@ export const getTeacherBookedAppointments: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { status } = req.query;
     const existingTeacher = await models.Teacher.findOne({ where: { userId } });
 
     if (existingTeacher) {
       const bookedAppointments = await models.Shifts.findAll({
         where: {
           isBooked: true,
-          ...(status && { status }),
+          status: ["BOOKED", "PENDING", 'COMPLETED', 'DECLINED' , 'CANCELLED'],
         },
         include: [
           {
@@ -390,7 +389,7 @@ export const getUserBookedAppointments: RequestHandler = async (
         where: {
           isBooked: true,
           bookedBy: userId,
-          status: ["BOOKED", "PENDING", 'COMPLETED', 'DECLINED'],
+          status: ["BOOKED", "PENDING", 'COMPLETED', 'DECLINED' , 'CANCELLED'],
         },
         include: [
           {
