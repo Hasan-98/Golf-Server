@@ -390,7 +390,7 @@ export const getUserBookedAppointments: RequestHandler = async (
         where: {
           isBooked: true,
           bookedBy: userId,
-          status: ["BOOKED", "PENDING"],
+          status: ["BOOKED", "PENDING", 'COMPLETED'],
         },
         include: [
           {
