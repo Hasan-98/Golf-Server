@@ -52,12 +52,17 @@ import {
   getAllTeachersGigs,
   deleteSchedule,
   deleteShift,
+  reserveGig,
+  manageGigReservation,
+  getTeacherReservedGigs,
+  getAllReservations,
   deleteTeacher,
 } from "../api/teacherController";
 import {
   bookAppointment,
   getTeacherBookedAppointments,
   getUserBookedAppointments,
+  getUserReservedGigs,
   feedbackTeacher,
   acceptAppointment,
   completeAppointment,
@@ -122,6 +127,31 @@ router.delete(
   "/delete-teacher/:id",
   passport.authenticate("jwt", { session: false }),
   deleteTeacher
+);
+router.post(
+  "/reserve-gig/:id",
+  passport.authenticate("jwt", { session: false }),
+  reserveGig
+);
+router.put(
+  "/manage-gig-reservation/:id",
+  passport.authenticate("jwt", { session: false }),
+  manageGigReservation
+);
+router.get(
+  "/get-teacher-reserved-gigs",
+  passport.authenticate("jwt", { session: false }),
+  getTeacherReservedGigs
+);
+router.get(
+  "/get-user-reserved-gigs",
+  passport.authenticate("jwt", { session: false }),
+  getUserReservedGigs
+);
+router.get(
+  "/get-all-reservations",
+  passport.authenticate("jwt", { session: false }),
+  getAllReservations
 );
 router.delete(
   "/delete-schedule",

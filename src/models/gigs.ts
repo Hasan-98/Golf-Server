@@ -16,6 +16,12 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      Gigs.hasMany(models.Reservation, {
+        foreignKey: "gigId",
+        as: "gigReservations",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
 

@@ -423,6 +423,38 @@ export const getUserBookedAppointments: RequestHandler = async (
   }
 };
 
+export const getUserReservedGigs: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const userId = req.user.id;
+    const user = await models.User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const reservedGigs = await models.Reservation.findAll({
+      where: { userId: user.id },
+      include: [
+        {
+          model: models.Teacher,
+          as: "teacherReservations",
+        },
+        {
+          model: models.Gigs,
+          as: "gigReservations",
+        },
+      ],
+    });
+
+    return res.status(200).json({ reservedGigs });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error fetching reserved gigs" });
+  }
+}
+
 export const favoriteTeacher: RequestHandler = async (
   req: any,
   res: any,
@@ -740,6 +772,7 @@ export default {
   declineAppointment,
   getTeacherBookedAppointments,
   getUserBookedAppointments,
+  getUserReservedGigs,
   acceptAppointment,
   completeAppointment,
   favoriteTeacher,

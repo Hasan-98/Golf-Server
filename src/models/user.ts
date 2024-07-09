@@ -76,6 +76,12 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      User.hasMany(models.Reservation, {
+        foreignKey: "userId",
+        as: "userReservations",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
 
