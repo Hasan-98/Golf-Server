@@ -60,6 +60,7 @@ import {
   getUserBookedAppointments,
   feedbackTeacher,
   acceptAppointment,
+  completeAppointment,
   declineAppointment,
   favoriteTeacher,
   getFavoriteTeachers,
@@ -367,6 +368,11 @@ router.post(
   "/accept-appointment",
   passport.authenticate("jwt", { session: false }),
   acceptAppointment
+);
+router.post(
+  "/complete-appointment",
+  passport.authenticate("jwt", { session: false }),
+  completeAppointment
 );
 router.post(
   "/decline-appointment",
