@@ -711,18 +711,13 @@ export const manageGigReservation: RequestHandler = async (
       return res.status(404).json({ error: "Reservation not found" });
     }
 
-    await models.Reservation.update(
-      {
-        status,
-      },
-      {
-        where: { id },
-      }
-    );
+     const updateFields: any = status === 'REJECTED' ? { userId: null, status } : { status };
 
+    await models.Reservation.update(updateFields, {
+      where: { id },
+    });
 
-
-    return res.status(200).json({ message: "Gig reservation updated " });
+    return res.status(200).json({ message: "Gig reservation updated" });
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({ error: "Error accepting gig reservation" });
