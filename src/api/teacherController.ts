@@ -611,7 +611,7 @@ export const reserveGig: RequestHandler = async (
       where: { id: userId },
     });
 
-    await models.Reservation.create({
+    const reservation = await models.Reservation.create({
       userId,
       gigId: id,
       teacherId: gig.teacherId,
@@ -621,6 +621,7 @@ export const reserveGig: RequestHandler = async (
     io.emit("reservedGig", {
       teacherId: gig.teacherId,
       appointment: {
+        reservationId: reservation.id,
         gigId: id,
         student: bookedUserDetails,
       },
