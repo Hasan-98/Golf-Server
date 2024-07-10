@@ -200,6 +200,12 @@ export const getTeacherById: RequestHandler = async (
         {
           model: models.TeacherRating,
           as: "teacherRatings",
+          include: [
+            {
+              model: models.User,
+              as: "userRatings",
+            },
+          ],
         },
       ],
     });
@@ -634,7 +640,6 @@ export const reserveGig: RequestHandler = async (
   }
 };
 
-
 export const getTeacherReservedGigs: RequestHandler = async (
   req: any,
   res: any,
@@ -666,7 +671,7 @@ export const getTeacherReservedGigs: RequestHandler = async (
     console.error("Error:", error);
     return res.status(500).json({ error: "Error fetching reserved gigs" });
   }
-}
+};
 
 //get all reservations
 export const getAllReservations: RequestHandler = async (
@@ -702,8 +707,7 @@ export const manageGigReservation: RequestHandler = async (
 ) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
-
+    const { status, notificationId } = req.body;
     const existingReservation = await models.Reservation.findOne({
       where: { id },
     });
@@ -711,11 +715,33 @@ export const manageGigReservation: RequestHandler = async (
       return res.status(404).json({ error: "Reservation not found" });
     }
 
-     const updateFields: any = status === 'REJECTED' ? { userId: null, status } : { status };
+    const updateFields: any =
+      status === "REJECTED" ? { userId: null, status } : { status };
 
     await models.Reservation.update(updateFields, {
       where: { id },
     });
+
+    io.emit("gigStatus", {
+      userId: existingReservation.userId,
+      appointment: {
+        gigId: existingReservation.gigId,
+        status,
+      },
+      });
+
+    const existingNotification = await models.Notification.findOne({
+      where: {
+        id: notificationId,
+      },
+    });
+
+    if (existingNotification) {
+      await existingNotification.update({
+        message: `Your appointment request has been ${status}`,
+        isRead: true,
+      });
+    }
 
     return res.status(200).json({ message: "Gig reservation updated" });
   } catch (error) {

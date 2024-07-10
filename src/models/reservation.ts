@@ -15,7 +15,7 @@ export default (sequelize: Sequelize) => {
       Reservation.belongsTo(models.User, {
         foreignKey: "userId",
         as: "userReservations",
-        onDelete: "CASCADE",
+        onDelete: "SET NULL",
         onUpdate: "CASCADE",
       });
       Reservation.belongsTo(models.Gigs, {
@@ -42,7 +42,7 @@ export default (sequelize: Sequelize) => {
       },
       userId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         field: "user_id",
       },
       gigId: {
