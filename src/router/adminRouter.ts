@@ -15,6 +15,13 @@ import {
   editProfilePic,
 } from "../api/UserController";
 import {
+  addCategory,
+  getAdminCategories,
+  getAllCategories,
+  assignCategoriesToUser,
+  unassignCategoriesFromUser,
+} from "../api/categoryController";
+import {
   createEvent,
   getAllEvents,
   getEventsColData,
@@ -212,5 +219,11 @@ adminRouter.put("/update-gig/:id", upload.array("mediaFiles[]"), updateGig);
 adminRouter.get("/get-gigs-by-teacher/:id", getGigsByTeacher);
 adminRouter.get("/get-all-teachers-gigs", getAllTeachersGigs);
 adminRouter.get("/get-gig-by-id/:id", getGigById);
+
+adminRouter.post("/add-category", addCategory);
+adminRouter.get("/get-admin-categories", getAdminCategories);
+adminRouter.get("/get-all-categories", getAllCategories);
+adminRouter.put("/assign-categories-to-user/:id", assignCategoriesToUser);
+adminRouter.put("/unassign-categories-from-user/:id", unassignCategoriesFromUser);
 
 export default adminRouter;

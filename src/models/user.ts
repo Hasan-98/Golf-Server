@@ -82,6 +82,12 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      User.hasMany(models.Category, {
+        foreignKey: "userId",
+        as: "adminDetails",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
 
