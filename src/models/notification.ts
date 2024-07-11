@@ -10,6 +10,7 @@ export default (sequelize: Sequelize) => {
     userId!: number;
     teacherId!: number;
     postId!: number;
+    reservationId!: number;
     message!: string;
     isRead!: boolean;
     createdAt!: Date;
@@ -33,6 +34,10 @@ export default (sequelize: Sequelize) => {
       });
       Notifcation.belongsTo(models.Post, {
         foreignKey: "postId",
+      });
+      Notifcation.belongsTo(models.Reservation, {
+        foreignKey: "reservationId",
+        as: "reservationNotifications",
       });
     }
   }
@@ -67,6 +72,10 @@ export default (sequelize: Sequelize) => {
       organizerId: {
         type: DataTypes.INTEGER,
         field: 'organizer_id',
+      },
+      reservationId: {
+        type: DataTypes.INTEGER,
+        field: 'reservation_id',
       },
       isRead: {
         type: DataTypes.BOOLEAN,

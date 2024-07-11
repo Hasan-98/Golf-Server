@@ -30,6 +30,12 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      Reservation.hasMany(models.Notification, {
+        foreignKey: "reservationId",
+        as: "reservationNotifications",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
 

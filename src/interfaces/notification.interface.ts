@@ -9,4 +9,5 @@ export interface INotificationAttributes {
     createdAt?: Date;
     updatedAt?: Date;
     organizerId?: number
+    reservationId?: number
   }

@@ -630,6 +630,7 @@ export const reserveGig: RequestHandler = async (
     await models.Notification.create({
       userId,
       teacherId: gig.teacherId,
+      reservationId: reservation.id,
       message: `You have a new gig reservation request from ${bookedUserDetails?.nickName}`,
       isRead: false,
     });
@@ -726,6 +727,7 @@ export const manageGigReservation: RequestHandler = async (
     io.emit("gigStatus", {
       userId: existingReservation.userId,
       appointment: {
+        reservationId: id,
         gigId: existingReservation.gigId,
         status,
       },
