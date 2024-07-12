@@ -311,6 +311,9 @@ export const getNotifications: RequestHandler = async (
       if (organizerId) {
         whereConditions.push({ organizerId: organizerId });
       }
+      if (userId) {
+        whereConditions.push({ userId: userId });
+      }
 
       const notifications = await models.Notification.findAll({
         where: {
