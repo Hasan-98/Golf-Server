@@ -16,10 +16,10 @@ export default (sequelize: Sequelize) => {
         as: "adminDetails",
         onDelete: "SET NULL",
       });
-      Category.belongsTo(models.User, {
-        foreignKey: "userId",
-        as: "userDetails",
-        onDelete: "SET NULL",
+      Category.belongsToMany(models.User, {
+        through: "UserCategory",
+        as: "users",
+        foreignKey: "categoryId",
       });
     }
   }

@@ -31,23 +31,20 @@ export const addCategory: RequestHandler = async (
   }
 };
 
-export const getAdminCategories: RequestHandler = async (
-  req: any,
-  res: any
-) => {
+export const getAdminCategories: RequestHandler = async (req: any, res: any) => {
   try {
     const userId = req.user.id;
-    const isAdmin: any = await models.User.findOne({
-      where: { id: userId },
+    const admin = await models.User.findOne({
+      where: { id: userId, role: "admin" },
     });
 
-    if (isAdmin.role !== "admin") {
+    if (!admin) {
       return res.status(403).json({ error: "User is not an admin" });
     }
 
     const categories = await models.Category.findAll({
       where: {
-        adminId: userId,
+        adminId: userId
       },
       include: [
         {
@@ -56,7 +53,8 @@ export const getAdminCategories: RequestHandler = async (
         },
         {
           model: models.User,
-          as: "userDetails",
+          as: "users",
+          through: { attributes: [] },
         },
       ],
     });
@@ -79,7 +77,8 @@ export const getAllCategories: RequestHandler = async (req: any, res: any) => {
         },
         {
           model: models.User,
-          as: "userDetails",
+          as: "users",
+          through: { attributes: [] },
         },
       ],
     });
@@ -100,6 +99,7 @@ export const assignCategoriesToUser: RequestHandler = async (
   try {
     const { categoryIds } = req.body;
     const { id } = req.params;
+
     const userExists = await models.User.findByPk(id);
     if (!userExists) {
       return res.status(404).json({ error: "User not found" });
@@ -107,14 +107,22 @@ export const assignCategoriesToUser: RequestHandler = async (
     if (!Array.isArray(categoryIds)) {
       return res.status(400).json({ error: "Invalid categoryIds format" });
     }
-    for (const categoryId of categoryIds) {
-      const category = await models.Category.findByPk(categoryId);
-      if (!category) {
-        return res
-          .status(404)
-          .json({ error: `Category with id ${categoryId} not found` });
-      }
-      await category.update({ userId: id });
+
+    const categories = await models.Category.findAll({
+      where: { id: categoryIds },
+    });
+
+    if (categories.length !== categoryIds.length) {
+      return res
+        .status(404)
+        .json({ error: "One or more categories not found" });
+    }
+
+    for (const category of categories) {
+      await models.UserCategory.create({
+        userId: id,
+        categoryId: category.id,
+      });
     }
 
     return res
@@ -135,30 +143,35 @@ export const unassignCategoriesFromUser: RequestHandler = async (
   try {
     const { categoryIds } = req.body;
     const { id } = req.params;
+
     const userExists = await models.User.findByPk(id);
     if (!userExists) {
       return res.status(404).json({ error: "User not found" });
     }
+
     if (!Array.isArray(categoryIds)) {
       return res.status(400).json({ error: "Invalid categoryIds format" });
     }
-    for (const categoryId of categoryIds) {
-      const category = await models.Category.findOne({
-        where: {
-          id: categoryId,
-          userId: id,
-        },
-      });
-      if (!category) {
-        return res.status(404).json({
-          error: `Category with id ${categoryId} is not assign the user ${id}`,
-        });
+
+    const userCategories = await models.UserCategory.findAll({
+      where: {
+        userId: id,
+        categoryId: categoryIds
       }
-      await models.Category.update(
-        { userId: null },
-        { where: { id: categoryId } }
-      );
+    });
+
+    if (userCategories.length !== categoryIds.length) {
+      return res.status(404).json({
+        error: "One or more categories are not assigned to this user"
+      });
     }
+
+    await models.UserCategory.destroy({
+      where: {
+        userId: id,
+        categoryId: categoryIds
+      }
+    });
 
     return res
       .status(200)
@@ -170,7 +183,6 @@ export const unassignCategoriesFromUser: RequestHandler = async (
       .json({ error: "Cannot unassign categories at the moment" });
   }
 };
-
 export default {
   addCategory,
   getAdminCategories,

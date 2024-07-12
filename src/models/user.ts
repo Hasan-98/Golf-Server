@@ -88,6 +88,11 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      User.belongsToMany(models.Category, {
+        through: 'UserCategory',
+        as: 'userDetails',
+        foreignKey: 'userId'
+      });
     }
   }
 
