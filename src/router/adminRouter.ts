@@ -8,11 +8,19 @@ const adminRouter = express.Router();
 import {
   register,
   adminLogin,
+  login,
   userById,
   getTotalUsers,
   editUserProfile,
   editProfilePic,
 } from "../api/UserController";
+import {
+  addCategory,
+  getAdminCategories,
+  getAllCategories,
+  assignCategoriesToUser,
+  unassignCategoriesFromUser,
+} from "../api/categoryController";
 import {
   createEvent,
   getAllEvents,
@@ -121,12 +129,12 @@ const isAdmin = async (
   }
   next();
 };
-adminRouter.post("/login", adminLogin);
+adminRouter.post("/login", login);
 adminRouter.use(passport.authenticate("jwt", { session: false }), isAdmin);
 adminRouter.get("/user/:id", userById);
 adminRouter.get("/total-users", getTotalUsers);
-adminRouter.put("/edit-user-profile", editUserProfile);
-adminRouter.put("/edit-profile-pic", upload.single("image"), editProfilePic);
+//adminRouter.put("/edit-user-profile", editUserProfile);
+//adminRouter.put("/edit-profile-pic", upload.single("image"), editProfilePic);
 adminRouter.post("/register", register);
 adminRouter.post("/create-event", upload.array("mediaFiles[]"), createEvent);
 adminRouter.get("/get-all-events", getAllEvents);
@@ -143,18 +151,18 @@ adminRouter.get("/get-events-by-user-id", getEventsByUserId);
 adminRouter.get("/get-event-payment-details", getEventPaymentDetails);
 adminRouter.delete("/delete-event-by-id/:id", deleteEventById);
 adminRouter.get("/search-event-by-name", searchEventByName);
-adminRouter.put(
-  "/update-event-by-id/:id",
-  upload.array("mediaFiles[]"),
-  updateEventById
-);
+// adminRouter.put(
+//   "/update-event-by-id/:id",
+//   upload.array("mediaFiles[]"),
+//   updateEventById
+// );
 adminRouter.get("/get-all-user-events", getAllUserEvents);
 adminRouter.put("/update-notification-response", updateNotificationResponse);
-adminRouter.put(
-  "/update-event-media",
-  upload.array("mediaFiles[]"),
-  updateEventMedia
-);
+// adminRouter.put(
+//   "/update-event-media",
+//   upload.array("mediaFiles[]"),
+//   updateEventMedia
+// );
 adminRouter.post("/add-comment", addComment);
 adminRouter.post("/add-like", addLike);
 adminRouter.post("/add-post-comment", addPostComment);
@@ -184,12 +192,12 @@ adminRouter.get("/get-notifications", getNotifications);
 adminRouter.get("/get-all-teams", getAllTeams);
 adminRouter.put("/update-team-member", updateTeamMember);
 adminRouter.get("/get-teams-by-event", getTeamsByEvent);
-adminRouter.get("/get-team-by-id", getTeamById);
+adminRouter.get("/get-team-by-id/:id", getTeamById);
 adminRouter.post("/create-post", upload.array("mediaFiles[]"), createPost);
 adminRouter.get("/get-posts", getPosts);
-adminRouter.get("/get-post-by-id", getPostById);
-adminRouter.put("/update-post", updatePost);
-adminRouter.delete("/delete-post", deletePost);
+adminRouter.get("/get-post-by-id/:id", getPostById);
+//adminRouter.put("/update-post/:id", upload.array("mediaFiles"), updatePost);
+adminRouter.delete("/delete-post/:id", deletePost);
 adminRouter.get("/get-all-posts", getAllPosts);
 adminRouter.get("/get-my-posts", getMyPosts);
 adminRouter.get("/get-all-posts-of-user", getAllPostsOfUser);
@@ -211,5 +219,11 @@ adminRouter.put("/update-gig/:id", upload.array("mediaFiles[]"), updateGig);
 adminRouter.get("/get-gigs-by-teacher/:id", getGigsByTeacher);
 adminRouter.get("/get-all-teachers-gigs", getAllTeachersGigs);
 adminRouter.get("/get-gig-by-id/:id", getGigById);
+
+adminRouter.post("/add-category", addCategory);
+adminRouter.get("/get-admin-categories", getAdminCategories);
+adminRouter.get("/get-all-categories", getAllCategories);
+adminRouter.put("/assign-categories-to-user/:id", assignCategoriesToUser);
+adminRouter.put("/unassign-categories-from-user/:id", unassignCategoriesFromUser);
 
 export default adminRouter;

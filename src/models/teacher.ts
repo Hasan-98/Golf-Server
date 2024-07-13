@@ -34,9 +34,21 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      Teacher.hasMany(models.TeacherRating, {
+        foreignKey: "teacherId",
+        as: "teacherRatings",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
       Teacher.hasMany(models.Gigs, {
         foreignKey: "teacherId",
         as: "teacherGigs",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      Teacher.hasMany(models.Reservation, {
+        foreignKey: "teacherId",
+        as: "teacherReservations",
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });

@@ -18,6 +18,10 @@ import teamMember from './teamMember';
 import notification from './notification';
 import scoreCard from './scoreCard';
 import Gigs from './gigs';
+import TeacherRating from './teacherRating';
+import Reservation from './reservation';
+import Category from './category';
+import UserCategory from './userCategory';
 const sequelize: Sequelize = new Sequelize(
   config.database,
   config.username,
@@ -51,6 +55,10 @@ const models = {
   Notification: notification(sequelize),
   ScoreCard: scoreCard(sequelize),
   Gigs: Gigs(sequelize),
+  TeacherRating: TeacherRating(sequelize),
+  Reservation: Reservation(sequelize),
+  Category: Category(sequelize),
+  UserCategory: UserCategory(sequelize),
 };
 
 

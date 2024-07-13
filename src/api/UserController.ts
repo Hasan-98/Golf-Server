@@ -133,9 +133,9 @@ export const login: RequestHandler = async (req: any, res: any, next: any) => {
         .status(400)
         .json({ message: "Email or password does not match!" });
     }
-    if (userWithEmail.role === 'admin') {
-      return res.status(403).json({ error: 'User is admin, Use Admin Portal' });
-    }
+    // if (userWithEmail.role === 'admin') {
+    //   return res.status(403).json({ error: 'User is admin, Use Admin Portal' });
+    // }
     const { id } = userWithEmail;
     const jwtToken = jwt.sign(
       { id: userWithEmail.id, email: userWithEmail.email },

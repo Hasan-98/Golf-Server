@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index";
 import { Op } from "sequelize";
+import { io } from "../index";
 
 import AWS from "aws-sdk";
 const s3 = new AWS.S3({
@@ -196,6 +197,16 @@ export const getTeacherById: RequestHandler = async (
             },
           ],
         },
+        {
+          model: models.TeacherRating,
+          as: "teacherRatings",
+          include: [
+            {
+              model: models.User,
+              as: "userRatings",
+            },
+          ],
+        },
       ],
     });
 
@@ -262,6 +273,10 @@ export const getAllTeachers: RequestHandler = async (
           ],
         },
         {
+          model: models.TeacherRating,
+          as: "teacherRatings",
+        },
+        {
           model: models.User,
           as: "teacher",
           attributes: ["imageUrl"],
@@ -303,11 +318,16 @@ export const updateProfile: RequestHandler = async (
       aboutMyself,
       location,
       level,
+      rating,
       schedules,
     } = req.body;
-    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
-
-    if (existingTeacher) {
+    const existingTeacher: any = await models.Teacher.findOne({
+      where: { userId },
+    });
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userId, role: "admin" },
+    });
+    if (existingTeacher || isAdmin) {
       // Update teacher's profile
       await models.Teacher.update(
         {
@@ -316,6 +336,7 @@ export const updateProfile: RequestHandler = async (
           phoneNumber,
           aboutMyself,
           level,
+          rating,
           location,
         },
         {
@@ -412,14 +433,13 @@ export const deleteTeacher: RequestHandler = async (
   next: any
 ) => {
   try {
-    const userId = req.user.id;
-    const existingTeacher = await models.Teacher.findOne({ where: { userId } });
-
+    const { id } = req.params;
+    const existingTeacher = await models.Teacher.findOne({ where: { id } });
     if (!existingTeacher) {
       return res.status(404).json({ error: "Teacher not found" });
     }
 
-    await models.Teacher.destroy({ where: { userId } });
+    await models.Teacher.destroy({ where: { id } });
     return res.status(200).json({ message: "Teacher deleted successfully" });
   } catch (error) {
     console.error("Error:", error);
@@ -575,6 +595,164 @@ export const addGigs: RequestHandler = async (
   }
 };
 
+export const reserveGig: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const gig = await models.Gigs.findByPk(id);
+    if (!gig) {
+      return res.status(404).json({ error: "Gig not found" });
+    }
+    const bookedUserDetails = await models.User.findOne({
+      where: { id: userId },
+    });
+
+    const reservation = await models.Reservation.create({
+      userId,
+      gigId: id,
+      teacherId: gig.teacherId,
+      status: "PENDING",
+    });
+
+    io.emit("reservedGig", {
+      teacherId: gig.teacherId,
+      appointment: {
+        reservationId: reservation.id,
+        gigId: id,
+        student: bookedUserDetails,
+      },
+    });
+
+    await models.Notification.create({
+      userId,
+      teacherId: gig.teacherId,
+      reservationId: reservation.id,
+      message: `You have a new gig reservation request from ${bookedUserDetails?.nickName}`,
+      isRead: false,
+    });
+
+    return res.status(201).json({ message: "Gig reserved successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error reserving gig" });
+  }
+};
+
+export const getTeacherReservedGigs: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const userId = req.user.id;
+    const teacher = await models.Teacher.findOne({ where: { userId } });
+    if (!teacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    const reservedGigs = await models.Reservation.findAll({
+      where: { teacherId: teacher.id },
+      include: [
+        {
+          model: models.User,
+          as: "userReservations",
+        },
+        {
+          model: models.Gigs,
+          as: "gigReservations",
+        },
+      ],
+    });
+
+    return res.status(200).json({ reservedGigs });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error fetching reserved gigs" });
+  }
+};
+
+//get all reservations
+export const getAllReservations: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const reservations = await models.Reservation.findAll({
+      include: [
+        {
+          model: models.User,
+          as: "userReservations",
+        },
+        {
+          model: models.Gigs,
+          as: "gigReservations",
+        },
+      ],
+    });
+
+    return res.status(200).json({ reservations });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error fetching all reservations" });
+  }
+};
+
+export const manageGigReservation: RequestHandler = async (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const { id } = req.params;
+    const { status, notificationId } = req.body;
+    const existingReservation = await models.Reservation.findOne({
+      where: { id },
+    });
+    if (!existingReservation) {
+      return res.status(404).json({ error: "Reservation not found" });
+    }
+
+    const updateFields: any =
+      status === "REJECTED" ? { userId: null, status } : { status };
+
+    await models.Reservation.update(updateFields, {
+      where: { id },
+    });
+
+    io.emit("gigStatus", {
+      userId: existingReservation.userId,
+      appointment: {
+        reservationId: id,
+        gigId: existingReservation.gigId,
+        status,
+      },
+      });
+
+    const existingNotification = await models.Notification.findOne({
+      where: {
+        id: notificationId,
+      },
+    });
+
+    if (existingNotification) {
+      await existingNotification.update({
+        message: `Your appointment request has been ${status}`,
+        isRead: true,
+      });
+    }
+
+    return res.status(200).json({ message: "Gig reservation updated" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error accepting gig reservation" });
+  }
+};
+
 export const getGigsByTeacher: RequestHandler = async (
   req: any,
   res: any,
@@ -726,7 +904,7 @@ export const getGigById: RequestHandler = async (
     console.error("Error:", error);
     return res.status(500).json({ error: "Error fetching gig" });
   }
-}
+};
 
 export const getAllTeachersGigs: RequestHandler = async (
   req: any,
@@ -763,6 +941,10 @@ export default {
   getAllTeachers,
   updateTeacherProfile,
   addGigs,
+  reserveGig,
+  manageGigReservation,
+  getTeacherReservedGigs,
+  getAllReservations,
   deleteTeacher,
   deleteGig,
   updateGig,

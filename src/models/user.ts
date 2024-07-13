@@ -40,6 +40,12 @@ export default (sequelize: Sequelize) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      User.hasMany(models.TeacherRating, {
+        foreignKey: "userId",
+        as: "userRatings",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
       User.hasMany(models.Shifts, {
         as: "bookedShifts",
         foreignKey: "bookedBy",
@@ -69,6 +75,23 @@ export default (sequelize: Sequelize) => {
         as: "userScoreCard",
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
+      });
+      User.hasMany(models.Reservation, {
+        foreignKey: "userId",
+        as: "userReservations",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      User.hasMany(models.Category, {
+        foreignKey: "userId",
+        as: "adminDetails",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+      User.belongsToMany(models.Category, {
+        through: 'UserCategory',
+        as: 'userDetails',
+        foreignKey: 'userId'
       });
     }
   }

@@ -52,13 +52,20 @@ import {
   getAllTeachersGigs,
   deleteSchedule,
   deleteShift,
+  reserveGig,
+  manageGigReservation,
+  getTeacherReservedGigs,
+  getAllReservations,
   deleteTeacher,
 } from "../api/teacherController";
 import {
   bookAppointment,
   getTeacherBookedAppointments,
   getUserBookedAppointments,
+  getUserReservedGigs,
+  feedbackTeacher,
   acceptAppointment,
+  completeAppointment,
   declineAppointment,
   favoriteTeacher,
   getFavoriteTeachers,
@@ -117,9 +124,34 @@ router.put(
   updateEventMedia
 );
 router.delete(
-  "/delete-teacher",
+  "/delete-teacher/:id",
   passport.authenticate("jwt", { session: false }),
   deleteTeacher
+);
+router.post(
+  "/reserve-gig/:id",
+  passport.authenticate("jwt", { session: false }),
+  reserveGig
+);
+router.put(
+  "/manage-gig-reservation/:id",
+  passport.authenticate("jwt", { session: false }),
+  manageGigReservation
+);
+router.get(
+  "/get-teacher-reserved-gigs",
+  passport.authenticate("jwt", { session: false }),
+  getTeacherReservedGigs
+);
+router.get(
+  "/get-user-reserved-gigs",
+  passport.authenticate("jwt", { session: false }),
+  getUserReservedGigs
+);
+router.get(
+  "/get-all-reservations",
+  passport.authenticate("jwt", { session: false }),
+  getAllReservations
 );
 router.delete(
   "/delete-schedule",
@@ -322,6 +354,11 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getAllTeachers
 );
+router.post(
+  "/feedback-teacher",
+  passport.authenticate("jwt", { session: false }),
+  feedbackTeacher
+);
 router.get(
   "/get-teacher-by-id/:id",
   passport.authenticate("jwt", { session: false }),
@@ -361,6 +398,11 @@ router.post(
   "/accept-appointment",
   passport.authenticate("jwt", { session: false }),
   acceptAppointment
+);
+router.post(
+  "/complete-appointment",
+  passport.authenticate("jwt", { session: false }),
+  completeAppointment
 );
 router.post(
   "/decline-appointment",
