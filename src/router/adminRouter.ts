@@ -43,8 +43,11 @@ import {
   getAllUserEvents,
   updateNotificationResponse,
   getEventPayment,
-  setUpTeacherEventPayment,
+  setUpEventPayment,
   updateEventPayment,
+  getTeacherPayment,
+  setUpTeacherPayment,
+  updateTeacherPayment,
   updateEventMedia,
 } from "../api/eventController";
 import {
@@ -169,8 +172,11 @@ adminRouter.put("/update-notification-response", updateNotificationResponse);
 //   updateEventMedia
 // );
 adminRouter.get("/get-event-payment", getEventPayment);
-adminRouter.post("/set-up-teacher-event-payment", setUpTeacherEventPayment);
+adminRouter.post("/set-up-event-payment", setUpEventPayment);
 adminRouter.put("/update-event-payment", updateEventPayment);
+adminRouter.get("/get-teacher-payment", getTeacherPayment);
+adminRouter.post("/set-up-teacher-payment", setUpTeacherPayment);
+adminRouter.put("/update-teacher-payment", updateTeacherPayment);
 
 
 adminRouter.post("/add-comment", addComment);

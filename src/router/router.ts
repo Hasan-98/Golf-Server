@@ -29,6 +29,8 @@ import {
   getAllUserEvents,
   updateNotificationResponse,
   updateEventMedia,
+  getTeacherPayment,
+  getEventPayment,
 } from "../api/eventController";
 import {
   addComment,
@@ -226,6 +228,16 @@ router.put(
   "/update-notification-response",
   passport.authenticate("jwt", { session: false }),
   updateNotificationResponse
+);
+router.get(
+  "/get-event-payment",
+  passport.authenticate("jwt", { session: false }),
+  getEventPayment
+);
+router.get(
+  "/get-teacher-payment",
+  passport.authenticate("jwt", { session: false }),
+  getTeacherPayment
 );
 router.put(
   "/approve-join-request",

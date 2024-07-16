@@ -930,11 +930,7 @@ export const getEventsByUserId: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const setUpTeacherEventPayment: RequestHandler = async (
-  req,
-  res,
-  next
-) => {
+export const setUpEventPayment: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
     const fee = req.body.fee;
@@ -956,7 +952,30 @@ export const setUpTeacherEventPayment: RequestHandler = async (
       .json({ error: "Cannot update payment details at the moment" });
   }
 };
-export const getEventPayment: RequestHandler = async (req, res, next) => {
+
+export const setUpTeacherPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const fee = req.body.fee;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    await models.Subscription.create({
+      fee,
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update payment details at the moment" });
+  }
+};
+export const getTeacherPayment: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
     const isAdmin: any = await models.User.findOne({
@@ -967,7 +986,22 @@ export const getEventPayment: RequestHandler = async (req, res, next) => {
       return res.status(403).json({ error: "User is not an admin" });
     }
 
-    const payment = await models.Subscription.findAll();
+    const payment = await models.Subscription.findOne({
+      where: { id: 2 },
+    });
+    return res.status(200).json(payment);
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get payment details at the moment" });
+  }
+};
+export const getEventPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const payment = await models.Subscription.findOne({
+      where: { id: 1 },
+    });
     return res.status(200).json(payment);
   } catch (err) {
     console.error("Error:", err);
@@ -977,6 +1011,29 @@ export const getEventPayment: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const updateTeacherPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { fee } = req.body;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    await models.Subscription.update({ fee }, { where: { id: 2 } });
+    return res
+      .status(200)
+      .json({ message: "Payment details updated successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update payment details at the moment" });
+  }
+};
 export const updateEventPayment: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
@@ -1022,6 +1079,9 @@ export default {
   updateNotificationResponse,
   updateEventMedia,
   getEventPayment,
-  setUpTeacherEventPayment,
-  updateEventPayment
+  setUpEventPayment,
+  updateEventPayment,
+  setUpTeacherPayment,
+  getTeacherPayment,
+  updateTeacherPayment,
 };
