@@ -88,19 +88,22 @@ export const createEvent: RequestHandler = async (req, res, next) => {
 
 export const updateEventMedia: RequestHandler = async (req, res, next) => {
   try {
-  let { eventId, removedMediaUrls } = req.body;
-  removedMediaUrls = removedMediaUrls?.split(',');
+    let { eventId, removedMediaUrls } = req.body;
+    removedMediaUrls = removedMediaUrls?.split(",");
 
-  let userId: any = req.user;
-  userId = JSON.parse(JSON.stringify(userId));
+    let userId: any = req.user;
+    userId = JSON.parse(JSON.stringify(userId));
 
- 
-    const foundEvent: any = await models.Event.findOne({ where: { id: eventId, creatorId: userId.id } });
+    const foundEvent: any = await models.Event.findOne({
+      where: { id: eventId, creatorId: userId.id },
+    });
     if (!foundEvent) {
       return res.status(404).json({ error: "Unauthorized Event" });
     }
 
-    foundEvent.imageUrl = foundEvent.imageUrl.filter((url: string) => !removedMediaUrls.includes(url));
+    foundEvent.imageUrl = foundEvent.imageUrl.filter(
+      (url: string) => !removedMediaUrls.includes(url)
+    );
     const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
     if (!BUCKET_NAME) {
       throw new Error("AWS_BUCKET_NAME is not defined");
@@ -126,7 +129,7 @@ export const updateEventMedia: RequestHandler = async (req, res, next) => {
       const { Location } = await s3.upload(params).promise();
       foundEvent.imageUrl.push(Location);
     }
-    foundEvent.changed('imageUrl', true);
+    foundEvent.changed("imageUrl", true);
     await foundEvent.save();
 
     res.status(200).json({
@@ -600,27 +603,31 @@ export const approveJoinRequest: RequestHandler = async (req, res, next) => {
       message: "Request to join the event has been approved",
       isRead: false,
     });
-    
+
     res.status(200).json({ message: "Join request approved" });
   } catch (err) {
     console.error("Error:", err);
-    return res.status(500).json({ error: "Cannot approve join request at the moment" });
+    return res
+      .status(500)
+      .json({ error: "Cannot approve join request at the moment" });
   }
 };
 
 export const updateNotificationResponse: RequestHandler = async (req, res) => {
   try {
-    const { notificationId, message} = req.body;
+    const { notificationId, message } = req.body;
     await models.Notification.update(
-      { isRead: true, message},
-      { where: { id: notificationId} }
+      { isRead: true, message },
+      { where: { id: notificationId } }
     );
     return res.status(200).json({ message: "Request processed successfully" });
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ error: "Cannot approve join request at the moment" });
+    return res
+      .status(500)
+      .json({ error: "Cannot approve join request at the moment" });
   }
-}
+};
 
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   try {
@@ -714,7 +721,7 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
       eventId: event.id,
       organizerId: organizerId,
       nickname: foundUser.nickName,
-      eventName: event.eventName
+      eventName: event.eventName,
     });
 
     await models.Notification.create({
@@ -922,6 +929,77 @@ export const getEventsByUserId: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot get event at the moment" });
   }
 };
+
+export const setUpTeacherEventPayment: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const userID: any = req.user;
+    const fee = req.body.fee;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    await models.Subscription.create({
+      fee,
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update payment details at the moment" });
+  }
+};
+export const getEventPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    const payment = await models.Subscription.findAll();
+    return res.status(200).json(payment);
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get payment details at the moment" });
+  }
+};
+
+export const updateEventPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { fee } = req.body;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    await models.Subscription.update({ fee }, { where: { id: 1 } });
+    return res
+      .status(200)
+      .json({ message: "Payment details updated successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update payment details at the moment" });
+  }
+};
 export default {
   createEvent,
   getAllEvents,
@@ -943,4 +1021,7 @@ export default {
   getAllUserEvents,
   updateNotificationResponse,
   updateEventMedia,
+  getEventPayment,
+  setUpTeacherEventPayment,
+  updateEventPayment
 };

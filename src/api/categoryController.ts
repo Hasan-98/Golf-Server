@@ -31,6 +31,70 @@ export const addCategory: RequestHandler = async (
   }
 };
 
+export const updateCategory: RequestHandler = async (req: any, res: any) => {
+  try {
+    const userId = req.user.id;
+    const { categoryName } = req.body;
+    const { id } = req.params;
+
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userId },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    const category = await models.Category.findOne({
+      where: { id },
+    });
+
+    if (!category) {
+      return res.status(404).json({ error: "Category not found" });
+    }
+
+    await category.update({ categoryName });
+    return res.status(200).json({ message: "Category updated successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update category at the moment" });
+  }
+}
+
+
+export const deleteCategory: RequestHandler = async (req: any, res: any) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userId },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    const category = await models.Category.findOne({
+      where: { id },
+    });
+
+    if (!category) {
+      return res.status(404).json({ error: "Category not found" });
+    }
+
+    await category.destroy();
+    return res.status(200).json({ message: "Category deleted successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot delete category at the moment" });
+  }
+}
+
 export const getAdminCategories: RequestHandler = async (req: any, res: any) => {
   try {
     const userId = req.user.id;
@@ -189,4 +253,6 @@ export default {
   getAllCategories,
   assignCategoriesToUser,
   unassignCategoriesFromUser,
+  updateCategory,
+  deleteCategory,
 };

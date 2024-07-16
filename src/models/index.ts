@@ -22,6 +22,7 @@ import TeacherRating from './teacherRating';
 import Reservation from './reservation';
 import Category from './category';
 import UserCategory from './userCategory';
+import Subscription from './subscription';
 const sequelize: Sequelize = new Sequelize(
   config.database,
   config.username,
@@ -59,6 +60,7 @@ const models = {
   Reservation: Reservation(sequelize),
   Category: Category(sequelize),
   UserCategory: UserCategory(sequelize),
+  Subscription: Subscription(sequelize),
 };
 
 

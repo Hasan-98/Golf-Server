@@ -20,6 +20,8 @@ import {
   getAllCategories,
   assignCategoriesToUser,
   unassignCategoriesFromUser,
+  updateCategory,
+  deleteCategory,
 } from "../api/categoryController";
 import {
   createEvent,
@@ -40,6 +42,9 @@ import {
   updateEventById,
   getAllUserEvents,
   updateNotificationResponse,
+  getEventPayment,
+  setUpTeacherEventPayment,
+  updateEventPayment,
   updateEventMedia,
 } from "../api/eventController";
 import {
@@ -163,6 +168,11 @@ adminRouter.put("/update-notification-response", updateNotificationResponse);
 //   upload.array("mediaFiles[]"),
 //   updateEventMedia
 // );
+adminRouter.get("/get-event-payment", getEventPayment);
+adminRouter.post("/set-up-teacher-event-payment", setUpTeacherEventPayment);
+adminRouter.put("/update-event-payment", updateEventPayment);
+
+
 adminRouter.post("/add-comment", addComment);
 adminRouter.post("/add-like", addLike);
 adminRouter.post("/add-post-comment", addPostComment);
@@ -225,5 +235,7 @@ adminRouter.get("/get-admin-categories", getAdminCategories);
 adminRouter.get("/get-all-categories", getAllCategories);
 adminRouter.put("/assign-categories-to-user/:id", assignCategoriesToUser);
 adminRouter.put("/unassign-categories-from-user/:id", unassignCategoriesFromUser);
+adminRouter.delete("/delete-category/:id", deleteCategory);
+adminRouter.put("/update-category/:id", updateCategory);
 
 export default adminRouter;

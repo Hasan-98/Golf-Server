@@ -731,7 +731,7 @@ export const manageGigReservation: RequestHandler = async (
         gigId: existingReservation.gigId,
         status,
       },
-      });
+    });
 
     const existingNotification = await models.Notification.findOne({
       where: {
@@ -745,6 +745,14 @@ export const manageGigReservation: RequestHandler = async (
         isRead: true,
       });
     }
+    await models.Notification.create({
+      userId: existingReservation.userId,
+      reservationId: id,
+      message: `Your appointment request has been ${status}`,
+      isRead: false,
+    });
+
+
 
     return res.status(200).json({ message: "Gig reservation updated" });
   } catch (error) {
