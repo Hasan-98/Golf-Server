@@ -977,15 +977,6 @@ export const setUpTeacherPayment: RequestHandler = async (req, res, next) => {
 };
 export const getTeacherPayment: RequestHandler = async (req, res, next) => {
   try {
-    const userID: any = req.user;
-    const isAdmin: any = await models.User.findOne({
-      where: { id: userID.id },
-    });
-
-    if (isAdmin.role !== "admin") {
-      return res.status(403).json({ error: "User is not an admin" });
-    }
-
     const payment = await models.Subscription.findOne({
       where: { id: 2 },
     });
