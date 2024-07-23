@@ -23,6 +23,7 @@ import Reservation from './reservation';
 import Category from './category';
 import UserCategory from './userCategory';
 import Subscription from './subscription';
+import Ceremony from './ceremony';
 const sequelize: Sequelize = new Sequelize(
   config.database,
   config.username,
@@ -61,6 +62,7 @@ const models = {
   Category: Category(sequelize),
   UserCategory: UserCategory(sequelize),
   Subscription: Subscription(sequelize),
+  Ceremony: Ceremony(sequelize),
 };
 
 

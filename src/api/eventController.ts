@@ -85,6 +85,77 @@ export const createEvent: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot create event at the moment" });
   }
 };
+export const addEventCeremonyDetails: RequestHandler = async (req, res, next) => {
+  try {
+    const { eventId, eventInfo } = req.body;
+    const userID: any = req.user;
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    if (event.creatorId !== userID.id) {
+      return res.status(403).json({ error: "Unauthorized user" });
+    }
+    const userFolder = `user-${foundUser?.email}`;
+    const mediaFiles = req.files;
+    const mediaUrls = [];
+    for (
+      let i = 0;
+      mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
+      i++
+    ) {
+      const file = mediaFiles[i];
+      const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+
+      if (!BUCKET_NAME) {
+        throw new Error("AWS_BUCKET_NAME is not defined");
+      }
+
+      const type = file.mimetype?.split("/")[1];
+      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: name,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+      const { Location } = await s3.upload(params).promise();
+      mediaUrls.push(Location);
+    }
+     await models.Ceremony.create({
+      userId: userID.id,
+      eventId,
+      eventInfo,
+      ceremonyImages: mediaUrls,
+    });
+    return res.status(201).json({ message: "Ceremony details added successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot add ceremony details at the moment" });
+  }
+}
+
+export const getCeremonyDetails: RequestHandler = async (req, res, next) => {
+  try {
+    const { eventId } = req.params;
+    const ceremony = await models.Ceremony.findOne({
+      where: { eventId },
+    });
+    if (ceremony) {
+      return res.status(200).json({ ceremony });
+    } else {
+      return res.status(404).json({ error: "Ceremony details not found" });
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot get ceremony details at the moment" });
+  }
+}
 
 export const updateEventMedia: RequestHandler = async (req, res, next) => {
   try {
@@ -1075,4 +1146,6 @@ export default {
   setUpTeacherPayment,
   getTeacherPayment,
   updateTeacherPayment,
+  addEventCeremonyDetails,
+  getCeremonyDetails
 };

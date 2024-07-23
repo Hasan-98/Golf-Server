@@ -31,6 +31,8 @@ import {
   updateEventMedia,
   getTeacherPayment,
   getEventPayment,
+  addEventCeremonyDetails,
+  getCeremonyDetails,
 } from "../api/eventController";
 import {
   addComment,
@@ -124,6 +126,18 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   upload.array("mediaFiles[]"),
   updateEventMedia
+);
+
+router.post(
+  "/add-event-ceremony-details",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles[]"),
+  addEventCeremonyDetails
+);
+router.get(
+  "/get-ceremony-details/:id",
+  passport.authenticate("jwt", { session: false }),
+  getCeremonyDetails
 );
 router.delete(
   "/delete-teacher/:id",

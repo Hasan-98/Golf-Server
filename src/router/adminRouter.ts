@@ -49,6 +49,8 @@ import {
   setUpTeacherPayment,
   updateTeacherPayment,
   updateEventMedia,
+  addEventCeremonyDetails,
+  getCeremonyDetails,
 } from "../api/eventController";
 import {
   addComment,
@@ -177,7 +179,8 @@ adminRouter.put("/update-event-payment", updateEventPayment);
 adminRouter.get("/get-teacher-payment", getTeacherPayment);
 adminRouter.post("/set-up-teacher-payment", setUpTeacherPayment);
 adminRouter.put("/update-teacher-payment", updateTeacherPayment);
-
+adminRouter.post("/add-event-ceremony-details", addEventCeremonyDetails);
+adminRouter.get("/get-ceremony-details/:id", getCeremonyDetails);
 
 adminRouter.post("/add-comment", addComment);
 adminRouter.post("/add-like", addLike);
