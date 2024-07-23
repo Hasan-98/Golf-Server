@@ -179,7 +179,7 @@ adminRouter.put("/update-event-payment", updateEventPayment);
 adminRouter.get("/get-teacher-payment", getTeacherPayment);
 adminRouter.post("/set-up-teacher-payment", setUpTeacherPayment);
 adminRouter.put("/update-teacher-payment", updateTeacherPayment);
-adminRouter.post("/add-event-ceremony-details", addEventCeremonyDetails);
+adminRouter.post("/add-event-ceremony-details",upload.array("mediaFiles[]"), addEventCeremonyDetails);
 adminRouter.get("/get-ceremony-details/:id", getCeremonyDetails);
 
 adminRouter.post("/add-comment", addComment);
