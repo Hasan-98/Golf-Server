@@ -9,7 +9,7 @@ export default (sequelize: Sequelize) => {
     userId?: number | undefined;
     eventId!: number;
     eventInfo!: string;
-    ceremonyImages!: string | any;
+    ceremonyImages!: JSON;
 
     static associate(models: any) {
       Ceremony.belongsTo(models.User, {
@@ -48,7 +48,7 @@ export default (sequelize: Sequelize) => {
         field: "event_info",
       },
       ceremonyImages: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON,
         allowNull: true,
         field: "ceremony_images",
       },

@@ -102,7 +102,7 @@ export const addEventCeremonyDetails: RequestHandler = async (req, res, next) =>
     }
     const userFolder = `user-${foundUser?.email}`;
     const mediaFiles = req.files;
-    const mediaUrls = [];
+    const mediaUrls: any = [];
     for (
       let i = 0;
       mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;

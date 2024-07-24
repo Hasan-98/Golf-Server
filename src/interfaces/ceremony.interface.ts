@@ -3,5 +3,5 @@ export interface ICeremonyAttributes {
     userId?: number | any;
     eventId?: number;
     eventInfo?: string;
-    ceremonyImages?: string | any;
+    ceremonyImages?: JSON;
   }
