@@ -85,7 +85,11 @@ export const createEvent: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot create event at the moment" });
   }
 };
-export const addEventCeremonyDetails: RequestHandler = async (req, res, next) => {
+export const addEventCeremonyDetails: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { eventId, eventInfo } = req.body;
     const userID: any = req.user;
@@ -127,24 +131,28 @@ export const addEventCeremonyDetails: RequestHandler = async (req, res, next) =>
       const { Location } = await s3.upload(params).promise();
       mediaUrls.push(Location);
     }
-     await models.Ceremony.create({
+    await models.Ceremony.create({
       userId: userID.id,
       eventId,
       eventInfo,
       ceremonyImages: mediaUrls,
     });
-    return res.status(201).json({ message: "Ceremony details added successfully" });
+    return res
+      .status(201)
+      .json({ message: "Ceremony details added successfully" });
   } catch (err) {
     console.error("Error:", err);
-    return res.status(500).json({ error: "Cannot add ceremony details at the moment" });
+    return res
+      .status(500)
+      .json({ error: "Cannot add ceremony details at the moment" });
   }
-}
+};
 
 export const getCeremonyDetails: RequestHandler = async (req, res, next) => {
   try {
-    const { eventId } = req.params;
-    const ceremony = await models.Ceremony.findOne({
-      where: { eventId },
+    const { id } = req.params;
+    const ceremony = await models.Ceremony.findAll({
+      where: { eventId: id },
     });
     if (ceremony) {
       return res.status(200).json({ ceremony });
@@ -153,9 +161,11 @@ export const getCeremonyDetails: RequestHandler = async (req, res, next) => {
     }
   } catch (err) {
     console.error("Error:", err);
-    return res.status(500).json({ error: "Cannot get ceremony details at the moment" });
+    return res
+      .status(500)
+      .json({ error: "Cannot get ceremony details at the moment" });
   }
-}
+};
 
 export const updateEventMedia: RequestHandler = async (req, res, next) => {
   try {
@@ -1147,5 +1157,5 @@ export default {
   getTeacherPayment,
   updateTeacherPayment,
   addEventCeremonyDetails,
-  getCeremonyDetails
+  getCeremonyDetails,
 };
