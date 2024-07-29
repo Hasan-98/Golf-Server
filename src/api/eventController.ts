@@ -148,6 +148,67 @@ export const addEventCeremonyDetails: RequestHandler = async (
   }
 };
 
+export const updateCeremonyDetails: RequestHandler = async (req, res, next) => {
+  try {
+    let { eventId, removedMediaUrls, eventInfo } = req.body;
+    removedMediaUrls = removedMediaUrls?.split(",");
+
+    const userID: any = req.user;
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const foundCeremony: any = await models.Ceremony.findOne({
+      where: { eventId, userId: userID.id },
+    });
+    if (!foundCeremony) {
+      return res.status(404).json({ error: "Unauthorized Ceremony" });
+    }
+
+    foundCeremony.ceremonyImages = foundCeremony.ceremonyImages.filter(
+      (url: string) => !removedMediaUrls.includes(url)
+    );
+
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+    if (!BUCKET_NAME) {
+      throw new Error("AWS_BUCKET_NAME is not defined");
+    }
+
+    const userFolder = `user-${foundUser.email}`;
+    const mediaFiles = req.files;
+    for (
+      let i = 0;
+      mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
+      i++
+    ) {
+      const file = mediaFiles[i];
+      const type = file.mimetype?.split("/")[1];
+      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: name,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+
+      const { Location } = await s3.upload(params).promise();
+      foundCeremony.ceremonyImages.push(Location);
+    }
+
+    foundCeremony.eventInfo = eventInfo;
+    foundCeremony.changed("ceremonyImages", true);
+    await foundCeremony.save();
+
+    res.status(200).json({
+      message: "Ceremony details updated successfully",
+      ceremony: foundCeremony,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error updating ceremony details" });
+  }
+};
 export const getCeremonyDetails: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -1149,6 +1210,7 @@ export default {
   searchEventByName,
   getAllUserEvents,
   updateNotificationResponse,
+  updateCeremonyDetails,
   updateEventMedia,
   getEventPayment,
   setUpEventPayment,

@@ -27,6 +27,7 @@ import {
   searchEventByName,
   updateEventById,
   getAllUserEvents,
+  updateCeremonyDetails,
   updateNotificationResponse,
   updateEventMedia,
   getTeacherPayment,
@@ -133,6 +134,13 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   upload.array("mediaFiles[]"),
   addEventCeremonyDetails
+);
+
+router.put(
+  "/update-event-ceremony-details/:id",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles[]"),
+  updateCeremonyDetails
 );
 router.get(
   "/get-ceremony-details/:id",
