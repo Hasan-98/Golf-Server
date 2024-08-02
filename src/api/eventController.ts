@@ -150,7 +150,7 @@ export const addEventCeremonyDetails: RequestHandler = async (
 
 export const updateCeremonyDetails: RequestHandler = async (req, res, next) => {
   try {
-    let { eventId, removedMediaUrls, eventInfo } = req.body;
+    let { eventId, removedMediaUrls, eventInfo , id } = req.body;
     removedMediaUrls = removedMediaUrls?.split(",");
 
     const userID: any = req.user;
@@ -160,7 +160,7 @@ export const updateCeremonyDetails: RequestHandler = async (req, res, next) => {
     }
 
     const foundCeremony: any = await models.Ceremony.findOne({
-      where: { eventId, userId: userID.id },
+      where: { eventId, userId: userID.id , id },
     });
     if (!foundCeremony) {
       return res.status(404).json({ error: "Unauthorized Ceremony" });
