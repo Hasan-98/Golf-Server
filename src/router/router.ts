@@ -137,7 +137,7 @@ router.post(
 );
 
 router.put(
-  "/update-event-ceremony-details/:id",
+  "/update-event-ceremony-details",
   passport.authenticate("jwt", { session: false }),
   upload.array("mediaFiles[]"),
   updateCeremonyDetails
