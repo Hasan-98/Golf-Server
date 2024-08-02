@@ -165,10 +165,12 @@ export const updateCeremonyDetails: RequestHandler = async (req, res, next) => {
     if (!foundCeremony) {
       return res.status(404).json({ error: "Unauthorized Ceremony" });
     }
+    let ceremonyImages = JSON.parse(foundCeremony.ceremonyImages || "[]");
 
-    foundCeremony.ceremonyImages = foundCeremony.ceremonyImages.filter(
+    ceremonyImages = ceremonyImages.filter(
       (url: string) => !removedMediaUrls.includes(url)
     );
+    foundCeremony.ceremonyImages = ceremonyImages;
 
     const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
     if (!BUCKET_NAME) {
