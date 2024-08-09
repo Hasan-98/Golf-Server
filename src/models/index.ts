@@ -24,6 +24,7 @@ import Category from './category';
 import UserCategory from './userCategory';
 import Subscription from './subscription';
 import Ceremony from './ceremony';
+import Chat from './chat';
 const sequelize: Sequelize = new Sequelize(
   config.database,
   config.username,
@@ -63,12 +64,13 @@ const models = {
   UserCategory: UserCategory(sequelize),
   Subscription: Subscription(sequelize),
   Ceremony: Ceremony(sequelize),
+  Chat: Chat(sequelize),
 };
 
 
-Object.values(models).forEach((model) => {
-  if (model.associate) {
-    model.associate(models);
+Object.values(models).forEach((model: any) => {
+  if (typeof (model as any).associate === 'function') {
+    (model as any).associate(models);
   }
 });
 

@@ -1,6 +1,7 @@
 import { app } from "./app";
 import * as fs from 'fs';
 import * as https from 'https';
+// import * as http from 'http';
 const socketio = require("socket.io");
 
 const port = process.env.PORT || 5000;
@@ -13,6 +14,7 @@ const certificate = fs.readFileSync('./certificate/backend_golf-encounters_com.c
 const credentials = { key: privateKey, cert: certificate };
 
 // Create an HTTPS server
+// const server = http.createServer( app);
 const server = https.createServer(credentials, app);
 
 server.listen(port, () => {
