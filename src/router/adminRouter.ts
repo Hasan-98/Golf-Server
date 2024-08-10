@@ -20,6 +20,8 @@ import {
   getAllCategories,
   assignCategoriesToUser,
   unassignCategoriesFromUser,
+  updateCategory,
+  deleteCategory,
 } from "../api/categoryController";
 import {
   createEvent,
@@ -40,7 +42,15 @@ import {
   updateEventById,
   getAllUserEvents,
   updateNotificationResponse,
+  getEventPayment,
+  setUpEventPayment,
+  updateEventPayment,
+  getTeacherPayment,
+  setUpTeacherPayment,
+  updateTeacherPayment,
   updateEventMedia,
+  addEventCeremonyDetails,
+  getCeremonyDetails,
 } from "../api/eventController";
 import {
   addComment,
@@ -163,6 +173,15 @@ adminRouter.put("/update-notification-response", updateNotificationResponse);
 //   upload.array("mediaFiles[]"),
 //   updateEventMedia
 // );
+adminRouter.get("/get-event-payment", getEventPayment);
+adminRouter.post("/set-up-event-payment", setUpEventPayment);
+adminRouter.put("/update-event-payment", updateEventPayment);
+adminRouter.get("/get-teacher-payment", getTeacherPayment);
+adminRouter.post("/set-up-teacher-payment", setUpTeacherPayment);
+adminRouter.put("/update-teacher-payment", updateTeacherPayment);
+adminRouter.post("/add-event-ceremony-details",upload.array("mediaFiles[]"), addEventCeremonyDetails);
+adminRouter.get("/get-ceremony-details/:id", getCeremonyDetails);
+
 adminRouter.post("/add-comment", addComment);
 adminRouter.post("/add-like", addLike);
 adminRouter.post("/add-post-comment", addPostComment);
@@ -225,5 +244,7 @@ adminRouter.get("/get-admin-categories", getAdminCategories);
 adminRouter.get("/get-all-categories", getAllCategories);
 adminRouter.put("/assign-categories-to-user/:id", assignCategoriesToUser);
 adminRouter.put("/unassign-categories-from-user/:id", unassignCategoriesFromUser);
+adminRouter.delete("/delete-category/:id", deleteCategory);
+adminRouter.put("/update-category/:id", updateCategory);
 
 export default adminRouter;

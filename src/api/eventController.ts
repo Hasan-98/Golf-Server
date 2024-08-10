@@ -6,7 +6,7 @@ import { io } from "../index";
 import AWS from "aws-sdk";
 import { IUserEventAttributes } from "../interfaces/userEvent.interface";
 
-// Initialize AWS S3 with your credentials
+
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -85,22 +85,169 @@ export const createEvent: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot create event at the moment" });
   }
 };
+export const addEventCeremonyDetails: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { eventId, eventInfo } = req.body;
+    const userID: any = req.user;
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    if (event.creatorId !== userID.id) {
+      return res.status(403).json({ error: "Unauthorized user" });
+    }
+    const userFolder = `user-${foundUser?.email}`;
+    const mediaFiles = req.files;
+    const mediaUrls: any = [];
+    for (
+      let i = 0;
+      mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
+      i++
+    ) {
+      const file = mediaFiles[i];
+      const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+
+      if (!BUCKET_NAME) {
+        throw new Error("AWS_BUCKET_NAME is not defined");
+      }
+
+      const type = file.mimetype?.split("/")[1];
+      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: name,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+      const { Location } = await s3.upload(params).promise();
+      mediaUrls.push(Location);
+    }
+    await models.Ceremony.create({
+      userId: userID.id,
+      eventId,
+      eventInfo,
+      ceremonyImages: mediaUrls,
+    });
+    return res
+      .status(201)
+      .json({ message: "Ceremony details added successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot add ceremony details at the moment" });
+  }
+};
+
+export const updateCeremonyDetails: RequestHandler = async (req, res, next) => {
+  try {
+    let { eventId, removedMediaUrls, eventInfo , id } = req.body;
+    removedMediaUrls = removedMediaUrls?.split(",");
+
+    const userID: any = req.user;
+    const foundUser = await models.User.findOne({ where: { id: userID.id } });
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const foundCeremony: any = await models.Ceremony.findOne({
+      where: { eventId, userId: userID.id , id },
+    });
+    if (!foundCeremony) {
+      return res.status(404).json({ error: "Unauthorized Ceremony" });
+    }
+    let ceremonyImages = JSON.parse(foundCeremony.ceremonyImages || "[]");
+
+    ceremonyImages = ceremonyImages.filter(
+      (url: string) => !removedMediaUrls.includes(url)
+    );
+    foundCeremony.ceremonyImages = ceremonyImages;
+
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+    if (!BUCKET_NAME) {
+      throw new Error("AWS_BUCKET_NAME is not defined");
+    }
+
+    const userFolder = `user-${foundUser.email}`;
+    const mediaFiles = req.files;
+    for (
+      let i = 0;
+      mediaFiles && Array.isArray(mediaFiles) && i < mediaFiles.length;
+      i++
+    ) {
+      const file = mediaFiles[i];
+      const type = file.mimetype?.split("/")[1];
+      const name = `${userFolder}/${Date.now()}-${i}.${type}`;
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: name,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+
+      const { Location } = await s3.upload(params).promise();
+      foundCeremony.ceremonyImages.push(Location);
+    }
+
+    foundCeremony.eventInfo = eventInfo;
+    foundCeremony.changed("ceremonyImages", true);
+    await foundCeremony.save();
+
+    res.status(200).json({
+      message: "Ceremony details updated successfully",
+      ceremony: foundCeremony,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error updating ceremony details" });
+  }
+};
+export const getCeremonyDetails: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const ceremony = await models.Ceremony.findAll({
+      where: { eventId: id },
+    });
+    if (ceremony) {
+      return res.status(200).json({ ceremony });
+    } else {
+      return res.status(404).json({ error: "Ceremony details not found" });
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get ceremony details at the moment" });
+  }
+};
 
 export const updateEventMedia: RequestHandler = async (req, res, next) => {
   try {
-  let { eventId, removedMediaUrls } = req.body;
-  removedMediaUrls = removedMediaUrls?.split(',');
+    let { eventId, removedMediaUrls } = req.body;
+    removedMediaUrls = removedMediaUrls?.split(",");
 
-  let userId: any = req.user;
-  userId = JSON.parse(JSON.stringify(userId));
+    let userId: any = req.user;
+    userId = JSON.parse(JSON.stringify(userId));
 
- 
-    const foundEvent: any = await models.Event.findOne({ where: { id: eventId, creatorId: userId.id } });
+    const foundEvent: any = await models.Event.findOne({
+      where: { id: eventId, creatorId: userId.id },
+    });
     if (!foundEvent) {
       return res.status(404).json({ error: "Unauthorized Event" });
     }
 
-    foundEvent.imageUrl = foundEvent.imageUrl.filter((url: string) => !removedMediaUrls.includes(url));
+    foundEvent.imageUrl = foundEvent.imageUrl.filter(
+      (url: string) => !removedMediaUrls.includes(url)
+    );
     const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
     if (!BUCKET_NAME) {
       throw new Error("AWS_BUCKET_NAME is not defined");
@@ -126,7 +273,7 @@ export const updateEventMedia: RequestHandler = async (req, res, next) => {
       const { Location } = await s3.upload(params).promise();
       foundEvent.imageUrl.push(Location);
     }
-    foundEvent.changed('imageUrl', true);
+    foundEvent.changed("imageUrl", true);
     await foundEvent.save();
 
     res.status(200).json({
@@ -600,27 +747,31 @@ export const approveJoinRequest: RequestHandler = async (req, res, next) => {
       message: "Request to join the event has been approved",
       isRead: false,
     });
-    
+
     res.status(200).json({ message: "Join request approved" });
   } catch (err) {
     console.error("Error:", err);
-    return res.status(500).json({ error: "Cannot approve join request at the moment" });
+    return res
+      .status(500)
+      .json({ error: "Cannot approve join request at the moment" });
   }
 };
 
 export const updateNotificationResponse: RequestHandler = async (req, res) => {
   try {
-    const { notificationId, message} = req.body;
+    const { notificationId, message } = req.body;
     await models.Notification.update(
-      { isRead: true, message},
-      { where: { id: notificationId} }
+      { isRead: true, message },
+      { where: { id: notificationId } }
     );
     return res.status(200).json({ message: "Request processed successfully" });
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ error: "Cannot approve join request at the moment" });
+    return res
+      .status(500)
+      .json({ error: "Cannot approve join request at the moment" });
   }
-}
+};
 
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   try {
@@ -714,7 +865,7 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
       eventId: event.id,
       organizerId: organizerId,
       nickname: foundUser.nickName,
-      eventName: event.eventName
+      eventName: event.eventName,
     });
 
     await models.Notification.create({
@@ -922,6 +1073,125 @@ export const getEventsByUserId: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ error: "Cannot get event at the moment" });
   }
 };
+
+export const setUpEventPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const fee = req.body.fee;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    await models.Subscription.create({
+      fee,
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update payment details at the moment" });
+  }
+};
+
+export const setUpTeacherPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const fee = req.body.fee;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    await models.Subscription.create({
+      fee,
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update payment details at the moment" });
+  }
+};
+export const getTeacherPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const payment = await models.Subscription.findOne({
+      where: { id: 2 },
+    });
+    return res.status(200).json(payment);
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get payment details at the moment" });
+  }
+};
+export const getEventPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const payment = await models.Subscription.findOne({
+      where: { id: 1 },
+    });
+    return res.status(200).json(payment);
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get payment details at the moment" });
+  }
+};
+
+export const updateTeacherPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { fee } = req.body;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    await models.Subscription.update({ fee }, { where: { id: 2 } });
+    return res
+      .status(200)
+      .json({ message: "Payment details updated successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update payment details at the moment" });
+  }
+};
+export const updateEventPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const userID: any = req.user;
+    const { fee } = req.body;
+    const isAdmin: any = await models.User.findOne({
+      where: { id: userID.id },
+    });
+
+    if (isAdmin.role !== "admin") {
+      return res.status(403).json({ error: "User is not an admin" });
+    }
+
+    await models.Subscription.update({ fee }, { where: { id: 1 } });
+    return res
+      .status(200)
+      .json({ message: "Payment details updated successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update payment details at the moment" });
+  }
+};
 export default {
   createEvent,
   getAllEvents,
@@ -942,5 +1212,14 @@ export default {
   searchEventByName,
   getAllUserEvents,
   updateNotificationResponse,
+  updateCeremonyDetails,
   updateEventMedia,
+  getEventPayment,
+  setUpEventPayment,
+  updateEventPayment,
+  setUpTeacherPayment,
+  getTeacherPayment,
+  updateTeacherPayment,
+  addEventCeremonyDetails,
+  getCeremonyDetails,
 };

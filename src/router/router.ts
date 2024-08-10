@@ -27,8 +27,13 @@ import {
   searchEventByName,
   updateEventById,
   getAllUserEvents,
+  updateCeremonyDetails,
   updateNotificationResponse,
   updateEventMedia,
+  getTeacherPayment,
+  getEventPayment,
+  addEventCeremonyDetails,
+  getCeremonyDetails,
 } from "../api/eventController";
 import {
   addComment,
@@ -102,6 +107,7 @@ import {
 } from "../api/scoreCardController";
 
 import passport from "../auth/passport";
+import { getChat, getUsersWithMessages, postChat } from "../api/chatController";
 const router: Router = express.Router();
 
 router.post("/register", upload.single("image"), register);
@@ -122,6 +128,39 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   upload.array("mediaFiles[]"),
   updateEventMedia
+);
+
+router.post(
+  "/add-event-ceremony-details",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles[]"),
+  addEventCeremonyDetails
+);
+router.post(
+  "/post-chat",
+  // passport.authenticate("jwt", { session: false }),
+  postChat
+);
+router.get(
+  "/get-chat",
+  // passport.authenticate("jwt", { session: false }),
+  getChat
+);
+router.get(
+  "/all-chat",
+  // passport.authenticate("jwt", { session: false }),
+  getUsersWithMessages
+);
+router.put(
+  "/update-event-ceremony-details",
+  passport.authenticate("jwt", { session: false }),
+  upload.array("mediaFiles[]"),
+  updateCeremonyDetails
+);
+router.get(
+  "/get-ceremony-details/:id",
+  passport.authenticate("jwt", { session: false }),
+  getCeremonyDetails
 );
 router.delete(
   "/delete-teacher/:id",
@@ -226,6 +265,16 @@ router.put(
   "/update-notification-response",
   passport.authenticate("jwt", { session: false }),
   updateNotificationResponse
+);
+router.get(
+  "/get-event-payment",
+  passport.authenticate("jwt", { session: false }),
+  getEventPayment
+);
+router.get(
+  "/get-teacher-payment",
+  passport.authenticate("jwt", { session: false }),
+  getTeacherPayment
 );
 router.put(
   "/approve-join-request",
