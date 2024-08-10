@@ -5,16 +5,16 @@ import { Sequelize, Op } from 'sequelize';
 import { models } from '../models';
 
 const pusher = new Pusher({
-  appId: "1845624",
-  key: "06eee6fdace6c672f8b2",
-  secret: "5905b272dd0236a2e68a",
-  cluster: "ap3",
+  appId: process.env.APP_ID!,
+  key: process.env.KEY!,
+  secret: process.env.SECRET!,
+  cluster: process.env.CLUSTER!,
   useTLS: true
 });
 
 const beamsClient = new PushNotifications({
-  instanceId: '2f55c6b0-0852-4c60-896e-f4036ef33af1',
-  secretKey: '3E1854748BFE490436140A4D6E9221F9AE3F816FDF358833210ABCDCD6829334'
+  instanceId: process.env.INTEGRATION_KEY!,
+  secretKey: process.env.SECRET_KEY!
 });
 
 export const postChat: RequestHandler = async (req, res, next) => {
