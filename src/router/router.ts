@@ -107,6 +107,7 @@ import {
 } from "../api/scoreCardController";
 
 import passport from "../auth/passport";
+import { getChat, getUsersWithMessages, postChat } from "../api/chatController";
 const router: Router = express.Router();
 
 router.post("/register", upload.single("image"), register);
@@ -135,7 +136,21 @@ router.post(
   upload.array("mediaFiles[]"),
   addEventCeremonyDetails
 );
-
+router.post(
+  "/post-chat",
+  // passport.authenticate("jwt", { session: false }),
+  postChat
+);
+router.get(
+  "/get-chat",
+  // passport.authenticate("jwt", { session: false }),
+  getChat
+);
+router.get(
+  "/all-chat",
+  // passport.authenticate("jwt", { session: false }),
+  getUsersWithMessages
+);
 router.put(
   "/update-event-ceremony-details",
   passport.authenticate("jwt", { session: false }),
