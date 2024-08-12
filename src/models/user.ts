@@ -2,6 +2,9 @@ import { DataTypes, Model, Sequelize } from "sequelize";
 import { IUserAttributes } from "../interfaces/user.interface";
 export default (sequelize: Sequelize) => {
   class User extends Model<IUserAttributes> implements IUserAttributes {
+    static find(arg0: { id: { $in: any; }; }, arg1: { id: number; nickname: number; }) {
+      throw new Error('Method not implemented.');
+    }
     id!: number;
     nickName!: string;
     role?: string | undefined;

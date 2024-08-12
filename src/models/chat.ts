@@ -14,6 +14,7 @@ export default (sequelize: Sequelize) => {
     sender!: string;
     receiver!: string;
     timestamp!: Date;
+    is_read!: boolean;
   }
 
   Chat.init(
@@ -46,6 +47,10 @@ export default (sequelize: Sequelize) => {
       timestamp: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+      },
+      is_read: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
     },
     {

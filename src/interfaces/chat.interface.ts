@@ -6,4 +6,5 @@ export interface IChatAttributes {
     sender?: string;
     receiver?: string;
     timestamp?: Date;
+    is_read?: boolean;
   }
