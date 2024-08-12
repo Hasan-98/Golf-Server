@@ -107,7 +107,7 @@ import {
 } from "../api/scoreCardController";
 
 import passport from "../auth/passport";
-import { getChat, getUsersWithMessages, postChat } from "../api/chatController";
+import {  authsd, deleteMessage, getAllOnlineUsers, getChat, getUsersWithMessages, markAllMessagesAsRead, postChat, updateMessage, updateMessageStatus, updateUserPresence } from "../api/chatController";
 const router: Router = express.Router();
 
 router.post("/register", upload.single("image"), register);
@@ -146,11 +146,43 @@ router.get(
   // passport.authenticate("jwt", { session: false }),
   getChat
 );
+router.put(
+  "/update-chat-status",
+  passport.authenticate("jwt", { session: false }),
+  markAllMessagesAsRead 
+);
+router.put(
+  "/update-message-status",
+  passport.authenticate("jwt", { session: false }),
+  updateMessageStatus 
+);
+router.delete(
+  "/delete-message/:messageId",
+  passport.authenticate("jwt", { session: false }),
+  deleteMessage 
+);
+router.put(
+  "/update-message/:messageId",
+  passport.authenticate("jwt", { session: false }),
+  updateMessage   
+);
+router.post(
+  "/user-presense",
+  passport.authenticate("jwt", { session: false }),
+  updateUserPresence   
+);
 router.get(
   "/all-chat",
   // passport.authenticate("jwt", { session: false }),
   getUsersWithMessages
 );
+router.get(
+  "/online-users",
+  passport.authenticate("jwt", { session: false }),
+  getAllOnlineUsers
+);
+router.post('/pusher/auth', passport.authenticate('jwt', { session: false }), authsd);
+
 router.put(
   "/update-event-ceremony-details",
   passport.authenticate("jwt", { session: false }),
