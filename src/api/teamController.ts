@@ -192,6 +192,29 @@ export const updateTeamMember: RequestHandler = async (req, res, next) => {
       .json({ error: "Cannot update teams and team members at the moment" });
   }
 };
+export const deleteTeamMember: RequestHandler = async (req, res, next) => {
+  try {
+    const { teamId, userId } = req.body;
+
+    const teamMember = await models.TeamMember.findOne({
+      where: {
+        teamId: teamId,
+        userId: userId,
+      },
+    });
+
+    if (!teamMember) {
+      return res.status(404).json({ error: "Team member not found" });
+    }
+
+    await teamMember.destroy();
+
+    return res.status(200).json({ message: "Team member deleted successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot delete team member at the moment" });
+  }
+};
 export const getTeamById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -223,6 +246,7 @@ export const getTeamById: RequestHandler = async (req, res, next) => {
 export default {
   getTeamById,
   getAllTeams,
+  deleteTeamMember,
   updateTeamMember,
   getTeamsByEvent,
 };

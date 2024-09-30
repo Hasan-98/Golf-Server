@@ -81,6 +81,7 @@ import {
 import {
   getAllTeams,
   updateTeamMember,
+  deleteTeamMember,
   getTeamsByEvent,
   getTeamById,
 } from "../api/teamController";
@@ -591,7 +592,11 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   updateTeamMember
 );
-
+router.delete(
+  "/delete-team-member",
+  passport.authenticate("jwt", { session: false }),
+  deleteTeamMember
+);
 router.get(
   "/get-teams-by-id/:id",
   passport.authenticate("jwt", { session: false }),
