@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index";
+import { Op } from "sequelize";
 
 export const getAllTeams: RequestHandler = async (req, res, next) => {
   try {
@@ -45,7 +46,8 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    let teams = await models.Team.findAll({
+    // Step 1: Fetch teams and members
+    let teams: any = await models.Team.findAll({
       where: {
         eventId: id,
       },
@@ -64,12 +66,27 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
         },
       ],
     });
-    let totalJoinedMembers = 0;
+
     teams = JSON.parse(JSON.stringify(teams));
+
+    const userIds = new Set(teams.flatMap((team: any) => team.members.map((member: any) => member.userId)));
+
+    const userEventStatuses: any = await models.UserEvent.findAll({
+      where: {
+        user_id: { [Op.in]: Array.from(userIds) },
+        event_id: id
+      },
+      attributes: ['user_id', 'status']
+    });
+
+    const statusMap = new Map(userEventStatuses.map((ue: any) => [ue.user_id, ue.status]));
+
+    let totalJoinedMembers = 0;
     teams = teams.map((team: any) => {
       team.members = team.members.map((member: any) => {
         member.nickName = member.users.nickName;
         member.imageUrl = member.users.imageUrl;
+        member.status = statusMap.get(member.userId) || null;
         
         delete member.users;
         return member;
@@ -79,7 +96,7 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
       return team;
     });
 
-    return res.status(200).json({ teams , totalJoinedMembers});
+    return res.status(200).json({ teams, totalJoinedMembers });
   } catch (err) {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot get teams at the moment" });
