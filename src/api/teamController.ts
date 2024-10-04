@@ -211,7 +211,7 @@ export const updateTeamMember: RequestHandler = async (req, res, next) => {
 };
 export const deleteTeamMember: RequestHandler = async (req, res, next) => {
   try {
-    const { teamId, userId } = req.body;
+    const { teamId, userId, eventId } = req.body;
 
     const teamMember = await models.TeamMember.findOne({
       where: {
@@ -225,6 +225,13 @@ export const deleteTeamMember: RequestHandler = async (req, res, next) => {
     }
 
     await teamMember.destroy();
+
+    await models.UserEvent.destroy({
+      where: {
+        user_id: userId,
+        event_id: eventId
+      },
+    });
 
     return res.status(200).json({ message: "Team member deleted successfully" });
   } catch (err) {
