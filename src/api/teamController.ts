@@ -226,12 +226,15 @@ export const deleteTeamMember: RequestHandler = async (req, res, next) => {
 
     await teamMember.destroy();
 
-    await models.UserEvent.destroy({
-      where: {
-        user_id: userId,
-        event_id: eventId
-      },
-    });
+    await models.UserEvent.update(
+      { status: 'waiting' },
+      {
+        where: {
+          user_id: userId,
+          event_id: eventId
+        },
+      }
+    );
 
     return res.status(200).json({ message: "Team member deleted successfully" });
   } catch (err) {
