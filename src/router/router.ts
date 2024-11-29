@@ -81,7 +81,9 @@ import {
 import {
   getAllTeams,
   updateTeamMember,
+  deleteTeamMember,
   getTeamsByEvent,
+  deleteWaitingUsers,
   getTeamById,
 } from "../api/teamController";
 import multer from "multer";
@@ -591,7 +593,16 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   updateTeamMember
 );
-
+router.delete(
+  "/delete-team-member",
+  passport.authenticate("jwt", { session: false }),
+  deleteTeamMember
+);
+router.delete(
+  "/delete-waiting-user",
+  passport.authenticate("jwt", { session: false }),
+  deleteWaitingUsers
+)
 router.get(
   "/get-teams-by-id/:id",
   passport.authenticate("jwt", { session: false }),

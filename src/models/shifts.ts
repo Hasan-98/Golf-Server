@@ -10,6 +10,7 @@ export default (sequelize: Sequelize) => {
     day?: String | undefined;
     isBooked?: Boolean | undefined;
     status?: string | undefined;
+    date?: string | undefined;
     bookedBy?: number | undefined;
     static associate(models: any) {
       Shifts.belongsTo(models.Schedules, {
@@ -47,6 +48,10 @@ export default (sequelize: Sequelize) => {
       endTime: {
         type: DataTypes.STRING,
         field: "end_time",
+      },
+      date: {
+        type: DataTypes.STRING,
+        field: "date",
       },
       isBooked: {
         type: DataTypes.BOOLEAN,

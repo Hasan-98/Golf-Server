@@ -9,7 +9,7 @@ export const bookAppointment: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { scheduleId, day, startTime, endTime } = req.body;
+    const { scheduleId, day, startTime, endTime, date} = req.body;
 
     const existingStudent = await models.User.findOne({
       where: { id: userId },
@@ -21,6 +21,7 @@ export const bookAppointment: RequestHandler = async (
           scheduleId,
           day,
           startTime,
+          date,
           endTime,
           isBooked: false,
         },
@@ -32,6 +33,7 @@ export const bookAppointment: RequestHandler = async (
             scheduleId,
             day,
             startTime,
+            date,
             endTime,
             isBooked: true,
             bookedBy: userId,
@@ -50,6 +52,7 @@ export const bookAppointment: RequestHandler = async (
               where: {
                 scheduleId,
                 day,
+                date,
                 startTime,
                 endTime,
                 isBooked: false,
@@ -74,6 +77,7 @@ export const bookAppointment: RequestHandler = async (
             appointment: {
               schedule,
               day,
+              date,
               startTime,
               endTime,
               student: bookedUserDetails,
@@ -114,7 +118,7 @@ export const acceptAppointment: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { scheduleId, day, startTime, endTime, status, studentId, notificationId } = req.body;
+    const { scheduleId, day, startTime, endTime, status, date,  studentId, notificationId } = req.body;
 
     const existingTeacher = await models.Teacher.findOne({
       where: { userId },
@@ -126,6 +130,7 @@ export const acceptAppointment: RequestHandler = async (
           scheduleId,
           day,
           startTime,
+          date,
           endTime,
           isBooked: true,
           bookedBy: studentId,
@@ -141,6 +146,7 @@ export const acceptAppointment: RequestHandler = async (
               scheduleId,
               day,
               startTime,
+              date,
               endTime,
               isBooked: true,
               bookedBy: studentId,
@@ -152,6 +158,7 @@ export const acceptAppointment: RequestHandler = async (
           studentId,
           appointment: {
             day,
+            date,
             startTime,
             endTime,
             status,
@@ -197,7 +204,7 @@ export const declineAppointment: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { scheduleId, day, startTime, endTime, studentId, status, notificationId } = req.body;
+    const { scheduleId, day, startTime, endTime, studentId,  date ,status, notificationId } = req.body;
 
     const existingTeacher = await models.Teacher.findOne({
       where: { userId },
@@ -208,6 +215,7 @@ export const declineAppointment: RequestHandler = async (
         where: {
           scheduleId,
           day,
+          date,
           startTime,
           endTime,
           isBooked: true,
@@ -227,6 +235,7 @@ export const declineAppointment: RequestHandler = async (
             where: {
               scheduleId,
               day,
+              date,
               startTime,
               endTime,
               isBooked: true,
@@ -240,6 +249,7 @@ export const declineAppointment: RequestHandler = async (
           studentId,
           appointment: {
             day,
+            date,
             startTime,
             endTime,
             status,
@@ -548,7 +558,7 @@ export const updateAppointmentStatus: RequestHandler = async (
 ) => {
   try {
     const userId = req.user.id;
-    const { scheduleId, day, startTime, endTime, status } = req.body;
+    const { scheduleId, day, startTime, endTime, date,   status } = req.body;
 
     const existingTeacher = await models.Teacher.findOne({
       where: { userId },
@@ -559,6 +569,7 @@ export const updateAppointmentStatus: RequestHandler = async (
         where: {
           scheduleId,
           day,
+          date,
           startTime,
           endTime,
           isBooked: true,
@@ -574,6 +585,7 @@ export const updateAppointmentStatus: RequestHandler = async (
             where: {
               scheduleId,
               day,
+              date,
               startTime,
               endTime,
               isBooked: true,
@@ -680,7 +692,7 @@ export const getTeacherAppointmentsCount: RequestHandler = async (
 export const completeAppointment: RequestHandler = async (req: any, res: any, next: any) => {
     try {
         const userId = req.user.id;
-        const { scheduleId, day, startTime, endTime, status , rating} = req.body;
+        const { scheduleId, day, startTime, endTime, date, status , rating} = req.body;
 
         const existingTeacher = await models.Teacher.findOne({
             where: { userId },
@@ -692,6 +704,7 @@ export const completeAppointment: RequestHandler = async (req: any, res: any, ne
                     scheduleId,
                     day,
                     startTime,
+                    date,
                     endTime,
                     isBooked: true,
                     bookedBy: userId,
@@ -706,6 +719,7 @@ export const completeAppointment: RequestHandler = async (req: any, res: any, ne
                         where: {
                             scheduleId,
                             day,
+                            date,
                             startTime,
                             endTime,
                             isBooked: true,
