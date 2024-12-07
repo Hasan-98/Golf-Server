@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 import { models } from "../models/index";
 import AWS from "aws-sdk";
+import axios from "axios";
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -253,6 +254,27 @@ export const getTotalUsers: any = async (req: any, res: any) => {
       .json({ error: "Unable to retrieve user profile at this time" });
   }
 };
+
+export const translatePage: any = async (req: any, res: any) => {
+  const { text, target } = req.body;
+  try {
+    const response = await axios.post(
+      'https://translation.googleapis.com/language/translate/v2',
+      null,
+      {
+        params: {
+          q: text,
+          target: target,
+          key: process.env.GOOGLE_API_KEY,
+        },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Translation error:", error);
+    res.status(500).json({ error: "Translation failed" });
+  }
+};
 export default {
   register,
   login,
@@ -261,4 +283,5 @@ export default {
   userById,
   getTotalUsers,
   editUserProfile,
+  translatePage,
 };

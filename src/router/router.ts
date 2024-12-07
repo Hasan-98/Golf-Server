@@ -8,6 +8,7 @@ import {
   getTotalUsers,
   editUserProfile,
   editProfilePic,
+  translatePage,
 } from "../api/UserController";
 import {
   createEvent,
@@ -242,6 +243,8 @@ router.post(
   upload.array("mediaFiles[]"),
   addGigs
 );
+
+router.post('/translate', translatePage);
 router.get(
   "/get-gigs-by-teacher/:id",
   passport.authenticate("jwt", { session: false }),
