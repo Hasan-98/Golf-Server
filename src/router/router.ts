@@ -30,6 +30,7 @@ import {
   getAllUserEvents,
   updateCeremonyDetails,
   updateNotificationResponse,
+  markAllNotificationAsRead,
   updateEventMedia,
   getTeacherPayment,
   getEventPayment,
@@ -302,6 +303,11 @@ router.put(
   "/update-notification-response",
   passport.authenticate("jwt", { session: false }),
   updateNotificationResponse
+);
+router.put(
+  "/mark-all-notification-as-read",
+  passport.authenticate("jwt", { session: false }),
+  markAllNotificationAsRead
 );
 router.get(
   "/get-event-payment",

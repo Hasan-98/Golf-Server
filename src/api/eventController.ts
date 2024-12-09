@@ -811,6 +811,21 @@ export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   }
 };
 
+
+export const markAllNotificationAsRead: RequestHandler = async (req, res) => {
+  try {
+    const userID: any = req.user;
+    await models.Notification.update(
+      { isRead: true },
+      { where: { userId: userID.id } }
+    );
+    return res.status(200).json({ message: "All notifications marked as read" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 export const joinEvent: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
@@ -1222,4 +1237,5 @@ export default {
   updateTeacherPayment,
   addEventCeremonyDetails,
   getCeremonyDetails,
+  markAllNotificationAsRead,
 };
