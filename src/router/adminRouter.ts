@@ -91,6 +91,7 @@ import {
 import {
   getAllTeams,
   updateTeamMember,
+  deleteTeamMember,
   getTeamsByEvent,
   getTeamById,
 } from "../api/teamController";
@@ -210,6 +211,7 @@ adminRouter.get("/get-teacher-appointments-count", getTeacherAppointmentsCount);
 adminRouter.get("/get-notifications", getNotifications);
 adminRouter.get("/get-all-teams", getAllTeams);
 adminRouter.put("/update-team-member", updateTeamMember);
+adminRouter.delete("/delete-team-member", deleteTeamMember);
 adminRouter.get("/get-teams-by-event", getTeamsByEvent);
 adminRouter.get("/get-team-by-id/:id", getTeamById);
 adminRouter.post("/create-post", upload.array("mediaFiles[]"), createPost);

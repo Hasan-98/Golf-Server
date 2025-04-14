@@ -153,6 +153,7 @@ export const becomeTeacher: RequestHandler = async (
         shiftsToCreate.push({
           scheduleId: createdSchedule.id,
           day: shift.day,
+          date: shift.date,
           startTime: shift.startTime,
           endTime: shift.endTime,
         });
@@ -387,6 +388,7 @@ export const updateProfile: RequestHandler = async (
               {
                 day: shift.day,
                 startTime: shift.startTime,
+                date: shift.date,
                 endTime: shift.endTime,
               },
               {
@@ -398,6 +400,7 @@ export const updateProfile: RequestHandler = async (
             await models.Shifts.create({
               scheduleId,
               day: shift.day,
+              date: shift.date,
               startTime: shift.startTime,
               endTime: shift.endTime,
             });

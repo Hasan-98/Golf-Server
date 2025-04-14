@@ -8,6 +8,7 @@ import {
   getTotalUsers,
   editUserProfile,
   editProfilePic,
+  translatePage,
 } from "../api/UserController";
 import {
   createEvent,
@@ -29,6 +30,7 @@ import {
   getAllUserEvents,
   updateCeremonyDetails,
   updateNotificationResponse,
+  markAllNotificationAsRead,
   updateEventMedia,
   getTeacherPayment,
   getEventPayment,
@@ -81,7 +83,9 @@ import {
 import {
   getAllTeams,
   updateTeamMember,
+  deleteTeamMember,
   getTeamsByEvent,
+  deleteWaitingUsers,
   getTeamById,
 } from "../api/teamController";
 import multer from "multer";
@@ -240,6 +244,8 @@ router.post(
   upload.array("mediaFiles[]"),
   addGigs
 );
+
+router.post('/translate', translatePage);
 router.get(
   "/get-gigs-by-teacher/:id",
   passport.authenticate("jwt", { session: false }),
@@ -297,6 +303,11 @@ router.put(
   "/update-notification-response",
   passport.authenticate("jwt", { session: false }),
   updateNotificationResponse
+);
+router.put(
+  "/mark-all-notification-as-read",
+  passport.authenticate("jwt", { session: false }),
+  markAllNotificationAsRead
 );
 router.get(
   "/get-event-payment",
@@ -591,7 +602,16 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   updateTeamMember
 );
-
+router.delete(
+  "/delete-team-member",
+  passport.authenticate("jwt", { session: false }),
+  deleteTeamMember
+);
+router.delete(
+  "/delete-waiting-user",
+  passport.authenticate("jwt", { session: false }),
+  deleteWaitingUsers
+)
 router.get(
   "/get-teams-by-id/:id",
   passport.authenticate("jwt", { session: false }),
