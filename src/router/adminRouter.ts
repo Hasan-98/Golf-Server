@@ -13,6 +13,8 @@ import {
   getTotalUsers,
   editUserProfile,
   editProfilePic,
+  uploadCommunityMembers,
+  getCommunityMembers,
 } from "../api/UserController";
 import {
   addCategory,
@@ -144,6 +146,8 @@ adminRouter.post("/login", login);
 adminRouter.use(passport.authenticate("jwt", { session: false }), isAdmin);
 adminRouter.get("/user/:id", userById);
 adminRouter.get("/total-users", getTotalUsers);
+adminRouter.post("/upload-community-members", upload.single("file"), uploadCommunityMembers);
+adminRouter.get("/get-community-members", getCommunityMembers);
 //adminRouter.put("/edit-user-profile", editUserProfile);
 //adminRouter.put("/edit-profile-pic", upload.single("image"), editProfilePic);
 adminRouter.post("/register", register);

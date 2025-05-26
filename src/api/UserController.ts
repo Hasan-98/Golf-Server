@@ -4,6 +4,9 @@ import { Op } from "sequelize";
 import { models } from "../models/index";
 import AWS from "aws-sdk";
 import axios from "axios";
+import multer from 'multer';
+import csv from 'csv-parser';
+import fs from 'fs';
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -275,6 +278,73 @@ export const translatePage: any = async (req: any, res: any) => {
     res.status(500).json({ error: "Translation failed" });
   }
 };
+
+export const uploadCommunityMembers: any = async (req: any, res: any) => {
+    const filePath = req.file.path;
+    const headerMap = {
+      '登録ID': 'id',
+      '表示名': 'displayName',
+      '友だち情報_2119566': 'activityRegionAbroad',
+      '友だち情報_2057958': 'averageScore',
+      '友だち情報_2057915': 'gender',
+      '友だち情報_2055747': 'email',
+      '友だち情報_2055746': 'phone',
+      '友だち情報_2055745': 'furigana',
+      '友だち情報_2038982': 'activityRegion',
+      '友だち情報_2038947': 'photo',
+      '友だち情報_2038944': 'businessCard',
+      '友だち情報_2035350': 'fullName'
+    };
+    const results: any[] = [];
+    let isFirstRow = true;
+
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (row: any) => {
+        if (isFirstRow) {
+          isFirstRow = false;
+          return;
+        }
+        const mapped: any = {};
+        for (const [jp, en] of Object.entries(headerMap)) {
+          mapped[en] = row[jp] || null;
+        }
+        results.push(mapped);
+      })
+      .on('end', async () => {
+        try {
+          await models.CommunityMembers.bulkCreate(results, { ignoreDuplicates: true });
+          fs.unlinkSync(filePath);
+          res.send('CSV data uploaded and inserted successfully.');
+        } catch (err) {
+          console.error(err);
+          res.status(500).send('Error inserting into DB.');
+        }
+      });
+}
+
+export const getCommunityMembers: any = async (req: any, res: any) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+
+    const communityMembers = await models.CommunityMembers.findAll({
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+    });
+
+    res.status(200).json({ 
+      page,
+      pageSize,
+      communityMembers,
+      count: communityMembers.length
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching community members.');
+  }
+}
+
 export default {
   register,
   login,
@@ -284,4 +354,6 @@ export default {
   getTotalUsers,
   editUserProfile,
   translatePage,
+  uploadCommunityMembers,
+  getCommunityMembers
 };
