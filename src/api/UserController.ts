@@ -280,6 +280,7 @@ export const translatePage: any = async (req: any, res: any) => {
 };
 
 export const uploadCommunityMembers: any = async (req: any, res: any) => {
+  try {
     const filePath = req.file.path;
     const headerMap = {
       '登録ID': 'id',
@@ -321,6 +322,10 @@ export const uploadCommunityMembers: any = async (req: any, res: any) => {
           res.status(500).send('Error inserting into DB.');
         }
       });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error uploading CSV file.');
+  }
 }
 
 export const getCommunityMembers: any = async (req: any, res: any) => {
