@@ -2,6 +2,16 @@ import express from "express";
 import passport from "../auth/passport";
 import multer from "multer";
 const upload = multer();
+const uploads = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "uploads/");
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname);
+    },
+  }),
+});
 import jwt from "jsonwebtoken";
 import { models } from "../models/index";
 const adminRouter = express.Router();
@@ -146,7 +156,7 @@ adminRouter.post("/login", login);
 adminRouter.use(passport.authenticate("jwt", { session: false }), isAdmin);
 adminRouter.get("/user/:id", userById);
 adminRouter.get("/total-users", getTotalUsers);
-adminRouter.post("/upload-community-members", upload.single("file"), uploadCommunityMembers);
+adminRouter.post("/upload-community-members", uploads.single("file"), uploadCommunityMembers);
 adminRouter.get("/get-community-members", getCommunityMembers);
 //adminRouter.put("/edit-user-profile", editUserProfile);
 //adminRouter.put("/edit-profile-pic", upload.single("image"), editProfilePic);

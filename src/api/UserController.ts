@@ -284,7 +284,7 @@ export const uploadCommunityMembers: any = async (req: any, res: any) => {
     const filePath = req.file.path;
     const headerMap = {
       '登録ID': 'id',
-      '表示名': 'displayName',
+      '': 'displayName',
       '友だち情報_2119566': 'activityRegionAbroad',
       '友だち情報_2057958': 'averageScore',
       '友だち情報_2057915': 'gender',
@@ -297,18 +297,19 @@ export const uploadCommunityMembers: any = async (req: any, res: any) => {
       '友だち情報_2035350': 'fullName'
     };
     const results: any[] = [];
-    let isFirstRow = true;
+    let rowsSkipped = 0;
 
-    fs.createReadStream(filePath)
+    fs.createReadStream(filePath, { encoding: 'utf8' })
       .pipe(csv())
       .on('data', (row: any) => {
-        if (isFirstRow) {
-          isFirstRow = false;
+
+        if (rowsSkipped < 2) {
+          rowsSkipped++;
           return;
         }
         const mapped: any = {};
         for (const [jp, en] of Object.entries(headerMap)) {
-          mapped[en] = row[jp] || null;
+          mapped[en] = row[jp];
         }
         results.push(mapped);
       })
