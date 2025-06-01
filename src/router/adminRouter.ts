@@ -25,6 +25,9 @@ import {
   editProfilePic,
   uploadCommunityMembers,
   getCommunityMembers,
+  getCommunityMemberById,
+  updateCommunityMember,
+  deleteCommunityMember,
 } from "../api/UserController";
 import {
   addCategory,
@@ -157,6 +160,9 @@ adminRouter.use(passport.authenticate("jwt", { session: false }), isAdmin);
 adminRouter.get("/user/:id", userById);
 adminRouter.get("/total-users", getTotalUsers);
 adminRouter.post("/upload-community-members", uploads.single("file"), uploadCommunityMembers);
+adminRouter.get("/get-community-member/:id", getCommunityMemberById);
+adminRouter.put("/update-community-member/:id", updateCommunityMember);
+adminRouter.delete("/delete-community-member/:id", deleteCommunityMember);
 adminRouter.get("/get-community-members", getCommunityMembers);
 //adminRouter.put("/edit-user-profile", editUserProfile);
 //adminRouter.put("/edit-profile-pic", upload.single("image"), editProfilePic);

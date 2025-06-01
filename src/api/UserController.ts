@@ -350,6 +350,47 @@ export const getCommunityMembers: any = async (req: any, res: any) => {
     res.status(500).send('Error fetching community members.');
   }
 }
+export const getCommunityMemberById: any = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const communityMember = await models.CommunityMembers.findOne({ where: { id } });
+    if (!communityMember) {
+      return res.status(404).send('Community member not found.');
+    }
+    res.status(200).json(communityMember);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching community member.');
+  }
+}
+export const updateCommunityMember: any = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const communityMember = await models.CommunityMembers.findOne({ where: { id } });
+    if (!communityMember) {
+      return res.status(404).send('Community member not found.');
+    }
+    const updatedCommunityMember = await communityMember.update(req.body);
+    res.status(200).json(updatedCommunityMember);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error updating community member.');
+  }
+}
+export const deleteCommunityMember: any = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const communityMember = await models.CommunityMembers.findOne({ where: { id } });
+    if (!communityMember) {
+      return res.status(404).send('Community member not found.');
+    }
+    await communityMember.destroy();
+    res.status(200).send('Community member deleted successfully.');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error deleting community member.');
+  }
+}
 
 export default {
   register,
@@ -361,5 +402,8 @@ export default {
   editUserProfile,
   translatePage,
   uploadCommunityMembers,
-  getCommunityMembers
+  getCommunityMembers,
+  getCommunityMemberById,
+  updateCommunityMember,
+  deleteCommunityMember
 };
