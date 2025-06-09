@@ -9,12 +9,12 @@ const port = process.env.PORT || 5000;
 app.set("port", port);
 
 // Read the SSL certificate and private key from files
-const privateKey = fs.readFileSync('./certificate/server.key', 'utf8');
+const privateKey = fs.readFileSync('./certificate/backend_golf-encounters.com.key', 'utf8');
 const certificate = fs.readFileSync('./certificate/backend_golf-encounters_com.crt', 'utf8');
 
 const credentials = { key: privateKey, cert: certificate };
 
-// Create an HTTPS server
+// Create an HTTPS server`
 // const server = http.createServer( app);
 const server = https.createServer(credentials, app);
 
