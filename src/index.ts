@@ -13,7 +13,7 @@ const privateKey = fs.readFileSync('./certificate/backend_golf-encounters.com.ke
 const certificate = fs.readFileSync('./certificate/backend_golf-encounters_com.crt', 'utf8');
 
 const credentials = { key: privateKey, cert: certificate };
-
+console.log(credentials);
 // Create an HTTPS server`
 // const server = http.createServer( app);
 const server = https.createServer(credentials, app);
