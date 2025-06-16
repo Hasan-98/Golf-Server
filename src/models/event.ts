@@ -27,6 +27,7 @@ export default (sequelize: Sequelize) => {
     paymentType?: string;
     bankName?: string;
     branchName?: string;
+    isPublic?: boolean | undefined;
     branchNumber?: number;
     accountHolderName?: string;
     cancellationFee?: string | undefined;
@@ -150,6 +151,10 @@ export default (sequelize: Sequelize) => {
       selfIncluded: {
         type: DataTypes.BOOLEAN,
         field: "self_included",
+      },
+      isPublic: {
+        type: DataTypes.BOOLEAN,
+        field: "is_public",
       },
       fullNameCheckBox: {
         type: DataTypes.STRING,
