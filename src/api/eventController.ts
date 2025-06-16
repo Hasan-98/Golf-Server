@@ -788,15 +788,14 @@ export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
     joinedUsers = JSON.parse(JSON.stringify(joinedUsers));
     const waitingUserIds = waitingUsers?.map((user) => user.user_id);
     const joinedUserIds = joinedUsers?.map((user) => user.user_id);
-
     const waitingUsersDetails = await models.User.findAll({
       where: { id: waitingUserIds },
-      attributes: ["id", "nickName", "imageUrl"],
+      attributes: ["id", "nickName", "imageUrl", "memberFullName", "memberTelPhone", "memberEmailAddress", "memberHandicap"],
     });
 
     const joinedUsersDetails = await models.User.findAll({
       where: { id: joinedUserIds },
-      attributes: ["id", "nickName", "imageUrl"],
+      attributes: ["id", "nickName", "imageUrl", "memberFullName", "memberTelPhone", "memberEmailAddress", "memberHandicap"],
     });
 
     res.json({
@@ -830,6 +829,7 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
     const { id } = req.params;
+    const { memberFullName , memberTelPhone , memberEmailAddress , memberHandicap} = req.body;
     const foundUser = await models.User.findOne({ where: { id: userID.id } });
     let event: any = await models.Event.findByPk(id);
     event = JSON.parse(JSON.stringify(event));
@@ -851,8 +851,17 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
     await models.UserEvent.create({
       user_id: userID.id,
       event_id: id,
-      status: "waiting",
+      status: "waiting", 
     });
+
+    await models.User.update({
+      memberFullName,
+      memberTelPhone,
+      memberEmailAddress,
+      memberHandicap
+    }, {
+      where: { id: userID.id }
+    })
 
     const teams = await models.Team.findAll({ where: { eventId: event.id } });
     let assigned = false;
