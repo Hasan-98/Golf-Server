@@ -60,7 +60,7 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "users",
-              attributes: ["id", "nickName", "imageUrl"],
+              attributes: ["id", "nickName", "imageUrl", "memberFullName", "memberTelPhone", "memberEmailAddress", "memberHandicap"]
             },
           ],
         },
