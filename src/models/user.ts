@@ -131,6 +131,11 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         field: "member_email_address",
       },
+      address: DataTypes.STRING,
+      identificationImage: {
+        type: DataTypes.STRING,
+        field: "identification_image",
+      },
     },
     {
       sequelize,

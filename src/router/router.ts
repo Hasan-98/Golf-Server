@@ -9,6 +9,8 @@ import {
   editUserProfile,
   editProfilePic,
   translatePage,
+  isIdentificationImageUploaded,
+  editUserIdentificationImage,
 } from "../api/UserController";
 import {
   createEvent,
@@ -338,6 +340,17 @@ router.put(
   "/edit-user-profile/:id",
   passport.authenticate("jwt", { session: false }),
   editUserProfile
+);
+router.get(
+  "/is-identification-image-uploaded/:id",
+  passport.authenticate("jwt", { session: false }),
+  isIdentificationImageUploaded
+);
+router.put(
+  "/edit-user-identification-image/:id",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  editUserIdentificationImage
 );
 router.put(
   "/edit-profile-pic/:id",

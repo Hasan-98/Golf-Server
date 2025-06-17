@@ -81,6 +81,55 @@ export const register: RequestHandler = async (
   }
 };
 
+export const editUserIdentificationImage: any = async (req: any, res: any) => {
+  try {
+    let userId: any = req.user;
+    userId = JSON.parse(JSON.stringify(userId));
+    const foundUser: any = await models.User.findOne({ where: { id: userId.id } });
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+    if (!BUCKET_NAME) {
+      throw new Error("AWS_BUCKET_NAME is not defined");
+    }
+    const userFolder = `user-${foundUser.email}`;
+    const file = req.file;
+    const type = file?.mimetype?.split("/")[1];
+    const name = `${userFolder}/${Date.now()}.${type}`;
+    const uploadParams = {
+      Bucket: BUCKET_NAME,
+      Key: name,
+      Body: file?.buffer,
+      ContentType: file?.mimetype,
+    };
+    const { Location } = await s3.upload(uploadParams).promise();
+    foundUser.identificationImage = Location;
+    await foundUser.save();
+    res.status(200).json({
+      message: "Identification image updated successfully",
+      user: foundUser,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error updating identification image" });
+  }
+};
+
+export const isIdentificationImageUploaded: any = async (req: any, res: any) => {
+  try {
+    let userId: any = req.user;
+    userId = JSON.parse(JSON.stringify(userId));
+    const foundUser: any = await models.User.findOne({ where: { id: userId.id } });
+    if (!foundUser.identificationImage) {
+      return res.status(404).json({ error: "Identification image not uploaded" });
+    }
+    res.status(200).json({ user: foundUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error checking identification image" });
+  }
+};
 export const editProfilePic: RequestHandler = async (req, res, next) => {
   try {
     let userId: any = req.user;
@@ -405,5 +454,7 @@ export default {
   getCommunityMembers,
   getCommunityMemberById,
   updateCommunityMember,
-  deleteCommunityMember
+  deleteCommunityMember,
+  isIdentificationImageUploaded,
+  editUserIdentificationImage,
 };
