@@ -86,6 +86,10 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
       team.members = team.members.map((member: any) => {
         member.nickName = member.users.nickName;
         member.imageUrl = member.users.imageUrl;
+        member.memberFullName = member.users.memberFullName;
+        member.memberTelPhone = member.users.memberTelPhone;
+        member.memberEmailAddress = member.users.memberEmailAddress;
+        member.memberHandicap = member.users.memberHandicap;
         member.status = statusMap.get(member.userId) || null;
         
         delete member.users;
