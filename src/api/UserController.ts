@@ -18,7 +18,7 @@ export const register: RequestHandler = async (
 ) => {
   try {
     const { nickName, email, password } = req.body;
-    const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-zA-Z]).{5,}$/;
+    const passwordRegex = /^[a-zA-Z0-9]{1,8}$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
         error:
