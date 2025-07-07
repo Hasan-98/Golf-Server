@@ -28,6 +28,7 @@ export default (sequelize: Sequelize) => {
     bankName?: string;
     branchName?: string;
     isPublic?: boolean | undefined;
+    privatePassword?: string;
     branchNumber?: number;
     accountHolderName?: string;
     cancellationFee?: string | undefined;
