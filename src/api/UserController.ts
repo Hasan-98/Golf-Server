@@ -21,8 +21,7 @@ export const register: RequestHandler = async (
     const passwordRegex = /^[a-zA-Z0-9]{1,8}$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
-        error:
-          "Password must be at least 5 characters long and contain at least one special character",
+        error: "Password must be 1 to 8 characters long and contain only letters and numbers (no special characters)."
       });
     }
 

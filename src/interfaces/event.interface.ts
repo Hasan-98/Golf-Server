@@ -46,5 +46,6 @@ export interface IEventAttributes {
     isFavorite?: boolean;
     userEventId?: number;
     creatorId?: any;
+    privatePassword?: string;
     isPublic?: boolean;
 }

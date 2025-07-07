@@ -156,6 +156,10 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.BOOLEAN,
         field: "is_public",
       },
+      privatePassword: {
+        type: DataTypes.STRING,
+        field: "private_password",
+      },
       fullNameCheckBox: {
         type: DataTypes.STRING,
         field: "full_name_check_box",
