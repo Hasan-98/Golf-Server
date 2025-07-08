@@ -1216,6 +1216,23 @@ export const updateEventPayment: RequestHandler = async (req, res, next) => {
       .json({ error: "Cannot update payment details at the moment" });
   }
 };
+
+export const verifyEventPrivatePassword: RequestHandler = async (req, res, next) => {
+  try {
+    const { eventId, password } = req.body;
+    const event = await models.Event.findOne({ where: { privatePassword: password, id: eventId } });
+    if (event) {
+      return res.status(200).json({ message: "Password verified successfully" });
+    } else {
+      return res.status(404).json({ error: "Event not found" });
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot verify event private password at the moment" });
+  }
+};
 export default {
   createEvent,
   getAllEvents,
@@ -1247,4 +1264,5 @@ export default {
   addEventCeremonyDetails,
   getCeremonyDetails,
   markAllNotificationAsRead,
+  verifyEventPrivatePassword,
 };

@@ -38,6 +38,7 @@ import {
   getEventPayment,
   addEventCeremonyDetails,
   getCeremonyDetails,
+  verifyEventPrivatePassword,
 } from "../api/eventController";
 import {
   addComment,
@@ -128,6 +129,11 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   upload.array("files[]"),
   createEvent
+);
+router.post(
+  "/verify-event-private-password",
+  passport.authenticate("jwt", { session: false }),
+  verifyEventPrivatePassword
 );
 router.put(
   "/update-event-media",
