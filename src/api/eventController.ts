@@ -1224,7 +1224,7 @@ export const verifyEventPrivatePassword: RequestHandler = async (req, res, next)
     if (event) {
       return res.status(200).json({ message: "Password verified successfully" });
     } else {
-      return res.status(404).json({ error: "Event not found" });
+      return res.status(404).json({ error: "Incorrect Password" });
     }
   } catch (err) {
     console.error("Error:", err);
