@@ -39,6 +39,7 @@ import {
   addEventCeremonyDetails,
   getCeremonyDetails,
   verifyEventPrivatePassword,
+  getCourseEventById
 } from "../api/eventController";
 import {
   addComment,
@@ -321,6 +322,11 @@ router.get(
   "/get-event-payment",
   passport.authenticate("jwt", { session: false }),
   getEventPayment
+);
+router.get(
+  "/get-course-event-by-id/:id",
+  passport.authenticate("jwt", { session: false }),
+  getCourseEventById
 );
 router.get(
   "/get-teacher-payment",

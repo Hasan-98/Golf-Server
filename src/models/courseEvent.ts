@@ -1,0 +1,43 @@
+
+
+import { DataTypes, Model, Sequelize } from "sequelize";
+import { ICourseEventAttributes } from "../interfaces/courseEvent.interface";
+
+export default (sequelize: Sequelize) => {
+    class CourseEvent
+    extends Model<ICourseEventAttributes>
+    implements ICourseEventAttributes{
+    id!: number;
+    name!: string;
+    eventId!: string;
+    holes!: any;
+  }
+
+  CourseEvent.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      eventId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      holes: {
+        type: DataTypes.JSON,
+        allowNull: false,
+      },
+    },
+    {
+        sequelize,
+        modelName: "CourseEvent",
+    }
+  );
+
+  return CourseEvent;
+};

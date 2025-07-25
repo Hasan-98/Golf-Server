@@ -1233,6 +1233,59 @@ export const verifyEventPrivatePassword: RequestHandler = async (req, res, next)
       .json({ error: "Cannot verify event private password at the moment" });
   }
 };
+
+export const createCourseEvent: RequestHandler = async (req, res, next) => {
+  try {
+    const { name, eventId, holes } = req.body;
+    const courseEvent = await models.CourseEvent.create({ name, eventId, holes });
+    return res.status(200).json({ message: "Course event created successfully", courseEvent });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot create course event at the moment" });
+  }
+};
+
+export const getCourseEvents: RequestHandler = async (req, res, next) => {
+  try {
+    const courseEvents = await models.CourseEvent.findAll();
+    return res.status(200).json({ courseEvents });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get course events at the moment" });
+  }
+};
+
+export const getCourseEventById: RequestHandler = async (req, res, next) => {
+  try {
+    const { id, eventId } = req.params;
+    const courseEvent = await models.CourseEvent.findOne({ where: { id, eventId } });
+    return res.status(200).json({ courseEvent });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get course event at the moment" });
+  }
+};
+
+export const updateCourseEvent: RequestHandler = async (req, res, next) => {
+  try {
+    const { id, eventId } = req.params;
+    const { name, holes } = req.body;
+    const courseEvent = await models.CourseEvent.update({ name, holes }, { where: { id, eventId } });
+    return res.status(200).json({ message: "Course event updated successfully", courseEvent });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update course event at the moment" });
+  }
+};
+
 export default {
   createEvent,
   getAllEvents,
@@ -1265,4 +1318,8 @@ export default {
   getCeremonyDetails,
   markAllNotificationAsRead,
   verifyEventPrivatePassword,
+  createCourseEvent,
+  getCourseEvents,
+  getCourseEventById,
+  updateCourseEvent,
 };
