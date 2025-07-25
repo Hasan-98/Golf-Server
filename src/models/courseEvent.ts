@@ -9,7 +9,7 @@ export default (sequelize: Sequelize) => {
     implements ICourseEventAttributes{
     id!: number;
     name!: string;
-    eventId!: string;
+    address!: string;
     holes!: any;
   }
 
@@ -24,7 +24,7 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      eventId: {
+      address: {
         type: DataTypes.STRING,
         allowNull: false,
       },

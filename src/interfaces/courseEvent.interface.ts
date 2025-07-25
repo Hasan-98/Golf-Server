@@ -1,6 +1,6 @@
 export interface ICourseEventAttributes {
     id?: number;
     name?: string;
-    eventId?: any;
+    address?: any;
     holes?: any;
   }

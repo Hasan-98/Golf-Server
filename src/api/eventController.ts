@@ -1236,8 +1236,8 @@ export const verifyEventPrivatePassword: RequestHandler = async (req, res, next)
 
 export const createCourseEvent: RequestHandler = async (req, res, next) => {
   try {
-    const { name, eventId, holes } = req.body;
-    const courseEvent = await models.CourseEvent.create({ name, eventId, holes });
+    const { name, address, holes } = req.body;
+    const courseEvent = await models.CourseEvent.create({ name, address, holes });
     return res.status(200).json({ message: "Course event created successfully", courseEvent });
   } catch (err) {
     console.error("Error:", err);
@@ -1261,8 +1261,8 @@ export const getCourseEvents: RequestHandler = async (req, res, next) => {
 
 export const getCourseEventById: RequestHandler = async (req, res, next) => {
   try {
-    const { id, eventId } = req.params;
-    const courseEvent = await models.CourseEvent.findOne({ where: { id, eventId } });
+    const { id } = req.params;
+    const courseEvent = await models.CourseEvent.findOne({ where: { id } });
     return res.status(200).json({ courseEvent });
   } catch (err) {
     console.error("Error:", err);
@@ -1274,9 +1274,9 @@ export const getCourseEventById: RequestHandler = async (req, res, next) => {
 
 export const updateCourseEvent: RequestHandler = async (req, res, next) => {
   try {
-    const { id, eventId } = req.params;
-    const { name, holes } = req.body;
-    const courseEvent = await models.CourseEvent.update({ name, holes }, { where: { id, eventId } });
+    const { id } = req.params;
+    const { name, holes, address } = req.body;
+    const courseEvent = await models.CourseEvent.update({ name, holes, address }, { where: { id } });
     return res.status(200).json({ message: "Course event updated successfully", courseEvent });
   } catch (err) {
     console.error("Error:", err);
