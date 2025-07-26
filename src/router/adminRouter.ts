@@ -70,6 +70,7 @@ import {
   getCourseEvents,
   getCourseEventById,
   updateCourseEvent,
+  deleteCourseEvent,
 } from "../api/eventController";
 import {
   addComment,
@@ -210,6 +211,7 @@ adminRouter.post("/create-course-event", createCourseEvent);
 adminRouter.get("/get-course-events", getCourseEvents);
 adminRouter.get("/get-course-event-by-id/:id", getCourseEventById);
 adminRouter.put("/update-course-event/:id", updateCourseEvent);
+adminRouter.delete("/delete-course-event/:id", deleteCourseEvent);
 
 adminRouter.post("/add-comment", addComment);
 adminRouter.post("/add-like", addLike);

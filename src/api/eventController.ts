@@ -1286,6 +1286,19 @@ export const updateCourseEvent: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const deleteCourseEvent: RequestHandler = async (req, res, next) => { 
+  try {
+    const { id } = req.params;
+    const courseEvent = await models.CourseEvent.destroy({ where: { id } });
+    return res.status(200).json({ message: "Course event deleted successfully", courseEvent });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot delete course event at the moment" });
+  }
+}
+
 export default {
   createEvent,
   getAllEvents,
@@ -1322,4 +1335,5 @@ export default {
   getCourseEvents,
   getCourseEventById,
   updateCourseEvent,
+  deleteCourseEvent,
 };
