@@ -1,6 +1,8 @@
 import express, { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
+import csv from "csv-parser";
+import fs from "fs";
 import { models } from "../models/index";
 import { io } from "../index";
 import AWS from "aws-sdk";
@@ -1298,6 +1300,52 @@ export const deleteCourseEvent: RequestHandler = async (req, res, next) => {
       .json({ error: "Cannot delete course event at the moment" });
   }
 }
+export const uploadCourseEvent: any = async (req: any, res: any) => {
+  try {
+    const filePath = req.file?.path;
+    if (!filePath) {
+      return res.status(400).send('CSV file not found in request.');
+    }
+
+    const results: any[] = [];
+
+    fs.createReadStream(filePath, { encoding: 'utf8' })
+      .pipe(csv())
+      .on('data', (row: any) => {
+        const mapped: any = {
+          name: row['name'],
+          address: row['address'],
+          holes: {},
+        };
+
+        for (let i = 1; i <= 18; i++) {
+          mapped.holes[`hole${i}`] = row[`hole${i}`];
+        }
+
+        results.push(mapped);
+      })
+      .on('end', async () => {
+        try {
+          await models.CourseEvent.bulkCreate(results, {
+            ignoreDuplicates: true,
+          });
+
+          fs.unlinkSync(filePath); // clean up file
+          res.send('CSV data uploaded and inserted successfully.');
+        } catch (err) {
+          console.error('DB Insert Error:', err);
+          res.status(500).send('Error inserting into database.');
+        }
+      })
+      .on('error', (err) => {
+        console.error('CSV Parse Error:', err);
+        res.status(500).send('Error parsing CSV file.');
+      });
+  } catch (err) {
+    console.error('Upload Error:', err);
+    res.status(500).send('Error uploading CSV file.');
+  }
+}
 
 export default {
   createEvent,
@@ -1336,4 +1384,5 @@ export default {
   getCourseEventById,
   updateCourseEvent,
   deleteCourseEvent,
+  uploadCourseEvent
 };

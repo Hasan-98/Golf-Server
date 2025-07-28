@@ -71,6 +71,7 @@ import {
   getCourseEventById,
   updateCourseEvent,
   deleteCourseEvent,
+  uploadCourseEvent
 } from "../api/eventController";
 import {
   addComment,
@@ -212,6 +213,7 @@ adminRouter.get("/get-course-events", getCourseEvents);
 adminRouter.get("/get-course-event-by-id/:id", getCourseEventById);
 adminRouter.put("/update-course-event/:id", updateCourseEvent);
 adminRouter.delete("/delete-course-event/:id", deleteCourseEvent);
+adminRouter.post("/upload-course-event", uploads.single("file"), uploadCourseEvent);
 
 adminRouter.post("/add-comment", addComment);
 adminRouter.post("/add-like", addLike);
