@@ -90,7 +90,7 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
         member.memberTelPhone = member.users.memberTelPhone;
         member.memberEmailAddress = member.users.memberEmailAddress;
         member.memberHandicap = member.users.memberHandicap;
-        member.status = statusMap.get(member.userId) || null;
+        member.status = statusMap.get(member.userId);
         
         delete member.users;
         return member;
