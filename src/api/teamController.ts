@@ -268,7 +268,11 @@ export const deleteWaitingUsers: RequestHandler = async (req, res, next) => {
         user_id: userId,
       },
     });
-
+    await models.TeamMember.destroy({
+      where: {
+        userId: userId,
+      },
+    });       
     return res.status(200).json({ message: "Users with status 'waiting' deleted successfully" });
   } catch (err) {
     console.error("Error:", err);
