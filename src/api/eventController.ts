@@ -1316,6 +1316,7 @@ export const uploadCourseEvent: any = async (req: any, res: any) => {
           name: row['name'],
           address: row['address'],
           holes: {},
+          prefecture: row['prefecture'],
         };
 
         for (let i = 1; i <= 18; i++) {

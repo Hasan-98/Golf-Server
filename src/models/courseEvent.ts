@@ -32,6 +32,10 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.JSON,
         allowNull: false,
       },
+      prefecture: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
         sequelize,

@@ -3,4 +3,5 @@ export interface ICourseEventAttributes {
     name?: string;
     address?: any;
     holes?: any;
+    prefecture?: string;
   }
