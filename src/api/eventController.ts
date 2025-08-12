@@ -1238,8 +1238,8 @@ export const verifyEventPrivatePassword: RequestHandler = async (req, res, next)
 
 export const createCourseEvent: RequestHandler = async (req, res, next) => {
   try {
-    const { name, address, holes } = req.body;
-    const courseEvent = await models.CourseEvent.create({ name, address, holes });
+    const { name, address, holes, prefecture } = req.body;
+    const courseEvent = await models.CourseEvent.create({ name, address, holes, prefecture });
     return res.status(200).json({ message: "Course event created successfully", courseEvent });
   } catch (err) {
     console.error("Error:", err);
