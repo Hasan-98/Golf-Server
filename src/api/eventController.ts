@@ -1315,12 +1315,15 @@ export const uploadCourseEvent: any = async (req: any, res: any) => {
         const mapped: any = {
           name: row['name'],
           address: row['address'],
-          holes: {},
+          holes: [],
           prefecture: row['prefecture'],
         };
 
         for (let i = 1; i <= 18; i++) {
-          mapped.holes[`hole${i}`] = row[`hole${i}`];
+          mapped.holes.push({
+            par: Number(row[`hole${i}`]),
+            holeNumber: i
+          });
         }
 
         results.push(mapped);
@@ -1346,7 +1349,7 @@ export const uploadCourseEvent: any = async (req: any, res: any) => {
     console.error('Upload Error:', err);
     res.status(500).send('Error uploading CSV file.');
   }
-}
+};
 
 export default {
   createEvent,
