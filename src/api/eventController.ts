@@ -1277,8 +1277,8 @@ export const getCourseEventById: RequestHandler = async (req, res, next) => {
 export const updateCourseEvent: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, holes, address } = req.body;
-    const courseEvent = await models.CourseEvent.update({ name, holes, address }, { where: { id } });
+    const { name, holes, address, prefecture } = req.body;
+    const courseEvent = await models.CourseEvent.update({ name, holes, address, prefecture }, { where: { id } });
     return res.status(200).json({ message: "Course event updated successfully", courseEvent });
   } catch (err) {
     console.error("Error:", err);
