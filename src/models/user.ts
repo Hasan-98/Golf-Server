@@ -136,6 +136,11 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         field: "identification_image",
       },
+      idApproved: {
+        type: DataTypes.STRING,
+        field: "id_approved",
+        defaultValue: "pending",
+      },
     },
     {
       sequelize,
