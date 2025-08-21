@@ -25,6 +25,8 @@ import UserCategory from './userCategory';
 import Subscription from './subscription';
 import Ceremony from './ceremony';
 import Chat from './chat';
+import CommunityMembers from './communityMembers';
+import CourseEvent from './courseEvent';
 const sequelize: Sequelize = new Sequelize(
   config.database,
   config.username,
@@ -65,6 +67,8 @@ const models = {
   Subscription: Subscription(sequelize),
   Ceremony: Ceremony(sequelize),
   Chat: Chat(sequelize),
+  CommunityMembers: CommunityMembers(sequelize),
+  CourseEvent: CourseEvent(sequelize),
 };
 
 

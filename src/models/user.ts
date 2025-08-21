@@ -115,6 +115,32 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         field: "image_url",
       },
+      memberHandicap: {
+        type: DataTypes.INTEGER,
+        field: "member_handicap",
+      },
+      memberFullName: {
+        type: DataTypes.STRING,
+        field: "member_full_name",
+      },
+      memberTelPhone: {
+        type: DataTypes.INTEGER,
+        field: "member_tel_phone",
+      },
+      memberEmailAddress: {
+        type: DataTypes.STRING,
+        field: "member_email_address",
+      },
+      address: DataTypes.STRING,
+      identificationImage: {
+        type: DataTypes.STRING,
+        field: "identification_image",
+      },
+      idApproved: {
+        type: DataTypes.STRING,
+        field: "id_approved",
+        defaultValue: "pending",
+      },
     },
     {
       sequelize,

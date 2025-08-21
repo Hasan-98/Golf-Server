@@ -2,6 +2,16 @@ import express from "express";
 import passport from "../auth/passport";
 import multer from "multer";
 const upload = multer();
+const uploads = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "uploads/");
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname);
+    },
+  }),
+});
 import jwt from "jsonwebtoken";
 import { models } from "../models/index";
 const adminRouter = express.Router();
@@ -13,6 +23,11 @@ import {
   getTotalUsers,
   editUserProfile,
   editProfilePic,
+  uploadCommunityMembers,
+  getCommunityMembers,
+  getCommunityMemberById,
+  updateCommunityMember,
+  deleteCommunityMember,
 } from "../api/UserController";
 import {
   addCategory,
@@ -51,6 +66,12 @@ import {
   updateEventMedia,
   addEventCeremonyDetails,
   getCeremonyDetails,
+  createCourseEvent,
+  getCourseEvents,
+  getCourseEventById,
+  updateCourseEvent,
+  deleteCourseEvent,
+  uploadCourseEvent
 } from "../api/eventController";
 import {
   addComment,
@@ -91,6 +112,7 @@ import {
 import {
   getAllTeams,
   updateTeamMember,
+  deleteTeamMember,
   getTeamsByEvent,
   getTeamById,
 } from "../api/teamController";
@@ -143,6 +165,11 @@ adminRouter.post("/login", login);
 adminRouter.use(passport.authenticate("jwt", { session: false }), isAdmin);
 adminRouter.get("/user/:id", userById);
 adminRouter.get("/total-users", getTotalUsers);
+adminRouter.post("/upload-community-members", uploads.single("file"), uploadCommunityMembers);
+adminRouter.get("/get-community-member/:id", getCommunityMemberById);
+adminRouter.put("/update-community-member/:id", updateCommunityMember);
+adminRouter.delete("/delete-community-member/:id", deleteCommunityMember);
+adminRouter.get("/get-community-members", getCommunityMembers);
 //adminRouter.put("/edit-user-profile", editUserProfile);
 //adminRouter.put("/edit-profile-pic", upload.single("image"), editProfilePic);
 adminRouter.post("/register", register);
@@ -181,6 +208,12 @@ adminRouter.post("/set-up-teacher-payment", setUpTeacherPayment);
 adminRouter.put("/update-teacher-payment", updateTeacherPayment);
 adminRouter.post("/add-event-ceremony-details",upload.array("mediaFiles[]"), addEventCeremonyDetails);
 adminRouter.get("/get-ceremony-details/:id", getCeremonyDetails);
+adminRouter.post("/create-course-event", createCourseEvent);
+adminRouter.get("/get-course-events", getCourseEvents);
+adminRouter.get("/get-course-event-by-id/:id", getCourseEventById);
+adminRouter.put("/update-course-event/:id", updateCourseEvent);
+adminRouter.delete("/delete-course-event/:id", deleteCourseEvent);
+adminRouter.post("/upload-course-event", uploads.single("file"), uploadCourseEvent);
 
 adminRouter.post("/add-comment", addComment);
 adminRouter.post("/add-like", addLike);
@@ -210,6 +243,7 @@ adminRouter.get("/get-teacher-appointments-count", getTeacherAppointmentsCount);
 adminRouter.get("/get-notifications", getNotifications);
 adminRouter.get("/get-all-teams", getAllTeams);
 adminRouter.put("/update-team-member", updateTeamMember);
+adminRouter.delete("/delete-team-member", deleteTeamMember);
 adminRouter.get("/get-teams-by-event", getTeamsByEvent);
 adminRouter.get("/get-team-by-id/:id", getTeamById);
 adminRouter.post("/create-post", upload.array("mediaFiles[]"), createPost);

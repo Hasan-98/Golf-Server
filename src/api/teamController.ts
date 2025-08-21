@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { models } from "../models/index";
+import { Op } from "sequelize";
 
 export const getAllTeams: RequestHandler = async (req, res, next) => {
   try {
@@ -45,7 +46,8 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    let teams = await models.Team.findAll({
+    // Step 1: Fetch teams and members
+    let teams: any = await models.Team.findAll({
       where: {
         eventId: id,
       },
@@ -58,18 +60,37 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
             {
               model: models.User,
               as: "users",
-              attributes: ["id", "nickName", "imageUrl"],
+              attributes: ["id", "nickName", "imageUrl", "memberFullName", "memberTelPhone", "memberEmailAddress", "memberHandicap"]
             },
           ],
         },
       ],
     });
-    let totalJoinedMembers = 0;
+
     teams = JSON.parse(JSON.stringify(teams));
+
+    const userIds = new Set(teams.flatMap((team: any) => team.members.map((member: any) => member.userId)));
+
+    const userEventStatuses: any = await models.UserEvent.findAll({
+      where: {
+        user_id: { [Op.in]: Array.from(userIds) },
+        event_id: id
+      },
+      attributes: ['user_id', 'status']
+    });
+
+    const statusMap = new Map(userEventStatuses.map((ue: any) => [ue.user_id, ue.status]));
+
+    let totalJoinedMembers = 0;
     teams = teams.map((team: any) => {
       team.members = team.members.map((member: any) => {
         member.nickName = member.users.nickName;
         member.imageUrl = member.users.imageUrl;
+        member.memberFullName = member.users.memberFullName;
+        member.memberTelPhone = member.users.memberTelPhone;
+        member.memberEmailAddress = member.users.memberEmailAddress;
+        member.memberHandicap = member.users.memberHandicap;
+        member.status = statusMap.get(member.userId);
         
         delete member.users;
         return member;
@@ -79,7 +100,7 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
       return team;
     });
 
-    return res.status(200).json({ teams , totalJoinedMembers});
+    return res.status(200).json({ teams, totalJoinedMembers });
   } catch (err) {
     console.error("Error:", err);
     return res.status(500).json({ error: "Cannot get teams at the moment" });
@@ -192,6 +213,72 @@ export const updateTeamMember: RequestHandler = async (req, res, next) => {
       .json({ error: "Cannot update teams and team members at the moment" });
   }
 };
+export const deleteTeamMember: RequestHandler = async (req, res, next) => {
+  try {
+    const { teamId, userId, eventId } = req.body;
+
+    const teamMember = await models.TeamMember.findOne({
+      where: {
+        teamId: teamId,
+        userId: userId,
+      },
+    });
+
+    if (!teamMember) {
+      return res.status(404).json({ error: "Team member not found" });
+    }
+
+    await teamMember.destroy();
+
+    await models.UserEvent.update(
+      { status: 'waiting' },
+      {
+        where: {
+          user_id: userId,
+          event_id: eventId
+        },
+      }
+    );
+
+    return res.status(200).json({ message: "Team member deleted successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot delete team member at the moment" });
+  }
+};
+export const deleteWaitingUsers: RequestHandler = async (req, res, next) => {
+  try {
+    const { eventId, userId } = req.body;
+    const waitingUsers = await models.UserEvent.findOne({
+      where: {
+        status: 'waiting',
+        event_id: eventId,
+        user_id: userId,
+      },
+    });
+
+    if (!waitingUsers) {
+      return res.status(404).json({ error: "No users with status 'waiting' found" });
+    }
+
+    await models.UserEvent.destroy({
+      where: {
+        status: 'waiting',
+        event_id: eventId,
+        user_id: userId,
+      },
+    });
+    await models.TeamMember.destroy({
+      where: {
+        userId: userId,
+      },
+    });       
+    return res.status(200).json({ message: "Users with status 'waiting' deleted successfully" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({ error: "Cannot delete users at the moment" });
+  }
+};
 export const getTeamById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -223,6 +310,8 @@ export const getTeamById: RequestHandler = async (req, res, next) => {
 export default {
   getTeamById,
   getAllTeams,
+  deleteTeamMember,
   updateTeamMember,
   getTeamsByEvent,
+  deleteWaitingUsers,
 };

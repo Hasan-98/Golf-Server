@@ -1,6 +1,8 @@
 import express, { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
+import csv from "csv-parser";
+import fs from "fs";
 import { models } from "../models/index";
 import { io } from "../index";
 import AWS from "aws-sdk";
@@ -788,15 +790,14 @@ export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
     joinedUsers = JSON.parse(JSON.stringify(joinedUsers));
     const waitingUserIds = waitingUsers?.map((user) => user.user_id);
     const joinedUserIds = joinedUsers?.map((user) => user.user_id);
-
     const waitingUsersDetails = await models.User.findAll({
       where: { id: waitingUserIds },
-      attributes: ["id", "nickName", "imageUrl"],
+      attributes: ["id", "nickName", "imageUrl", "memberFullName", "memberTelPhone", "memberEmailAddress", "memberHandicap"],
     });
 
     const joinedUsersDetails = await models.User.findAll({
       where: { id: joinedUserIds },
-      attributes: ["id", "nickName", "imageUrl"],
+      attributes: ["id", "nickName", "imageUrl", "memberFullName", "memberTelPhone", "memberEmailAddress", "memberHandicap"],
     });
 
     res.json({
@@ -811,10 +812,26 @@ export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   }
 };
 
+
+export const markAllNotificationAsRead: RequestHandler = async (req, res) => {
+  try {
+    const userID: any = req.user;
+    await models.Notification.update(
+      { isRead: true },
+      { where: { userId: userID.id } }
+    );
+    return res.status(200).json({ message: "All notifications marked as read" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 export const joinEvent: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
     const { id } = req.params;
+    const { memberFullName , memberTelPhone , memberEmailAddress , memberHandicap} = req.body;
     const foundUser = await models.User.findOne({ where: { id: userID.id } });
     let event: any = await models.Event.findByPk(id);
     event = JSON.parse(JSON.stringify(event));
@@ -836,8 +853,17 @@ export const joinEvent: RequestHandler = async (req, res, next) => {
     await models.UserEvent.create({
       user_id: userID.id,
       event_id: id,
-      status: "waiting",
+      status: "waiting", 
     });
+
+    await models.User.update({
+      memberFullName,
+      memberTelPhone,
+      memberEmailAddress,
+      memberHandicap
+    }, {
+      where: { id: userID.id }
+    })
 
     const teams = await models.Team.findAll({ where: { eventId: event.id } });
     let assigned = false;
@@ -1192,6 +1218,139 @@ export const updateEventPayment: RequestHandler = async (req, res, next) => {
       .json({ error: "Cannot update payment details at the moment" });
   }
 };
+
+export const verifyEventPrivatePassword: RequestHandler = async (req, res, next) => {
+  try {
+    const { eventId, password } = req.body;
+    const event = await models.Event.findOne({ where: { privatePassword: password, id: eventId } });
+    if (event) {
+      return res.status(200).json({ message: "Password verified successfully" });
+    } else {
+      return res.status(404).json({ error: "Incorrect Password" });
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot verify event private password at the moment" });
+  }
+};
+
+export const createCourseEvent: RequestHandler = async (req, res, next) => {
+  try {
+    const { name, address, holes, prefecture } = req.body;
+    const courseEvent = await models.CourseEvent.create({ name, address, holes, prefecture });
+    return res.status(200).json({ message: "Course event created successfully", courseEvent });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot create course event at the moment" });
+  }
+};
+
+export const getCourseEvents: RequestHandler = async (req, res, next) => {
+  try {
+    const courseEvents = await models.CourseEvent.findAll();
+    return res.status(200).json({ courseEvents });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get course events at the moment" });
+  }
+};
+
+export const getCourseEventById: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const courseEvent = await models.CourseEvent.findOne({ where: { id } });
+    return res.status(200).json({ courseEvent });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot get course event at the moment" });
+  }
+};
+
+export const updateCourseEvent: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, holes, address, prefecture } = req.body;
+    const courseEvent = await models.CourseEvent.update({ name, holes, address, prefecture }, { where: { id } });
+    return res.status(200).json({ message: "Course event updated successfully", courseEvent });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot update course event at the moment" });
+  }
+};
+
+export const deleteCourseEvent: RequestHandler = async (req, res, next) => { 
+  try {
+    const { id } = req.params;
+    const courseEvent = await models.CourseEvent.destroy({ where: { id } });
+    return res.status(200).json({ message: "Course event deleted successfully", courseEvent });
+  } catch (err) {
+    console.error("Error:", err);
+    return res
+      .status(500)
+      .json({ error: "Cannot delete course event at the moment" });
+  }
+}
+export const uploadCourseEvent: any = async (req: any, res: any) => {
+  try {
+    const filePath = req.file?.path;
+    if (!filePath) {
+      return res.status(400).send('CSV file not found in request.');
+    }
+
+    const results: any[] = [];
+
+    fs.createReadStream(filePath, { encoding: 'utf8' })
+      .pipe(csv())
+      .on('data', (row: any) => {
+        const mapped: any = {
+          name: row['name'],
+          address: row['address'],
+          holes: [],
+          prefecture: row['prefecture'],
+        };
+
+        for (let i = 1; i <= 18; i++) {
+          mapped.holes.push({
+            par: Number(row[`hole${i}`]),
+            holeNumber: i
+          });
+        }
+
+        results.push(mapped);
+      })
+      .on('end', async () => {
+        try {
+          await models.CourseEvent.bulkCreate(results, {
+            ignoreDuplicates: true,
+          });
+
+          fs.unlinkSync(filePath); // clean up file
+          res.send('CSV data uploaded and inserted successfully.');
+        } catch (err) {
+          console.error('DB Insert Error:', err);
+          res.status(500).send('Error inserting into database.');
+        }
+      })
+      .on('error', (err) => {
+        console.error('CSV Parse Error:', err);
+        res.status(500).send('Error parsing CSV file.');
+      });
+  } catch (err) {
+    console.error('Upload Error:', err);
+    res.status(500).send('Error uploading CSV file.');
+  }
+};
+
 export default {
   createEvent,
   getAllEvents,
@@ -1222,4 +1381,12 @@ export default {
   updateTeacherPayment,
   addEventCeremonyDetails,
   getCeremonyDetails,
+  markAllNotificationAsRead,
+  verifyEventPrivatePassword,
+  createCourseEvent,
+  getCourseEvents,
+  getCourseEventById,
+  updateCourseEvent,
+  deleteCourseEvent,
+  uploadCourseEvent
 };

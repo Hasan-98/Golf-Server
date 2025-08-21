@@ -6,4 +6,11 @@ export interface IUserAttributes {
     password : string,
     token : string,
     imageUrl?: string,
+    address?: string;
+    idApproved?: string;
+    identificationImage?: string;
+    memberHandicap?: number;
+    memberFullName?: string;
+    memberTelPhone?: number;
+    memberEmailAddress?: string;
   }

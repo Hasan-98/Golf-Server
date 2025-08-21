@@ -8,6 +8,9 @@ import {
   getTotalUsers,
   editUserProfile,
   editProfilePic,
+  translatePage,
+  isIdentificationImageUploaded,
+  editUserIdentificationImage,
 } from "../api/UserController";
 import {
   createEvent,
@@ -29,11 +32,14 @@ import {
   getAllUserEvents,
   updateCeremonyDetails,
   updateNotificationResponse,
+  markAllNotificationAsRead,
   updateEventMedia,
   getTeacherPayment,
   getEventPayment,
   addEventCeremonyDetails,
   getCeremonyDetails,
+  verifyEventPrivatePassword,
+  getCourseEventById
 } from "../api/eventController";
 import {
   addComment,
@@ -81,7 +87,9 @@ import {
 import {
   getAllTeams,
   updateTeamMember,
+  deleteTeamMember,
   getTeamsByEvent,
+  deleteWaitingUsers,
   getTeamById,
 } from "../api/teamController";
 import multer from "multer";
@@ -122,6 +130,11 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   upload.array("files[]"),
   createEvent
+);
+router.post(
+  "/verify-event-private-password",
+  passport.authenticate("jwt", { session: false }),
+  verifyEventPrivatePassword
 );
 router.put(
   "/update-event-media",
@@ -240,6 +253,8 @@ router.post(
   upload.array("mediaFiles[]"),
   addGigs
 );
+
+router.post('/translate', translatePage);
 router.get(
   "/get-gigs-by-teacher/:id",
   passport.authenticate("jwt", { session: false }),
@@ -298,10 +313,20 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   updateNotificationResponse
 );
+router.put(
+  "/mark-all-notification-as-read",
+  passport.authenticate("jwt", { session: false }),
+  markAllNotificationAsRead
+);
 router.get(
   "/get-event-payment",
   passport.authenticate("jwt", { session: false }),
   getEventPayment
+);
+router.get(
+  "/get-course-event-by-id/:id",
+  passport.authenticate("jwt", { session: false }),
+  getCourseEventById
 );
 router.get(
   "/get-teacher-payment",
@@ -327,6 +352,17 @@ router.put(
   "/edit-user-profile/:id",
   passport.authenticate("jwt", { session: false }),
   editUserProfile
+);
+router.get(
+  "/is-identification-image-uploaded/:id",
+  passport.authenticate("jwt", { session: false }),
+  isIdentificationImageUploaded
+);
+router.put(
+  "/edit-user-identification-image/:id",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  editUserIdentificationImage
 );
 router.put(
   "/edit-profile-pic/:id",
@@ -591,7 +627,16 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   updateTeamMember
 );
-
+router.delete(
+  "/delete-team-member",
+  passport.authenticate("jwt", { session: false }),
+  deleteTeamMember
+);
+router.delete(
+  "/delete-waiting-user",
+  passport.authenticate("jwt", { session: false }),
+  deleteWaitingUsers
+)
 router.get(
   "/get-teams-by-id/:id",
   passport.authenticate("jwt", { session: false }),
