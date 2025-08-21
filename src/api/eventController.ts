@@ -826,7 +826,18 @@ export const markAllNotificationAsRead: RequestHandler = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+export const getAllEventOrganizers: RequestHandler = async (req, res) => {
+  try {
+    const events = await models.Event.findAll();
+    const organizerIds = events?.map((event) => event.user_event_id || event.creatorId);
+    const organizers = await models.User.findAll({ where: { id: organizerIds } });
+    return res.status(200).json(organizers);
 
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
 export const joinEvent: RequestHandler = async (req, res, next) => {
   try {
     const userID: any = req.user;
@@ -1388,5 +1399,6 @@ export default {
   getCourseEventById,
   updateCourseEvent,
   deleteCourseEvent,
-  uploadCourseEvent
+  uploadCourseEvent,
+  getAllEventOrganizers,
 };
