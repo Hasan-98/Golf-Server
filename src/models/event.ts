@@ -294,6 +294,14 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         field: "user_event_id",
       },
+      courseMode: {
+        type: DataTypes.STRING,
+        field: "course_mode",
+      },
+      selectedTemplateId: {
+        type: DataTypes.STRING,
+        field: "selected_template_id",
+      },
       // creatorId: {
       //   type: DataTypes.INTEGER,
       //   field: "creator_id",

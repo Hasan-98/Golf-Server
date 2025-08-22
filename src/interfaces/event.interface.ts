@@ -48,4 +48,6 @@ export interface IEventAttributes {
     creatorId?: any;
     privatePassword?: string;
     isPublic?: boolean;
+    courseMode?: string;
+    selectedTemplateId?: string;
 }
