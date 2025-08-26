@@ -39,7 +39,9 @@ import {
   addEventCeremonyDetails,
   getCeremonyDetails,
   verifyEventPrivatePassword,
-  getCourseEventById
+  getCourseEventById,
+  getCourseEvents,
+  createCourseEvent
 } from "../api/eventController";
 import {
   addComment,
@@ -387,6 +389,9 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getAllPostsOfUser
 )
+router.post("/create-course-event", createCourseEvent);
+router.get("/get-course-event-by-id/:id", getCourseEventById);
+router.get("/get-course-events", getCourseEvents);
 router.get(
   "/getAllEvents",
   passport.authenticate("jwt", { session: false }),
