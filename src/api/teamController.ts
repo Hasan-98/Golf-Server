@@ -74,7 +74,8 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
     const userEventStatuses: any = await models.UserEvent.findAll({
       where: {
         user_id: { [Op.in]: Array.from(userIds) },
-        event_id: id
+        event_id: id,
+        status: 'joined'
       },
       attributes: ['user_id', 'status']
     });
