@@ -778,22 +778,22 @@ export const updateNotificationResponse: RequestHandler = async (req, res) => {
 export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    let waitingUsers: IUserEventAttributes[] = await models.UserEvent.findAll({
-      where: { event_id: id, status: "waiting" },
-    });
+    // let waitingUsers: IUserEventAttributes[] = await models.UserEvent.findAll({
+    //   where: { event_id: id, status: "waiting" },
+    // });
 
     let joinedUsers: IUserEventAttributes[] = await models.UserEvent.findAll({
       where: { event_id: id, status: "joined" },
     });
 
-    waitingUsers = JSON.parse(JSON.stringify(waitingUsers));
+    //waitingUsers = JSON.parse(JSON.stringify(waitingUsers));
     joinedUsers = JSON.parse(JSON.stringify(joinedUsers));
-    const waitingUserIds = waitingUsers?.map((user) => user.user_id);
+    //const waitingUserIds = waitingUsers?.map((user) => user.user_id);
     const joinedUserIds = joinedUsers?.map((user) => user.user_id);
-    const waitingUsersDetails = await models.User.findAll({
-      where: { id: waitingUserIds },
-      attributes: ["id", "nickName", "imageUrl", "memberFullName", "memberTelPhone", "memberEmailAddress", "memberHandicap"],
-    });
+    //const waitingUsersDetails = await models.User.findAll({
+    //  where: { id: waitingUserIds },
+    //  attributes: ["id", "nickName", "imageUrl", "memberFullName", "memberTelPhone", "memberEmailAddress", "memberHandicap"],
+    //});
 
     const joinedUsersDetails = await models.User.findAll({
       where: { id: joinedUserIds },
@@ -801,8 +801,8 @@ export const getJoinedAndWaitList: RequestHandler = async (req, res) => {
     });
 
     res.json({
-      waitingCount: waitingUsers.length,
-      waitingUsers: waitingUsersDetails,
+      // waitingCount: waitingUsers.length,
+      // waitingUsers: waitingUsersDetails,
       joinedCount: joinedUsers.length,
       joinedUsers: joinedUsersDetails,
     });
@@ -1271,7 +1271,6 @@ export const getCourseEvents: RequestHandler = async (req, res, next) => {
       .json({ error: "Cannot get course events at the moment" });
   }
 };
-
 export const getCourseEventById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
