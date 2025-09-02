@@ -71,7 +71,8 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
 
     const userIds = new Set(teams.flatMap((team: any) => team.members.map((member: any) => member.userId)));
 
-    const userEventStatuses: any = await models.UserEvent.findAll({
+    // Get only joined users for this event
+    const joinedUserEvents: any = await models.UserEvent.findAll({
       where: {
         user_id: { [Op.in]: Array.from(userIds) },
         event_id: id,
@@ -80,22 +81,26 @@ export const getTeamsByEvent: RequestHandler = async (req, res, next) => {
       attributes: ['user_id', 'status']
     });
 
-    const statusMap = new Map(userEventStatuses.map((ue: any) => [ue.user_id, ue.status]));
+    const joinedUserIds = new Set(joinedUserEvents.map((ue: any) => ue.user_id));
 
     let totalJoinedMembers = 0;
     teams = teams.map((team: any) => {
-      team.members = team.members.map((member: any) => {
-        member.nickName = member.users.nickName;
-        member.imageUrl = member.users.imageUrl;
-        member.memberFullName = member.users.memberFullName;
-        member.memberTelPhone = member.users.memberTelPhone;
-        member.memberEmailAddress = member.users.memberEmailAddress;
-        member.memberHandicap = member.users.memberHandicap;
-        member.status = statusMap.get(member.userId);
-        
-        delete member.users;
-        return member;
-      });
+      // Filter members to only include joined users
+      team.members = team.members
+        .filter((member: any) => joinedUserIds.has(member.userId))
+        .map((member: any) => {
+          member.nickName = member.users.nickName;
+          member.imageUrl = member.users.imageUrl;
+          member.memberFullName = member.users.memberFullName;
+          member.memberTelPhone = member.users.memberTelPhone;
+          member.memberEmailAddress = member.users.memberEmailAddress;
+          member.memberHandicap = member.users.memberHandicap;
+          member.status = 'joined'; // All filtered members are joined
+          
+          delete member.users;
+          return member;
+        });
+      
       team.membersCount = team.members.length;
       totalJoinedMembers += team.membersCount;
       return team;
