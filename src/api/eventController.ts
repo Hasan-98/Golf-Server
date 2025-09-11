@@ -61,10 +61,7 @@ export const createEvent: RequestHandler = async (req, res, next) => {
       capacity: membersPerTeam,
     });
 
-    const numberOfTeams =
-      eventData.capacity % eventData.teamSize === 0
-        ? eventData.teamSize
-        : eventData.teamSize + 1;
+    const numberOfTeams = Math.ceil(eventData.capacity / eventData.teamSize);
 
     for (let i = 0; i < numberOfTeams; i++) {
       await models.Team.create({
